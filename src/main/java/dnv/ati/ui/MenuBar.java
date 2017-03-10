@@ -54,8 +54,27 @@ public class MenuBar extends JMenuBar {
 		add(fileMenu);
 		
 		JMenu editionMenu = new JMenu("Edicion");
+		
 		JMenuItem grayScale = new JMenuItem("Escala de grises");
-		grayScale.addActionListener(null);
+		grayScale.addActionListener(e -> canvas.setImage(ImageUtils.grayScale()));
+		editionMenu.add(grayScale);
+		
+		JMenu colorScaleMenu = new JMenu("Escala de colores");
+		
+		JMenuItem redScale = new JMenuItem("Rojo de base");
+		redScale.addActionListener(e -> canvas.setImage(ImageUtils.colorScale(0)));
+		colorScaleMenu.add(redScale);
+		
+		JMenuItem greenScale = new JMenuItem("Verde de base");
+		greenScale.addActionListener(e -> canvas.setImage(ImageUtils.colorScale(1)));
+		colorScaleMenu.add(greenScale);
+		
+		JMenuItem blueScale = new JMenuItem("Azul de base");
+		blueScale.addActionListener(e -> canvas.setImage(ImageUtils.colorScale(2)));
+		colorScaleMenu.add(blueScale);
+		
+		editionMenu.add(colorScaleMenu);
+		add(editionMenu);
 	}
 	
 	

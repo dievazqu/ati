@@ -12,6 +12,46 @@ import dnv.ati.model.Image;
 
 public class ImageUtils {
 
+	public static Image grayScale(){
+		int size = 512;
+		Image img = new Image(size, size);
+		for(int i=0; i<size; i++){
+			for(int j=0; j<size; j++){
+				img.setGrayColor(i, j, j/2);
+			}
+		}
+		return img;
+	}
+	
+	public static Image colorScale(int colorCase){
+		int size = 512;
+		Image img = new Image(size, size);
+		for(int i=0; i<size; i++){
+			for(int j=0; j<size; j++){
+				switch (colorCase) {
+				case 0:
+					img.setOnlyRColor(i, j, 192);
+					img.setOnlyGColor(i, j, Math.abs(i-size/2));
+					img.setOnlyBColor(i, j, Math.abs(j-size/2));
+					break;
+				case 1:
+					img.setOnlyRColor(i, j, Math.abs(i-size/2));
+					img.setOnlyGColor(i, j, 192);
+					img.setOnlyBColor(i, j, Math.abs(j-size/2));
+					break;
+				case 2:
+					img.setOnlyRColor(i, j, Math.abs(i-size/2));
+					img.setOnlyGColor(i, j, Math.abs(j-size/2));
+					img.setOnlyBColor(i, j, 192);
+				default:
+					break;
+				}
+				
+			}
+		}
+		return img;
+	}
+	
 	public static Image readFromRAW(File file, int width, int height) {
 		try{
 			DataInputStream dis = new DataInputStream(new FileInputStream(file));
