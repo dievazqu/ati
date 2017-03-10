@@ -1,21 +1,14 @@
 package dnv.ati.model;
 
+import java.awt.Point;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class State {
 
 	private static State instance;
 	private Image image;
-	private List<ImageChangedListener> imageChangedListeners;
-	
-	public static interface ImageChangedListener{
-		public void onImageChange();
-	}
-	
-	public void addImageChangedListener(ImageChangedListener listener){
-		imageChangedListeners.add(listener);
-	}
 	
 	public Image getImage() {
 		return image;
@@ -23,17 +16,7 @@ public class State {
 	
 	public void setImage(Image image) {
 		this.image = image;
-		notifyImageChanged();
-	}
-	
-	public void notifyImageChanged(){
-		for (ImageChangedListener imageChangedListener : imageChangedListeners) {
-			imageChangedListener.onImageChange();
-		}
-	}
-	
-	private State(){
-		imageChangedListeners = new LinkedList<ImageChangedListener>();
+		notifyImageChanged(image);
 	}
 	
 	public static State getInstance(){
@@ -41,6 +24,48 @@ public class State {
 			instance = new State();
 		}
 		return instance;
+	}
+	
+	/* ------------------ Listeners --------------*/
+	
+	private List<ImageChangedListener> imageChangedListeners;
+	private OnClickListener onUniqueClickListener;
+	
+	private State(){
+		imageChangedListeners = new LinkedList<ImageChangedListener>();
+		onUniqueClickListener = null;
+	}
+	
+	public static interface ImageChangedListener{
+		public void onImageChange(Image image);
+	}
+	
+	public void addImageChangedListener(ImageChangedListener listener){
+		imageChangedListeners.add(listener);
+	}
+	
+	public void notifyImageChanged(Image image){
+		for (ImageChangedListener imageChangedListener : imageChangedListeners) {
+			imageChangedListener.onImageChange(image);
+		}
+	}
+	
+	public static interface OnClickListener{
+		public void onClick(Point click);
+	}
+	
+	public void addUniqueOnClickListener(OnClickListener listener){
+		onUniqueClickListener = listener;
+	}
+	
+	/**
+	 * Notifies and remove observers.
+	 */
+	public void notifyUniqueOnClick(Point click){
+		if(onUniqueClickListener != null){
+			onUniqueClickListener.onClick(click);
+			onUniqueClickListener = null;
+		}
 	}
 	
 }

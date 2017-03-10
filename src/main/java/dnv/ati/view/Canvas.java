@@ -20,16 +20,16 @@ public class Canvas extends JPanel implements ImageChangedListener{
 	JLabel imageLabel;
 	
 	public Canvas() {
-	//	addMouseListener(mouseListener);
 		imageLabel = new JLabel();
+		imageLabel.addMouseListener(mouseListener);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(imageLabel);
 		State.getInstance().addImageChangedListener(this);
 	}
 	
 	@Override
-	public void onImageChange() {
-		setImage(State.getInstance().getImage());
+	public void onImageChange(Image image) {
+		setImage(image);
 	}
 	
 	private void setImage(Image img) {
@@ -40,7 +40,6 @@ public class Canvas extends JPanel implements ImageChangedListener{
 			// no podia hacer que funcione el scrollable Panel. 
 			imageLabel.setIcon(new ImageIcon(img.toBufferedImage()));
 		}
-		//imageLabel.addMouseListener(mouseListener);
 		repaint();
 	}
 	
@@ -79,8 +78,10 @@ public class Canvas extends JPanel implements ImageChangedListener{
 		
 		@Override
 		public void mouseClicked(MouseEvent arg0) {
-			mouseClick = new Point(arg0.getX(), arg0.getY());
-			repaint();
+			State state = State.getInstance();
+			if(state.getImage() != null){
+				state.notifyUniqueOnClick(arg0.getPoint());
+			}
 		}
 	};
 	

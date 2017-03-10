@@ -2,6 +2,7 @@ package dnv.ati.model;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import dnv.ati.util.ConversionUtils;
@@ -84,4 +85,5 @@ public class Image {
 	public int getWidth() {
 		return width;
 	}
+
 }

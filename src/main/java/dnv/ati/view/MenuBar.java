@@ -1,5 +1,6 @@
 package dnv.ati.view;
 
+import java.awt.Cursor;
 import java.io.File;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -18,12 +19,12 @@ import dnv.ati.util.ImageUtils;
 
 public class MenuBar extends JMenuBar {
 
-	public MenuBar(){
+	public MenuBar() {
 		JMenu fileMenu = new JMenu("Archivo");
 		JMenuItem menuItem = new JMenuItem("Nueva Ventana");
 		menuItem.addActionListener(e -> new AppFrame());
 		fileMenu.add(menuItem);
-		
+
 		JMenu loadMenu = new JMenu("Cargar Imagen");
 		menuItem = new JMenuItem("Cargar desde .raw");
 		menuItem.addActionListener(e -> new LoadRAWFrame());
@@ -37,7 +38,7 @@ public class MenuBar extends JMenuBar {
 		menuItem = new JMenuItem("Cargar desde .bmp");
 		menuItem.addActionListener(e -> loadImage(ImageUtils::readFromBPM));
 		loadMenu.add(menuItem);
-		
+
 		JMenu saveMenu = new JMenu("Guardar Imagen");
 		menuItem = new JMenuItem("Guardar en .raw");
 		menuItem.addActionListener(e -> saveImage(ImageUtils::saveInRAW));
@@ -51,63 +52,84 @@ public class MenuBar extends JMenuBar {
 		menuItem = new JMenuItem("Guardar en .bmp");
 		menuItem.addActionListener(e -> saveImage(ImageUtils::saveInBMP));
 		saveMenu.add(menuItem);
-		
-		
+
 		fileMenu.add(loadMenu);
 		fileMenu.add(saveMenu);
 		add(fileMenu);
-		
-		
-		JMenu editionMenu = new JMenu("Edicion");
-		JMenuItem selectPixel = new JMenuItem("Seleccion de pixel");
-		selectPixel.addActionListener(e -> { 
-			if(State.getInstance().getImage()!=null)
-				new SelectPixelFrame();
+
+		JMenu selectionMenu = new JMenu("Selecciones");
+		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
+		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");
+		selectPixelByKey.addActionListener(e -> {
+			new SelectPixelFrame();
 		});
-		editionMenu.add(selectPixel);
-		add(editionMenu);
-		
+		selectPixelMenu.add(selectPixelByKey);
+		JMenuItem selectPixelByMouse = new JMenuItem("Por mouse");
+		selectPixelByMouse.addActionListener(e -> {
+			State.getInstance().addUniqueOnClickListener(p -> {
+				Image img = State.getInstance().getImage();
+				if (img != null) {
+					new SelectPixelFrame(p);
+				}
+			});
+		});
+		selectPixelMenu.add(selectPixelByMouse);
+		selectionMenu.add(selectPixelMenu);
+
+		JMenu selectRectMenu = new JMenu("Seleccion de rectangulo");
+		JMenuItem selectRectByKey = new JMenuItem("Por teclado");
+		selectRectMenu.add(selectRectByKey);
+		JMenuItem selectRectByMouse = new JMenuItem("Por mouse");
+		selectRectMenu.add(selectRectByMouse);
+		selectionMenu.add(selectRectMenu);
+		add(selectionMenu);
+
 		JMenu custumImagesMenu = new JMenu("Imagenes creadas");
-		
+
 		JMenuItem grayScale = new JMenuItem("Escala de grises");
-		grayScale.addActionListener(e -> State.getInstance().setImage(ImageUtils.grayScale()));
+		grayScale.addActionListener(e -> State.getInstance().setImage(
+				ImageUtils.grayScale()));
 		custumImagesMenu.add(grayScale);
-		
+
 		JMenu colorScaleMenu = new JMenu("Escala de colores");
-		
+
 		JMenuItem redScale = new JMenuItem("Rojo de base");
-		redScale.addActionListener(e -> State.getInstance().setImage(ImageUtils.colorScale(0)));
+		redScale.addActionListener(e -> State.getInstance().setImage(
+				ImageUtils.colorScale(0)));
 		colorScaleMenu.add(redScale);
-		
+
 		JMenuItem greenScale = new JMenuItem("Verde de base");
-		greenScale.addActionListener(e -> State.getInstance().setImage(ImageUtils.colorScale(1)));
+		greenScale.addActionListener(e -> State.getInstance().setImage(
+				ImageUtils.colorScale(1)));
 		colorScaleMenu.add(greenScale);
-		
+
 		JMenuItem blueScale = new JMenuItem("Azul de base");
-		blueScale.addActionListener(e -> State.getInstance().setImage(ImageUtils.colorScale(2)));
+		blueScale.addActionListener(e -> State.getInstance().setImage(
+				ImageUtils.colorScale(2)));
 		colorScaleMenu.add(blueScale);
-		
+
 		custumImagesMenu.add(colorScaleMenu);
 		add(custumImagesMenu);
 	}
-	
-	
-	private void loadImage(Function<File, Image> imageConverter){
+
+	private void loadImage(Function<File, Image> imageConverter) {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File("./images"));
 		fileChooser.showDialog(null, "Cargar Imagen");
 		if (fileChooser.getSelectedFile() != null) {
-			State.getInstance().setImage(imageConverter.apply(fileChooser.getSelectedFile()));
+			State.getInstance().setImage(
+					imageConverter.apply(fileChooser.getSelectedFile()));
 		}
 	}
-	
-	private void saveImage(BiConsumer<File, Image> imageConverter){
+
+	private void saveImage(BiConsumer<File, Image> imageConverter) {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File("./images"));
 		fileChooser.showDialog(null, "Guardar Imagen");
 		if (fileChooser.getSelectedFile() != null) {
-			imageConverter.accept(fileChooser.getSelectedFile(), State.getInstance().getImage());
+			imageConverter.accept(fileChooser.getSelectedFile(), State
+					.getInstance().getImage());
 		}
 	}
-	
+
 }

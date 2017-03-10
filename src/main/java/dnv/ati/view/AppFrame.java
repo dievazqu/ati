@@ -1,5 +1,8 @@
 package dnv.ati.view;
 
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
@@ -23,7 +26,5 @@ public class AppFrame extends JFrame{
 		
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
 	}
-	
 }
