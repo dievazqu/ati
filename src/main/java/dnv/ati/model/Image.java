@@ -22,22 +22,31 @@ public class Image {
 		data[i][j][1] = value;
 		data[i][j][2] = value;
 	}
+	
+	public int getGray(int i, int j){
+		double sum = 0;
+		int k;
+		for(k=0; k<data[0][0].length; k++){
+			sum+=data[i][j][k];
+		}
+		return (int)(sum/k); 
+	}
 
-	public void setRGBColor(int i, int j, int rgb) {
+	public void setRGB(int i, int j, int rgb) {
 		data[i][j][0] = (rgb & 0x0FF0000) >> 16;
 		data[i][j][1] = (rgb & 0x000FF00) >> 8;
 		data[i][j][2] = (rgb & 0x00000FF);
 	}
 
-	public void setOnlyRColor(int i, int j, double value) {
+	public void setOnlyR(int i, int j, double value) {
 		data[i][j][0] = value;
 	}
 
-	public void setOnlyGColor(int i, int j, double value) {
+	public void setOnlyG(int i, int j, double value) {
 		data[i][j][1] = value;
 	}
 
-	public void setOnlyBColor(int i, int j, double value) {
+	public void setOnlyB(int i, int j, double value) {
 		data[i][j][2] = value;
 	}
 

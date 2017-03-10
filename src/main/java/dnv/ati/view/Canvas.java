@@ -1,4 +1,4 @@
-package dnv.ati.ui;
+package dnv.ati.view;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -27,11 +27,18 @@ public class Canvas extends JPanel{
 	}
 	
 	public void setImage(Image img) {
-		
-		imageLabel.setIcon(new ImageIcon(img.toBufferedImage()));
+		if(img==null){
+			imageLabel.setIcon(null);
+		}else{
+			imageLabel.setIcon(new ImageIcon(img.toBufferedImage()));
+		}
 		//imageLabel.addMouseListener(mouseListener);
 		image = img;
 		repaint();
+	}
+	
+	public Image getImage(){
+		return image;
 	}
 	
 	@Override

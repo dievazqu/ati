@@ -2,8 +2,10 @@ package dnv.ati.util;
 
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -30,19 +32,19 @@ public class ImageUtils {
 			for(int j=0; j<size; j++){
 				switch (colorCase) {
 				case 0:
-					img.setOnlyRColor(i, j, 192);
-					img.setOnlyGColor(i, j, Math.abs(i-size/2));
-					img.setOnlyBColor(i, j, Math.abs(j-size/2));
+					img.setOnlyR(i, j, 192);
+					img.setOnlyG(i, j, Math.abs(i-size/2));
+					img.setOnlyB(i, j, Math.abs(j-size/2));
 					break;
 				case 1:
-					img.setOnlyRColor(i, j, Math.abs(i-size/2));
-					img.setOnlyGColor(i, j, 192);
-					img.setOnlyBColor(i, j, Math.abs(j-size/2));
+					img.setOnlyR(i, j, Math.abs(i-size/2));
+					img.setOnlyG(i, j, 192);
+					img.setOnlyB(i, j, Math.abs(j-size/2));
 					break;
 				case 2:
-					img.setOnlyRColor(i, j, Math.abs(i-size/2));
-					img.setOnlyGColor(i, j, Math.abs(j-size/2));
-					img.setOnlyBColor(i, j, 192);
+					img.setOnlyR(i, j, Math.abs(i-size/2));
+					img.setOnlyG(i, j, Math.abs(j-size/2));
+					img.setOnlyB(i, j, 192);
 				default:
 					break;
 				}
@@ -129,9 +131,9 @@ public class ImageUtils {
 						// TODO: Here we need to read two bytes to get the value
 						return null;
 					} else {
-						img.setOnlyRColor(i, j, dis.readByte() * 256.0 / maxValue);
-						img.setOnlyGColor(i, j, dis.readByte() * 256.0 / maxValue);
-						img.setOnlyBColor(i, j, dis.readByte() * 256.0 / maxValue);
+						img.setOnlyR(i, j, dis.readByte() * 256.0 / maxValue);
+						img.setOnlyG(i, j, dis.readByte() * 256.0 / maxValue);
+						img.setOnlyB(i, j, dis.readByte() * 256.0 / maxValue);
 					}
 				}
 			}
@@ -172,9 +174,69 @@ public class ImageUtils {
 		for (int i = 0; i < img.getHeight(); i++) {
 			for (int j = 0; j < img.getWidth(); j++) {
 				int rgb = bi.getRGB(j, i);
-				img.setRGBColor(i, j, rgb);
+				img.setRGB(i, j, rgb);
 			}
 		}
 		return img;
+	}
+
+	public static void saveInRAW(File file, Image image) {
+		try{
+			DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
+			int width = image.getWidth();
+			int height = image.getHeight();
+			for(int i=0; i<height; i++){
+				for(int j=0; j<width; j++){
+					dos.write(image.getGray(j, i));
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static void saveInPGM(File file, Image image) {
+		try{
+			DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
+			int width = image.getWidth();
+			int height = image.getHeight();
+			dos.writeBytes("P5\n");
+			dos.writeBytes(String.valueOf(width)+" "+String.valueOf(height)+"\n255\n");
+			for(int i=0; i<height; i++){
+				for(int j=0; j<width; j++){
+					dos.write(image.getGray(j, i));
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static void saveInPPM(File file, Image image) {
+		try{
+			DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
+			int width = image.getWidth();
+			int height = image.getHeight();
+			dos.writeBytes("P6\n");
+			dos.writeBytes(String.valueOf(width)+" "+String.valueOf(height)+"\n255\n");
+			for(int i=0; i<height; i++){
+				for(int j=0; j<width; j++){
+					int rgb = image.getRGB(j, i);
+					dos.write( (rgb & 0x0FF0000) >> 16);
+					dos.write( (rgb & 0x000FF00) >> 8);
+					dos.write( (rgb & 0x00000FF));
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	public static void saveInBMP(File file, Image image) {
+		try{
+			ImageIO.write(image.toBufferedImage(), "bmp", file);
+		}catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 }

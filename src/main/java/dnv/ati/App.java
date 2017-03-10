@@ -7,7 +7,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
-import dnv.ati.ui.Window;
+import dnv.ati.view.Window;
 
 
 

@@ -1,4 +1,4 @@
-package dnv.ati.ui;
+package dnv.ati.view;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;

@@ -1,6 +1,7 @@
-package dnv.ati.ui;
+package dnv.ati.view;
 
 import java.io.File;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import javax.swing.JButton;
@@ -34,18 +35,22 @@ public class MenuBar extends JMenuBar {
 		menuItem = new JMenuItem("Cargar desde .ppm");
 		menuItem.addActionListener(e -> loadImage(ImageUtils::readFromPPM));
 		loadMenu.add(menuItem);
-		menuItem = new JMenuItem("Cargar desde .bpm");
+		menuItem = new JMenuItem("Cargar desde .bmp");
 		menuItem.addActionListener(e -> loadImage(ImageUtils::readFromBPM));
 		loadMenu.add(menuItem);
 		
 		JMenu saveMenu = new JMenu("Guardar Imagen");
 		menuItem = new JMenuItem("Guardar en .raw");
+		menuItem.addActionListener(e -> saveImage(ImageUtils::saveInRAW));
 		saveMenu.add(menuItem);
 		menuItem = new JMenuItem("Guardar en .pgm");
+		menuItem.addActionListener(e -> saveImage(ImageUtils::saveInPGM));
 		saveMenu.add(menuItem);
 		menuItem = new JMenuItem("Guardar en .ppm");
+		menuItem.addActionListener(e -> saveImage(ImageUtils::saveInPPM));
 		saveMenu.add(menuItem);
-		menuItem = new JMenuItem("Guardar en .bpm");
+		menuItem = new JMenuItem("Guardar en .bmp");
+		menuItem.addActionListener(e -> saveImage(ImageUtils::saveInBMP));
 		saveMenu.add(menuItem);
 		
 		
@@ -119,9 +124,18 @@ public class MenuBar extends JMenuBar {
 	private void loadImage(Function<File, Image> imageConverter){
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File("./images"));
-		fileChooser.showDialog(null, "Load File");
+		fileChooser.showDialog(null, "Cargar Imagen");
 		if (fileChooser.getSelectedFile() != null) {
 				canvas.setImage(imageConverter.apply(fileChooser.getSelectedFile()));
+		}
+	}
+	
+	private void saveImage(BiConsumer<File, Image> imageConverter){
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File("./images"));
+		fileChooser.showDialog(null, "Guardar Imagen");
+		if (fileChooser.getSelectedFile() != null) {
+			imageConverter.accept(fileChooser.getSelectedFile(), canvas.getImage());
 		}
 	}
 	
