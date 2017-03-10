@@ -1,6 +1,5 @@
 package dnv.ati.view;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -12,10 +11,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import dnv.ati.model.Image;
+import dnv.ati.model.State;
+import dnv.ati.model.State.ImageChangedListener;
 
-public class Canvas extends JPanel{
+public class Canvas extends JPanel implements ImageChangedListener{
 
-	Image image;
 	Point mouseClick;
 	JLabel imageLabel;
 	
@@ -24,38 +24,30 @@ public class Canvas extends JPanel{
 		imageLabel = new JLabel();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(imageLabel);
+		State.getInstance().addImageChangedListener(this);
 	}
 	
-	public void setImage(Image img) {
+	@Override
+	public void onImageChange() {
+		setImage(State.getInstance().getImage());
+	}
+	
+	private void setImage(Image img) {
 		if(img==null){
 			imageLabel.setIcon(null);
 		}else{
+			// Esto puede ser ineficiente, pero sin la label
+			// no podia hacer que funcione el scrollable Panel. 
 			imageLabel.setIcon(new ImageIcon(img.toBufferedImage()));
 		}
 		//imageLabel.addMouseListener(mouseListener);
-		image = img;
 		repaint();
-	}
-	
-	public Image getImage(){
-		return image;
 	}
 	
 	@Override
 	public void paint(Graphics g) {
 		// TODO Auto-generated method stub
 		super.paint(g);
-		if (image != null){
-		//	image.draw(g, 0, 0);
-			if(mouseClick != null){
-				try{
-					g.setColor(new Color(image.getRGB(mouseClick.x, mouseClick.y)));
-					g.fillRect(600, 100, 100, 100);
-				}catch(ArrayIndexOutOfBoundsException e){
-					//TODO: Maybe we can check before
-				}
-			}
-		}
 	}
 	
 	
