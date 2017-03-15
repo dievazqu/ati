@@ -15,6 +15,7 @@ import javax.swing.JTextField;
 
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
+import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
 
 public class MenuBar extends JMenuBar {
@@ -66,12 +67,7 @@ public class MenuBar extends JMenuBar {
 		selectPixelMenu.add(selectPixelByKey);
 		JMenuItem selectPixelByMouse = new JMenuItem("Por mouse");
 		selectPixelByMouse.addActionListener(e -> {
-			State.getInstance().addUniqueOnClickListener(p -> {
-				Image img = State.getInstance().getImage();
-				if (img != null) {
-					new SelectPixelFrame(p);
-				}
-			});
+			State.getInstance().setStatus(Status.SELECTING_PIXEL);
 		});
 		selectPixelMenu.add(selectPixelByMouse);
 		selectionMenu.add(selectPixelMenu);
@@ -80,6 +76,9 @@ public class MenuBar extends JMenuBar {
 		JMenuItem selectRectByKey = new JMenuItem("Por teclado");
 		selectRectMenu.add(selectRectByKey);
 		JMenuItem selectRectByMouse = new JMenuItem("Por mouse");
+		selectRectByMouse.addActionListener(e -> {
+			State.getInstance().setStatus(Status.SELECTING_RECT);
+		});
 		selectRectMenu.add(selectRectByMouse);
 		selectionMenu.add(selectRectMenu);
 		add(selectionMenu);
