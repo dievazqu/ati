@@ -3,12 +3,18 @@ package dnv.ati.view;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.beans.PropertyChangeListener;
 
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
@@ -17,20 +23,21 @@ import dnv.ati.util.ConversionUtils;
 public class SelectPixelFrame extends JFrame {
 
 	public SelectPixelPanel panel;
+	private State state;
 	
-	public SelectPixelFrame(Point click){
-		this();
+	public SelectPixelFrame(State state, Point click){
+		this(state);
 		panel.xPositionText.setText(String.valueOf(click.x));
 		panel.yPositionText.setText(String.valueOf(click.y));
 		panel.selectPixel();
 	}
 	
-	public SelectPixelFrame(){
+	public SelectPixelFrame(State state){
 		super("Seleccion de pixel");
-		setSize(450, 350);
+		setSize(500, 400);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		panel = new SelectPixelPanel();
+		panel = new SelectPixelPanel(state);
 		add(panel);
 	}
 	
@@ -39,11 +46,13 @@ public class SelectPixelFrame extends JFrame {
 		private Point pixelSelected;
 		private JFormattedTextField xPositionText;
 		private JFormattedTextField yPositionText;
-		private JFormattedTextField rValueText;
-		private JFormattedTextField gValueText;
-		private JFormattedTextField bValueText;
+		private JSlider rValueSlider;
+		private JSlider gValueSlider;
+		private JSlider bValueSlider;
+		private State state;
 		
-		public SelectPixelPanel(){
+		public SelectPixelPanel(State state){
+			this.state = state;
 			setLayout(null);
 			JLabel positionLabel = new JLabel("Posicion del pixel seleccionado (x,y):");
 			positionLabel.setBounds(20, 20, 300, 20);
@@ -63,17 +72,20 @@ public class SelectPixelFrame extends JFrame {
 			JLabel valueLabel = new JLabel("Valor del pixel seleccionado (r,g,b):");
 			valueLabel.setBounds(20, 160, 300, 20);
 			add(valueLabel);
-			rValueText = new JFormattedTextField(new Integer(-1));
-			rValueText.setBounds(40, 190, 40, 30);
-			add(rValueText);
-			gValueText = new JFormattedTextField(new Integer(-1));
-			gValueText.setBounds(100, 190, 40, 30);
-			add(gValueText);
-			bValueText = new JFormattedTextField(new Integer(-1));
-			bValueText.setBounds(160, 190, 40, 30);
-			add(bValueText);
+			rValueSlider = new JSlider(0, 255);
+			rValueSlider.setBounds(30, 190, 160, 20);
+			rValueSlider.addChangeListener(e -> repaint());
+			add(rValueSlider);
+			gValueSlider = new JSlider(0, 255);
+			gValueSlider.setBounds(30, 220, 160, 20);
+			gValueSlider.addChangeListener(e -> repaint());
+			add(gValueSlider);
+			bValueSlider = new JSlider(0, 255);
+			bValueSlider.setBounds(30, 250, 160, 20);
+			bValueSlider.addChangeListener(e -> repaint());
+			add(bValueSlider);
 			JButton editPixelButton = new JButton("Modificar Pixel");
-			editPixelButton.setBounds(20, 240, 200, 30);
+			editPixelButton.setBounds(20, 280, 200, 30);
 			editPixelButton.addActionListener(ee -> {
 				try{
 					if(pixelSelected!=null){
@@ -93,36 +105,53 @@ public class SelectPixelFrame extends JFrame {
 				}
 			});
 			add(selectPixelButton);
+			
+			JLabel colorLabel = new JLabel("Color del pixel seleccionado:");
+			colorLabel.setBounds(280, 20, 200, 20);
+			add(colorLabel);
+			
+			JLabel nextColorLabel = new JLabel("Nuevo color del pixel:");
+			nextColorLabel.setBounds(300, 160, 200, 20);
+			add(nextColorLabel);
 		}
 		
 		private void selectPixel(){
 			int x = Integer.parseInt(xPositionText.getText());
 			int y = Integer.parseInt(yPositionText.getText());
-			int rgb = State.getInstance().getImage().getRGB(y, x);
+			int rgb = state.getImage().getRGB(y, x);
 			pixelSelected = new Point(x,y);
-			rValueText.setText(String.valueOf((rgb & 0x0FF0000) >> 16));
-			gValueText.setText(String.valueOf((rgb & 0x000FF00) >> 8));
-			bValueText.setText(String.valueOf( (rgb & 0x00000FF)));
+			rValueSlider.setValue((rgb & 0x0FF0000) >> 16);
+			gValueSlider.setValue((rgb & 0x000FF00) >> 8);
+			bValueSlider.setValue((rgb & 0x00000FF));
 			repaint();
 		}
 		
 		private void editPixel(){
-			Image img = State.getInstance().getImage();
-			int r = Integer.parseInt(rValueText.getText());
-			int g = Integer.parseInt(gValueText.getText());
-			int b = Integer.parseInt(bValueText.getText());
+			Image img = state.getImage();
+			int r = rValueSlider.getValue();
+			int g = gValueSlider.getValue();
+			int b = bValueSlider.getValue();
 			img.setRGB(pixelSelected.y, pixelSelected.x, ConversionUtils.doubleToRGBInt(r, g, b));
-			State.getInstance().notifyImageChanged(img);
+			state.notifyImageChanged(img);
 			repaint();
 		}
 		
 		@Override
-		public void paint(Graphics g) {
-			super.paint(g);
+		public void paint(Graphics gg) {
+			super.paint(gg);
 			if(pixelSelected!=null){
-				Image img = State.getInstance().getImage();
-				g.setColor(new Color(img.getRGB(pixelSelected.y, pixelSelected.x)));
-				g.fillRect(330, 20, 40, 40);
+				Image img = state.getImage();
+				gg.setColor(new Color(img.getRGB(pixelSelected.y, pixelSelected.x)));
+				gg.fillRect(340, 50, 40, 40);
+				gg.setColor(Color.BLACK);
+				int r = rValueSlider.getValue();
+				gg.drawString(String.valueOf(r), 200, 200);
+				int g = gValueSlider.getValue();
+				gg.drawString(String.valueOf(g), 200, 230);
+				int b = bValueSlider.getValue();
+				gg.drawString(String.valueOf(b), 200, 260);
+				gg.setColor(new Color(ConversionUtils.doubleToRGBInt(r, g, b)));
+				gg.fillRect(340, 190, 40, 40);
 			}
 		}
 	}

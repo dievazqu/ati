@@ -5,7 +5,6 @@ import java.util.List;
 
 public class State {
 
-	private static State instance;
 	private Image image;
 	private Status status;
 	
@@ -26,19 +25,13 @@ public class State {
 		notifyImageChanged(image);
 	}
 	
-	public static State getInstance(){
-		if(instance==null){
-			instance = new State();
-		}
-		return instance;
-	}
-	
 	/* ------------------ Listeners --------------*/
 	
 	private List<ImageChangedListener> imageChangedListeners;
 	
-	private State(){
+	public State(){
 		imageChangedListeners = new LinkedList<ImageChangedListener>();
+		status = Status.STAND_BY;
 	}
 	
 	public static interface ImageChangedListener{

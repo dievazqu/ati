@@ -2,7 +2,6 @@ package dnv.ati.model;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 
 import dnv.ati.util.ConversionUtils;
@@ -84,6 +83,19 @@ public class Image {
 	
 	public int getWidth() {
 		return width;
+	}
+
+	public Image copy(int x1, int y1, int x2, int y2) {
+		if(x2>=width || y2>=height || x1<0 || y1<0 || x2<x1 || y2<y1){
+			throw new IllegalArgumentException();
+		}
+		Image img = new Image(x2-x1+1, y2-y1+1);
+		for(int x=x1; x<=x2; x++){
+			for(int y=y1; y<=y2; y++){
+				img.setRGB(y-y1, x-x1, getRGB(y, x));
+			}
+		}
+		return img;
 	}
 
 }

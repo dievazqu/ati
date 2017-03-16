@@ -18,19 +18,23 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.model.State.ImageChangedListener;
 import dnv.ati.model.Status;
+import dnv.ati.util.Auxiliar;
+import dnv.ati.util.ConversionUtils;
 
 public class Canvas extends JPanel implements ImageChangedListener{
 
-	Point mouseClick;
-	JLabel imageLabel;
+	private Point mouseClick;
+	private JLabel imageLabel;
+	private State state;
 	
-	public Canvas() {
+	public Canvas(State state) {
+		this.state = state;
 		imageLabel = new JLabel();
 		imageLabel.addMouseMotionListener(mouseListener);
 		imageLabel.addMouseListener(mouseListener);
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		add(imageLabel);
-		State.getInstance().addImageChangedListener(this);
+		state.addImageChangedListener(this);
 	}
 	
 	@Override
@@ -56,12 +60,11 @@ public class Canvas extends JPanel implements ImageChangedListener{
 		if (startDragginPoint!=null && currentDragPoint != null){
 			
 			g.setColor(Color.black);
-			int minx = (int)Math.min(startDragginPoint.getX(), currentDragPoint.getX());
-			int maxx = (int)Math.max(startDragginPoint.getX(), currentDragPoint.getX());
-			int miny = (int)Math.min(startDragginPoint.getY(), currentDragPoint.getY());
-			int maxy = (int)Math.max(startDragginPoint.getY(), currentDragPoint.getY());
+			Auxiliar.sortPoint((p,q) -> {
+				g.drawRect(p.x, p.y, q.x-p.x, q.y-p.y);	
+			}, startDragginPoint, currentDragPoint);
 
-			g.drawRect(minx, miny, maxx-minx, maxy-miny);
+			
 		}
 	}
 	
@@ -74,7 +77,10 @@ public class Canvas extends JPanel implements ImageChangedListener{
 	
 	public void finishDragging(Point finish){
 		// Do Things
+		state.setStatus(Status.STAND_BY);
+		new SelectRectFrame(state, startDragginPoint, currentDragPoint);
 		startDragginPoint = null;
+		repaint();
 	}
 	
 	private MouseInputListener mouseListener = new MouseInputListener() {
@@ -87,7 +93,6 @@ public class Canvas extends JPanel implements ImageChangedListener{
 		@Override
 		public void mouseDragged(MouseEvent arg0) {
 			// TODO Auto-generated method stub
-			State state = State.getInstance();
 			if(state.getStatus()==Status.SELECTING_RECT){
 				if(startDragginPoint == null)
 					draggingFrom(arg0.getPoint());
@@ -98,10 +103,9 @@ public class Canvas extends JPanel implements ImageChangedListener{
 		
 		@Override
 		public void mouseReleased(MouseEvent arg0) {
-			State state = State.getInstance();
 			if(state.getStatus() == Status.SELECTING_PIXEL){
-				//state.setStatus(Status.STAND_BY);
-				new SelectPixelFrame(arg0.getPoint());
+				new SelectPixelFrame(state, arg0.getPoint());
+				state.setStatus(Status.STAND_BY);
 			}
 			if(state.getStatus() == Status.SELECTING_RECT && startDragginPoint!=null){
 				finishDragging(arg0.getPoint());

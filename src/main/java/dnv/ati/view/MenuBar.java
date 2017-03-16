@@ -20,7 +20,10 @@ import dnv.ati.util.ImageUtils;
 
 public class MenuBar extends JMenuBar {
 
-	public MenuBar() {
+	private State state;
+	
+	public MenuBar(State state) {
+		this.state = state;
 		JMenu fileMenu = new JMenu("Archivo");
 		JMenuItem menuItem = new JMenuItem("Nueva Ventana");
 		menuItem.addActionListener(e -> new AppFrame());
@@ -28,7 +31,7 @@ public class MenuBar extends JMenuBar {
 
 		JMenu loadMenu = new JMenu("Cargar Imagen");
 		menuItem = new JMenuItem("Cargar desde .raw");
-		menuItem.addActionListener(e -> new LoadRAWFrame());
+		menuItem.addActionListener(e -> new LoadRAWFrame(state));
 		loadMenu.add(menuItem);
 		menuItem = new JMenuItem("Cargar desde .pgm");
 		menuItem.addActionListener(e -> loadImage(ImageUtils::readFromPGM));
@@ -62,22 +65,25 @@ public class MenuBar extends JMenuBar {
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");
 		selectPixelByKey.addActionListener(e -> {
-			new SelectPixelFrame();
+			new SelectPixelFrame(state);
 		});
 		selectPixelMenu.add(selectPixelByKey);
 		JMenuItem selectPixelByMouse = new JMenuItem("Por mouse");
 		selectPixelByMouse.addActionListener(e -> {
-			State.getInstance().setStatus(Status.SELECTING_PIXEL);
+			state.setStatus(Status.SELECTING_PIXEL);
 		});
 		selectPixelMenu.add(selectPixelByMouse);
 		selectionMenu.add(selectPixelMenu);
 
 		JMenu selectRectMenu = new JMenu("Seleccion de rectangulo");
 		JMenuItem selectRectByKey = new JMenuItem("Por teclado");
+		selectRectByKey.addActionListener(e -> {
+			new SelectRectFrame(state);
+		});
 		selectRectMenu.add(selectRectByKey);
 		JMenuItem selectRectByMouse = new JMenuItem("Por mouse");
 		selectRectByMouse.addActionListener(e -> {
-			State.getInstance().setStatus(Status.SELECTING_RECT);
+			state.setStatus(Status.SELECTING_RECT);
 		});
 		selectRectMenu.add(selectRectByMouse);
 		selectionMenu.add(selectRectMenu);
@@ -86,24 +92,24 @@ public class MenuBar extends JMenuBar {
 		JMenu custumImagesMenu = new JMenu("Imagenes creadas");
 
 		JMenuItem grayScale = new JMenuItem("Escala de grises");
-		grayScale.addActionListener(e -> State.getInstance().setImage(
+		grayScale.addActionListener(e -> state.setImage(
 				ImageUtils.grayScale()));
 		custumImagesMenu.add(grayScale);
 
 		JMenu colorScaleMenu = new JMenu("Escala de colores");
 
 		JMenuItem redScale = new JMenuItem("Rojo de base");
-		redScale.addActionListener(e -> State.getInstance().setImage(
+		redScale.addActionListener(e -> state.setImage(
 				ImageUtils.colorScale(0)));
 		colorScaleMenu.add(redScale);
 
 		JMenuItem greenScale = new JMenuItem("Verde de base");
-		greenScale.addActionListener(e -> State.getInstance().setImage(
+		greenScale.addActionListener(e -> state.setImage(
 				ImageUtils.colorScale(1)));
 		colorScaleMenu.add(greenScale);
 
 		JMenuItem blueScale = new JMenuItem("Azul de base");
-		blueScale.addActionListener(e -> State.getInstance().setImage(
+		blueScale.addActionListener(e -> state.setImage(
 				ImageUtils.colorScale(2)));
 		colorScaleMenu.add(blueScale);
 
@@ -116,7 +122,7 @@ public class MenuBar extends JMenuBar {
 		fileChooser.setCurrentDirectory(new File("./images"));
 		fileChooser.showDialog(null, "Cargar Imagen");
 		if (fileChooser.getSelectedFile() != null) {
-			State.getInstance().setImage(
+			state.setImage(
 					imageConverter.apply(fileChooser.getSelectedFile()));
 		}
 	}
@@ -126,8 +132,7 @@ public class MenuBar extends JMenuBar {
 		fileChooser.setCurrentDirectory(new File("./images"));
 		fileChooser.showDialog(null, "Guardar Imagen");
 		if (fileChooser.getSelectedFile() != null) {
-			imageConverter.accept(fileChooser.getSelectedFile(), State
-					.getInstance().getImage());
+			imageConverter.accept(fileChooser.getSelectedFile(), state.getImage());
 		}
 	}
 

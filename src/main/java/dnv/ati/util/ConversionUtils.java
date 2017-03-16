@@ -1,5 +1,6 @@
 package dnv.ati.util;
 
+
 public class ConversionUtils {
 
 	
@@ -9,4 +10,6 @@ public class ConversionUtils {
 		int b = ((int)db) & 0xFF;
 		return (r<<16)+(g<<8)+b;
 	}
+	
+	
 }

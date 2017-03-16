@@ -13,9 +13,11 @@ import dnv.ati.util.ImageUtils;
 
 public class LoadRAWFrame extends JFrame{
 
+	private State state;
 	
-	public LoadRAWFrame(){
+	public LoadRAWFrame(State state){
 		super("Seleccione tamaño del .raw");
+		this.state = state;
 		setSize(400, 170);
 		setLocationRelativeTo(null);
 		setLayout(null);
@@ -39,7 +41,7 @@ public class LoadRAWFrame extends JFrame{
 			fileChooser.setCurrentDirectory(new File("./images"));
 			fileChooser.showDialog(null, "Load File");
 			if (fileChooser.getSelectedFile() != null) {
-				State.getInstance().setImage(ImageUtils.readFromRAW(fileChooser.getSelectedFile(), width, height));
+				state.setImage(ImageUtils.readFromRAW(fileChooser.getSelectedFile(), width, height));
 			}
 			dispose();
 		});
