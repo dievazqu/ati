@@ -3,6 +3,7 @@ package dnv.ati.model;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.function.BiFunction;
 
 import dnv.ati.util.ConversionUtils;
 
@@ -23,13 +24,13 @@ public class Image {
 		data[i][j][2] = value;
 	}
 	
-	public int getGray(int i, int j){
+	public double getGray(int i, int j){
 		double sum = 0;
 		int k;
 		for(k=0; k<data[0][0].length; k++){
 			sum+=data[i][j][k];
 		}
-		return (int)(sum/k); 
+		return (sum/k); 
 	}
 
 	public void setRGB(int i, int j, int rgb) {
@@ -38,6 +39,18 @@ public class Image {
 		data[i][j][2] = (rgb & 0x00000FF);
 	}
 
+	public double getOnlyR(int i, int j) {
+		return data[i][j][0];
+	}
+	
+	public double getOnlyG(int i, int j) {
+		return data[i][j][1];
+	}
+	
+	public double getOnlyB(int i, int j) {
+		return data[i][j][2];
+	}
+	
 	public void setOnlyR(int i, int j, double value) {
 		data[i][j][0] = value;
 	}
@@ -97,5 +110,33 @@ public class Image {
 		}
 		return img;
 	}
+	
+	private double average(BiFunction<Integer, Integer, Double> f, int x1, int y1, int x2, int y2){
+		if(x2>=width || y2>=height || x1<0 || y1<0 || x2<x1 || y2<y1){
+			throw new IllegalArgumentException();
+		}
+		double sum = 0;
+		for(int x=x1; x<=x2; x++){
+			for(int y=y1; y<=y2; y++){
+				sum+=f.apply(y, x);
+			}
+		}
+		return sum / ((x2-x1+1)*(y2-y1+1));
+	}
 
+	public double averageGray(int x1, int y1, int x2, int y2) {
+		return average(this::getGray, x1, y1, x2, y2);
+	}
+	
+	public double averageR(int x1, int y1, int x2, int y2) {
+		return average(this::getOnlyR, x1, y1, x2, y2);
+	}
+	
+	public double averageG(int x1, int y1, int x2, int y2) {
+		return average(this::getOnlyG, x1, y1, x2, y2);
+	}
+	
+	public double averageB(int x1, int y1, int x2, int y2) {
+		return average(this::getOnlyB, x1, y1, x2, y2);
+	}
 }

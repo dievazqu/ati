@@ -187,7 +187,7 @@ public class ImageUtils {
 			int height = image.getHeight();
 			for(int i=0; i<height; i++){
 				for(int j=0; j<width; j++){
-					dos.write(image.getGray(j, i));
+					dos.write((int)image.getGray(j, i));
 				}
 			}
 		}catch(Exception e){
@@ -204,7 +204,7 @@ public class ImageUtils {
 			dos.writeBytes(String.valueOf(width)+" "+String.valueOf(height)+"\n255\n");
 			for(int i=0; i<height; i++){
 				for(int j=0; j<width; j++){
-					dos.write(image.getGray(j, i));
+					dos.write((int)image.getGray(j, i));
 				}
 			}
 		}catch(Exception e){
@@ -238,5 +238,45 @@ public class ImageUtils {
 		}catch(IOException e){
 			e.printStackTrace();
 		}
+	}
+	
+	public static Image redFilter(Image image){
+		Image img = new Image(image.getWidth(), image.getHeight());
+		for(int i=0; i<image.getHeight(); i++){
+			for(int j=0; j<image.getWidth(); j++){
+				img.setOnlyR(i, j, image.getOnlyR(i, j));
+			}
+		}
+		return img;
+	}
+	
+	public static Image greenFilter(Image image){
+		Image img = new Image(image.getWidth(), image.getHeight());
+		for(int i=0; i<image.getHeight(); i++){
+			for(int j=0; j<image.getWidth(); j++){
+				img.setOnlyG(i, j, image.getOnlyG(i, j));
+			}
+		}
+		return img;
+	}
+	
+	public static Image blueFilter(Image image){
+		Image img = new Image(image.getWidth(), image.getHeight());
+		for(int i=0; i<image.getHeight(); i++){
+			for(int j=0; j<image.getWidth(); j++){
+				img.setOnlyB(i, j, image.getOnlyB(i, j));
+			}
+		}
+		return img;
+	}
+	
+	public static Image grayFilter(Image image){
+		Image img = new Image(image.getWidth(), image.getHeight());
+		for(int i=0; i<image.getHeight(); i++){
+			for(int j=0; j<image.getWidth(); j++){
+				img.setGrayColor(i, j, image.getGray(i, j));
+			}
+		}
+		return img;
 	}
 }

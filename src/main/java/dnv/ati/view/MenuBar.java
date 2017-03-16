@@ -89,12 +89,12 @@ public class MenuBar extends JMenuBar {
 		selectionMenu.add(selectRectMenu);
 		add(selectionMenu);
 
-		JMenu custumImagesMenu = new JMenu("Imagenes creadas");
+		JMenu customImagesMenu = new JMenu("Imagenes creadas");
 
 		JMenuItem grayScale = new JMenuItem("Escala de grises");
 		grayScale.addActionListener(e -> state.setImage(
 				ImageUtils.grayScale()));
-		custumImagesMenu.add(grayScale);
+		customImagesMenu.add(grayScale);
 
 		JMenu colorScaleMenu = new JMenu("Escala de colores");
 
@@ -113,8 +113,27 @@ public class MenuBar extends JMenuBar {
 				ImageUtils.colorScale(2)));
 		colorScaleMenu.add(blueScale);
 
-		custumImagesMenu.add(colorScaleMenu);
-		add(custumImagesMenu);
+		customImagesMenu.add(colorScaleMenu);
+		add(customImagesMenu);
+		
+		JMenu filterMenu = new JMenu("Filtros");
+		JMenuItem colorFilter = new JMenuItem("Color");
+		colorFilter.addActionListener(e->state.setImageFilter(null));
+		filterMenu.add(colorFilter);
+		JMenuItem redFilter = new JMenuItem("Solo rojo");
+		redFilter.addActionListener(e->state.setImageFilter(ImageUtils::redFilter));
+		filterMenu.add(redFilter);
+		JMenuItem greenFilter = new JMenuItem("Solo verde");
+		greenFilter.addActionListener(e->state.setImageFilter(ImageUtils::greenFilter));
+		filterMenu.add(greenFilter);
+		JMenuItem blueFilter = new JMenuItem("Solo azul");
+		blueFilter.addActionListener(e->state.setImageFilter(ImageUtils::blueFilter));
+		filterMenu.add(blueFilter);
+		JMenuItem grayFilter = new JMenuItem("Grises");
+		grayFilter.addActionListener(e->state.setImageFilter(ImageUtils::grayFilter));
+		filterMenu.add(grayFilter);
+		add(filterMenu);
+		
 	}
 
 	private void loadImage(Function<File, Image> imageConverter) {

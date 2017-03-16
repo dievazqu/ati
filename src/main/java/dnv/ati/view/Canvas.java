@@ -48,7 +48,7 @@ public class Canvas extends JPanel implements ImageChangedListener{
 		}else{
 			// Esto puede ser ineficiente, pero sin la label
 			// no podia hacer que funcione el scrollable Panel. 
-			imageLabel.setIcon(new ImageIcon(img.toBufferedImage()));
+			imageLabel.setIcon(new ImageIcon(state.filter(img).toBufferedImage()));
 		}
 		repaint();
 	}

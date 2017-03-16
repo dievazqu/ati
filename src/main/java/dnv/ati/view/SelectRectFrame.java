@@ -1,6 +1,7 @@
 package dnv.ati.view;
 
 import java.awt.Point;
+import java.util.function.BiConsumer;
 
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
@@ -8,8 +9,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.util.Auxiliar;
+
 
 public class SelectRectFrame extends JFrame {
 
@@ -77,8 +80,30 @@ public class SelectRectFrame extends JFrame {
 				}
 			});
 			add(openNewImageButton);
+			
+			JButton averageButton = new JButton("Calcular promedios");
+			averageButton.setBounds(20, 150, 200, 30);
+			averageButton.addActionListener(e -> {
+				fromPoints((p,q) -> {
+					Image img = state.getImage();
+					Auxiliar.sortPoint((p1, p2) ->{
+						//TODO: Mostrar los promedios en el frame.
+						System.out.println(img.averageR(p1.x, p1.y, p2.x, p2.y));
+						System.out.println(img.averageG(p1.x, p1.y, p2.x, p2.y));
+						System.out.println(img.averageB(p1.x, p1.y, p2.x, p2.y));
+						System.out.println(img.averageGray(p1.x, p1.y, p2.x, p2.y));
+					}, p, q);	
+				});
+			});
+			add(averageButton);
 		}
-		
+		private void fromPoints(BiConsumer<Point, Point> consumer){
+			int xi = Integer.parseInt(xiPositionText.getText());
+			int yi = Integer.parseInt(yiPositionText.getText());
+			int xf = Integer.parseInt(xfPositionText.getText());
+			int yf = Integer.parseInt(yfPositionText.getText());
+			consumer.accept(new Point(xi, yi), new Point(xf, yf));
+		}
 		
 		
 		

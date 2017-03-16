@@ -3,10 +3,11 @@ package dnv.ati.model;
 import java.util.LinkedList;
 import java.util.List;
 
-public class State {
+public class State implements ImageFilter{
 
 	private Image image;
 	private Status status;
+	private ImageFilter imageFilter; 
 	
 	public void setStatus(Status status) {
 		this.status = status;
@@ -23,6 +24,22 @@ public class State {
 	public void setImage(Image image) {
 		this.image = image;
 		notifyImageChanged(image);
+	}
+	
+	public ImageFilter getImageFilter() {
+		return imageFilter;
+	}
+	
+	public void setImageFilter(ImageFilter imageFilter) {
+		this.imageFilter = imageFilter;
+		notifyImageChanged(image);
+	}
+	
+	@Override
+	public Image filter(Image img) {
+		if(imageFilter == null)
+			return img;
+		return imageFilter.filter(img);
 	}
 	
 	/* ------------------ Listeners --------------*/
