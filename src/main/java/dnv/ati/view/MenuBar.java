@@ -1,6 +1,7 @@
 package dnv.ati.view;
 
 import java.awt.Cursor;
+import java.awt.Font;
 import java.io.File;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -21,6 +22,7 @@ import dnv.ati.util.ImageUtils;
 public class MenuBar extends JMenuBar {
 
 	private State state;
+	JMenuItem activeFilterItem;
 	
 	public MenuBar(State state) {
 		this.state = state;
@@ -117,22 +119,55 @@ public class MenuBar extends JMenuBar {
 		add(customImagesMenu);
 		
 		JMenu filterMenu = new JMenu("Filtros");
-		JMenuItem colorFilter = new JMenuItem("Color");
-		colorFilter.addActionListener(e->state.setImageFilter(null));
-		filterMenu.add(colorFilter);
-		JMenuItem redFilter = new JMenuItem("Solo rojo");
-		redFilter.addActionListener(e->state.setImageFilter(ImageUtils::redFilter));
+		JMenuItem noFilter = new JMenuItem("Sin Filtro");
+		activeFilterItem = noFilter;
+		noFilter.setEnabled(false);
+		noFilter.addActionListener(e->{
+			activeFilterItem.setEnabled(true); 
+			state.setImageFilter(null);
+			activeFilterItem = noFilter;
+			activeFilterItem.setEnabled(false);	
+		});
+		filterMenu.add(noFilter);
+		JMenuItem redFilter = new JMenuItem("Solo Rojo");
+		redFilter.addActionListener(e->{
+			activeFilterItem.setEnabled(true); 
+			state.setImageFilter(ImageUtils::redFilter);
+			activeFilterItem = redFilter;
+			activeFilterItem.setEnabled(false);
+		});
 		filterMenu.add(redFilter);
-		JMenuItem greenFilter = new JMenuItem("Solo verde");
-		greenFilter.addActionListener(e->state.setImageFilter(ImageUtils::greenFilter));
+		JMenuItem greenFilter = new JMenuItem("Solo Verde");
+		greenFilter.addActionListener(e-> {
+			activeFilterItem.setEnabled(true); 
+			state.setImageFilter(ImageUtils::greenFilter);
+			activeFilterItem = greenFilter;
+			activeFilterItem.setEnabled(false);
+		});
 		filterMenu.add(greenFilter);
-		JMenuItem blueFilter = new JMenuItem("Solo azul");
-		blueFilter.addActionListener(e->state.setImageFilter(ImageUtils::blueFilter));
+		JMenuItem blueFilter = new JMenuItem("Solo Azul");
+		blueFilter.addActionListener(e->{
+			activeFilterItem.setEnabled(true); 
+			state.setImageFilter(ImageUtils::blueFilter);
+			activeFilterItem = blueFilter;
+			activeFilterItem.setEnabled(false);
+		});
 		filterMenu.add(blueFilter);
 		JMenuItem grayFilter = new JMenuItem("Grises");
-		grayFilter.addActionListener(e->state.setImageFilter(ImageUtils::grayFilter));
+		grayFilter.addActionListener(e->{
+			activeFilterItem.setEnabled(true); 
+			state.setImageFilter(ImageUtils::grayFilter);
+			activeFilterItem = grayFilter;
+			activeFilterItem.setEnabled(false);	
+		});
 		filterMenu.add(grayFilter);
 		add(filterMenu);
+		
+		JMenu zoomMenu = new JMenu("Zoom");
+		JMenuItem zoomX2 = new JMenuItem("X2");
+		zoomX2.addActionListener(e->state.setImageFilter(ImageUtils::zoomX2));
+		zoomMenu.add(zoomX2);
+		//add(zoomMenu);
 		
 	}
 

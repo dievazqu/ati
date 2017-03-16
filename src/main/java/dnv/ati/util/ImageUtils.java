@@ -240,6 +240,21 @@ public class ImageUtils {
 		}
 	}
 	
+	public static Image zoomX2(Image image){
+		Image img = new Image(image.getWidth()/2, image.getHeight()/2);
+		for(int i=0; i<image.getHeight()/2; i++){
+			for(int j=0; j<image.getWidth()/2; j++){
+				double red = (image.getOnlyR(i*2, j*2)+image.getOnlyR(i*2, j*2+1)+image.getOnlyR(i*2+1, j*2)+image.getOnlyR(i*2+1, j*2+1))/4;
+				img.setOnlyR(i, j, red);
+				double green = (image.getOnlyG(i*2, j*2)+image.getOnlyG(i*2, j*2+1)+image.getOnlyG(i*2+1, j*2)+image.getOnlyG(i*2+1, j*2+1))/4;
+				img.setOnlyG(i, j, green);
+				double blue = (image.getOnlyB(i*2, j*2)+image.getOnlyB(i*2, j*2+1)+image.getOnlyB(i*2+1, j*2)+image.getOnlyB(i*2+1, j*2+1))/4;
+				img.setOnlyB(i, j, blue);				
+			}
+		}
+		return img;
+	}
+	
 	public static Image redFilter(Image image){
 		Image img = new Image(image.getWidth(), image.getHeight());
 		for(int i=0; i<image.getHeight(); i++){
