@@ -82,6 +82,13 @@ public class MenuBar extends JMenuBar {
 		});
 		editionMenu.add(prodByScalarItem);
 		
+		JMenuItem gammaPoweItem = new JMenuItem("Potencia Gamma");
+		gammaPoweItem.addActionListener(l -> {
+			new GammaPowerFrame(state);
+			
+		});
+		editionMenu.add(gammaPoweItem);
+		
 		JMenuItem normalizeItem = new JMenuItem("Normalizar");
 		normalizeItem.addActionListener(l -> {
 			Image img = state.getImage();

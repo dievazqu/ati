@@ -156,6 +156,18 @@ public class Image {
 		return average(this::getOnlyB, x1, y1, x2, y2);
 	}
 	
+	public void gammaPower(double gamma){
+		double c = Math.pow(255.0, 1-gamma);
+		for(int k=0; k<data[0][0].length; k++){
+			for(int i=0; i<data.length; i++){
+				for(int j=0; j<data[0].length; j++){
+					data[i][j][k] = c * Math.pow(data[i][j][k], gamma);
+				}
+			}
+		}
+		
+	}
+	
 	public void prodByScalar(double scalar){
 		for(int k=0; k<data[0][0].length; k++){
 			for(int i=0; i<data.length; i++){
