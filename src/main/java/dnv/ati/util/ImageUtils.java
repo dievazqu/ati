@@ -311,4 +311,38 @@ public class ImageUtils {
 		ansImage.normalize();
 		return ansImage;
 	}
+	
+	public static Image diffImage(Image img1, Image img2){
+		int maxWidth = Math.max(img1.getWidth(), img2.getWidth());
+		int maxHeight = Math.max(img1.getHeight(), img2.getHeight());
+		Image ansImage = new Image(maxWidth, maxHeight);
+		for(int k=0; k<3; k++){
+			for(int i=0; i<maxHeight; i++){
+				for(int j=0; j<maxWidth; j++){
+					double pixelSum = img1.getDataValue(i, j, k) - img2.getDataValue(i, j, k);
+					ansImage.setDataValue(i, j, k, pixelSum);
+				}
+			}
+		}
+		ansImage.normalize();
+		return ansImage;
+	}
+	
+	public static Image prodImage(Image img1, Image img2){
+		int maxWidth = Math.max(img1.getWidth(), img2.getWidth());
+		int maxHeight = Math.max(img1.getHeight(), img2.getHeight());
+		Image ansImage = new Image(maxWidth, maxHeight);
+		for(int k=0; k<3; k++){
+			for(int i=0; i<maxHeight; i++){
+				for(int j=0; j<maxWidth; j++){
+					double pixelSum = img1.getDataValue(i, j, k) * img2.getDataValue(i, j, k);
+					ansImage.setDataValue(i, j, k, pixelSum);
+				}
+			}
+		}
+		ansImage.normalize();
+		return ansImage;
+	}
+	
+	
 }

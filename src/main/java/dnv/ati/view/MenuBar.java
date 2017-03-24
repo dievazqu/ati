@@ -2,7 +2,6 @@ package dnv.ati.view;
 
 import java.io.File;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -61,7 +60,27 @@ public class MenuBar extends JMenuBar {
 					ImageUtils.sumImage(state.getImage(), img)));
 		});
 		operationImageMenu.add(imageSum);
+		
+		JMenuItem imageDiff = new JMenuItem("Restar Imagen");
+		imageDiff.addActionListener(l -> {
+			ImageLoader.loadImage(img -> state.setImage(
+					ImageUtils.diffImage(state.getImage(), img)));
+		});
+		operationImageMenu.add(imageDiff);
+		
+		JMenuItem imageProd = new JMenuItem("Producto de Imagen");
+		imageProd.addActionListener(l -> {
+			ImageLoader.loadImage(img -> state.setImage(
+					ImageUtils.prodImage(state.getImage(), img)));
+		});
+		operationImageMenu.add(imageProd);
 		editionMenu.add(operationImageMenu);
+		
+		JMenuItem prodByScalarItem = new JMenuItem("Producto por escalar");
+		prodByScalarItem.addActionListener(l -> {
+			new ProdByScalarFrame(state);
+		});
+		editionMenu.add(prodByScalarItem);
 		
 		JMenuItem normalizeItem = new JMenuItem("Normalizar");
 		normalizeItem.addActionListener(l -> {
@@ -70,6 +89,15 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		editionMenu.add(normalizeItem);
+		
+		JMenuItem dynamicRangeItem = new JMenuItem("Rango Dinamico");
+		dynamicRangeItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.dynamicRange();
+			state.setImage(img);
+		});
+		editionMenu.add(dynamicRangeItem);
+		
 		add(editionMenu);
 		
 		JMenu selectionMenu = new JMenu("Selecciones");

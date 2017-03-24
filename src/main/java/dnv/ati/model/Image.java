@@ -156,6 +156,17 @@ public class Image {
 		return average(this::getOnlyB, x1, y1, x2, y2);
 	}
 	
+	public void prodByScalar(double scalar){
+		for(int k=0; k<data[0][0].length; k++){
+			for(int i=0; i<data.length; i++){
+				for(int j=0; j<data[0].length; j++){
+					data[i][j][k]*=scalar;
+				}
+			}
+		}
+		dynamicRange();
+	}
+	
 	public void normalize(){
 		for(int k=0; k<data[0][0].length; k++){
 			double min = data[0][0][k];
@@ -169,6 +180,23 @@ public class Image {
 			for(int i=0; i<data.length; i++){
 				for(int j=0; j<data[0].length; j++){
 					data[i][j][k] = (data[i][j][k] - min) * 255.0 / (double)(max-min) ;
+				}
+			}
+		}
+	}
+	
+	public void dynamicRange(){
+		for(int k=0; k<data[0][0].length; k++){
+			double max = data[0][0][k];
+			for(int i=0; i<data.length; i++){
+				for(int j=0; j<data[0].length; j++){
+					max = Math.max(max, data[i][j][k]);
+				}
+			}
+			double c = 255.0 / Math.log(1+max);
+			for(int i=0; i<data.length; i++){
+				for(int j=0; j<data[0].length; j++){
+					data[i][j][k] = c * Math.log(1+data[i][j][k]);
 				}
 			}
 		}
