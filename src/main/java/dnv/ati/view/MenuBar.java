@@ -82,6 +82,14 @@ public class MenuBar extends JMenuBar {
 		});
 		editionMenu.add(prodByScalarItem);
 		
+		JMenuItem negativeItem = new JMenuItem("Negativo");
+		negativeItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.negative();
+			state.setImage(img);
+		});
+		editionMenu.add(negativeItem);
+		
 		JMenuItem gammaPoweItem = new JMenuItem("Potencia Gamma");
 		gammaPoweItem.addActionListener(l -> {
 			new GammaPowerFrame(state);

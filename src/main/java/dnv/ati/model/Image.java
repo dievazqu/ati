@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import dnv.ati.util.ConversionUtils;
 
@@ -156,26 +157,27 @@ public class Image {
 		return average(this::getOnlyB, x1, y1, x2, y2);
 	}
 	
-	public void gammaPower(double gamma){
-		double c = Math.pow(255.0, 1-gamma);
+	private void map(Function<Double, Double> fc){
 		for(int k=0; k<data[0][0].length; k++){
 			for(int i=0; i<data.length; i++){
 				for(int j=0; j<data[0].length; j++){
-					data[i][j][k] = c * Math.pow(data[i][j][k], gamma);
+					data[i][j][k] = fc.apply(data[i][j][k]);
 				}
 			}
 		}
-		
+	}
+	
+	public void negative(){
+		map(x -> 255 - x);
+	}
+	
+	public void gammaPower(double gamma){
+		double c = Math.pow(255.0, 1-gamma);
+		map(x -> c * Math.pow(x, gamma));
 	}
 	
 	public void prodByScalar(double scalar){
-		for(int k=0; k<data[0][0].length; k++){
-			for(int i=0; i<data.length; i++){
-				for(int j=0; j<data[0].length; j++){
-					data[i][j][k]*=scalar;
-				}
-			}
-		}
+		map(x -> x*scalar);
 		dynamicRange();
 	}
 	
