@@ -61,6 +61,7 @@ public class ImageUtils {
 			for (int i = 0; i < height; i++) {
 				for (int j = 0; j < width; j++) {
 					int gray = dis.readByte();
+					if(gray<0) gray+=256;
 					img.setGrayColor(i, j, gray);
 				}
 			}

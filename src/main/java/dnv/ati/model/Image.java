@@ -166,10 +166,9 @@ public class Image {
 					max = Math.max(max, data[i][j][k]);
 				}
 			}
-			System.out.println(min+" "+max);
 			for(int i=0; i<data.length; i++){
 				for(int j=0; j<data[0].length; j++){
-					data[i][j][k] = (data[i][j][k] - min) * 255.0 / (max-min) ;
+					data[i][j][k] = (data[i][j][k] - min) * 255.0 / (double)(max-min) ;
 				}
 			}
 		}
