@@ -1,23 +1,20 @@
 package dnv.ati.view;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
-import javax.swing.JTextField;
 
+import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.util.ImageUtils;
 
 public class LoadRAWFrame extends JFrame{
 
-	private State state;
-	
-	public LoadRAWFrame(State state){
+	public LoadRAWFrame(File file, Consumer<Image> consumer){
 		super("Seleccione tamaño del .raw");
-		this.state = state;
 		setSize(400, 170);
 		setLocationRelativeTo(null);
 		setLayout(null);
@@ -27,7 +24,7 @@ public class LoadRAWFrame extends JFrame{
 		JFormattedTextField heightText = new JFormattedTextField(new Integer(0));
 		heightText.setBounds(210, 20, 50, 30);
 		heightText.setToolTipText("El valor en pixeles del alto de la imagen a cargar");
-		JButton selectFileButton = new JButton("Seleccionar imagen");
+		JButton selectFileButton = new JButton("Cargar imagen");
 		selectFileButton.setBounds(110, 80, 170, 30);
 		selectFileButton.addActionListener(ee -> {
 			int width, height;
@@ -37,11 +34,8 @@ public class LoadRAWFrame extends JFrame{
 			}catch(Exception e){
 				return;
 			}
-			JFileChooser fileChooser = new JFileChooser();
-			fileChooser.setCurrentDirectory(new File("./images"));
-			fileChooser.showDialog(null, "Load File");
-			if (fileChooser.getSelectedFile() != null) {
-				state.setImage(ImageUtils.readFromRAW(fileChooser.getSelectedFile(), width, height));
+			if (file != null) {
+				consumer.accept(ImageUtils.readFromRAW(file, width, height));
 			}
 			dispose();
 		});

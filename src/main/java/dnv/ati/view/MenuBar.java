@@ -1,23 +1,19 @@
 package dnv.ati.view;
 
-import java.awt.Cursor;
-import java.awt.Font;
 import java.io.File;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JTextField;
 
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
+import dnv.ati.util.view.ImageLoader;
 
 public class MenuBar extends JMenuBar {
 
@@ -31,19 +27,13 @@ public class MenuBar extends JMenuBar {
 		menuItem.addActionListener(e -> new AppFrame());
 		fileMenu.add(menuItem);
 
-		JMenu loadMenu = new JMenu("Cargar Imagen");
-		menuItem = new JMenuItem("Cargar desde .raw");
-		menuItem.addActionListener(e -> new LoadRAWFrame(state));
-		loadMenu.add(menuItem);
-		menuItem = new JMenuItem("Cargar desde .pgm");
-		menuItem.addActionListener(e -> loadImage(ImageUtils::readFromPGM));
-		loadMenu.add(menuItem);
-		menuItem = new JMenuItem("Cargar desde .ppm");
-		menuItem.addActionListener(e -> loadImage(ImageUtils::readFromPPM));
-		loadMenu.add(menuItem);
-		menuItem = new JMenuItem("Cargar desde .bmp");
-		menuItem.addActionListener(e -> loadImage(ImageUtils::readFromBPM));
-		loadMenu.add(menuItem);
+		JMenuItem loadMenu = new JMenuItem("Cargar Imagen");
+		loadMenu.addActionListener(l -> {
+			ImageLoader.loadImage(img -> {
+				state.setImage(img);	
+			});
+		});
+		
 
 		JMenu saveMenu = new JMenu("Guardar Imagen");
 		menuItem = new JMenuItem("Guardar en .raw");
@@ -65,11 +55,23 @@ public class MenuBar extends JMenuBar {
 		
 		JMenu editionMenu = new JMenu("Edicion");
 		JMenu operationImageMenu = new JMenu("Operacion entre imagenes");
-		JMenuItem imageSum = new JMenu("Sumar Imagen");
-		
+		JMenuItem imageSum = new JMenuItem("Sumar Imagen");
+		imageSum.addActionListener(l -> {
+			ImageLoader.loadImage(img -> state.setImage(
+					ImageUtils.sumImage(state.getImage(), img)));
+		});
+		operationImageMenu.add(imageSum);
 		editionMenu.add(operationImageMenu);
+		
+		JMenuItem normalizeItem = new JMenuItem("Normalizar");
+		normalizeItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.normalize();
+			state.setImage(img);
+		});
+		editionMenu.add(normalizeItem);
 		add(editionMenu);
-
+		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");
@@ -172,18 +174,6 @@ public class MenuBar extends JMenuBar {
 		filterMenu.add(grayFilter);
 		add(viewMenu);
 		
-		
-		
-	}
-
-	private void loadImage(Function<File, Image> imageConverter) {
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(new File("./images"));
-		fileChooser.showDialog(null, "Cargar Imagen");
-		if (fileChooser.getSelectedFile() != null) {
-			state.setImage(
-					imageConverter.apply(fileChooser.getSelectedFile()));
-		}
 	}
 
 	private void saveImage(BiConsumer<File, Image> imageConverter) {

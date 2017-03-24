@@ -144,7 +144,7 @@ public class ImageUtils {
 		}
 	}
 
-	public static Image readFromBPM(File file) {
+	public static Image readFromBMP(File file) {
 		try {
 			return convert(ImageIO.read(file));
 		} catch (IOException ee) {
@@ -187,7 +187,7 @@ public class ImageUtils {
 			int height = image.getHeight();
 			for(int i=0; i<height; i++){
 				for(int j=0; j<width; j++){
-					dos.write((int)image.getGray(j, i));
+					dos.write((int)image.getGray(i, j));
 				}
 			}
 		}catch(Exception e){
@@ -204,7 +204,7 @@ public class ImageUtils {
 			dos.writeBytes(String.valueOf(width)+" "+String.valueOf(height)+"\n255\n");
 			for(int i=0; i<height; i++){
 				for(int j=0; j<width; j++){
-					dos.write((int)image.getGray(j, i));
+					dos.write((int)image.getGray(i, j));
 				}
 			}
 		}catch(Exception e){
@@ -221,7 +221,7 @@ public class ImageUtils {
 			dos.writeBytes(String.valueOf(width)+" "+String.valueOf(height)+"\n255\n");
 			for(int i=0; i<height; i++){
 				for(int j=0; j<width; j++){
-					int rgb = image.getRGB(j, i);
+					int rgb = image.getRGB(i, j);
 					dos.write( (rgb & 0x0FF0000) >> 16);
 					dos.write( (rgb & 0x000FF00) >> 8);
 					dos.write( (rgb & 0x00000FF));
