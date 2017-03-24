@@ -22,4 +22,5 @@ public class RandomGenerator {
 		return phi * Math.sqrt(-2 * Math.log(1 - random.nextDouble()));
 	}
 	
+	
 }

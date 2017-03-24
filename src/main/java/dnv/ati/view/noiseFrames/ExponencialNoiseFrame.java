@@ -35,6 +35,7 @@ public class ExponencialNoiseFrame extends JFrame {
 		JLabel lambdaLabel = new JLabel("Ingrese lambda:");
 		lambdaLabel.setBounds(20, 70, 100, 30);
 		JTextField lambdaTextField = new JTextField("5.0");
+		lambdaTextField.setToolTipText("Este valor va entre 5 y 10");
 		lambdaTextField.setBounds(30, 110, 60, 30);
 		add(lambdaLabel);
 		add(lambdaTextField);
