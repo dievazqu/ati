@@ -349,12 +349,32 @@ public class ImageUtils {
 		return ansImage;
 	}
 	
+	public static void saltAndPepperNoiseImage(Image img, double percentage, double p0, double p1){
+		if(p0<0 || 1<p1 || p1<=p0)
+			throw new IllegalArgumentException();
+		List<Point> points = new ArrayList<Point>();
+		for(int i=0; i<img.getWidth(); i++){
+			for(int j=0; j<img.getHeight(); j++){
+				points.add(new Point(i,j));
+			}
+		}
+		int total = img.getHeight()*img.getWidth();
+		Collections.shuffle(points);
+		for(int k=0; k<total*percentage; k++){
+			Point point = points.get(k);
+			double randomValue = RandomGenerator.generateUniformNumber(0, 1);
+			if(randomValue<=p0)
+				img.setGrayColor(point.y, point.x, 0);
+			if(randomValue>=p1)
+				img.setGrayColor(point.y, point.x, 255);
+		}
+	}
+	
 	public static Image exponencialNoiseImage(int width, int height, double percentage, double lambda){
 		return noisyImages(width, height, 1.0, percentage, () -> RandomGenerator.generateExponencialNumber(lambda));
 	}
 	
 	public static Image rayleighNoiseImage(int width, int height, double percentage, double phi){
-		System.out.println(percentage);
 		return noisyImages(width, height, 1.0, percentage, () -> RandomGenerator.generateRayleighNumber(phi));
 	}
 	
@@ -377,7 +397,6 @@ public class ImageUtils {
 			Point point = points.get(k);
 			img.setGrayColor(point.y, point.x, supplier.get());
 		}
-		System.out.println(total*percentage);
 		return img;
 	}
 	

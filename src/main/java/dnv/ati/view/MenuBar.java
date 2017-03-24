@@ -17,6 +17,7 @@ import dnv.ati.view.editionFrames.ProdByScalarFrame;
 import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
 import dnv.ati.view.noiseFrames.GaussianNoiseFrame;
 import dnv.ati.view.noiseFrames.RayleighNoiseFrame;
+import dnv.ati.view.noiseFrames.SaltAndPepperNoiseFrame;
 import dnv.ati.view.selectionFrames.SelectPixelFrame;
 import dnv.ati.view.selectionFrames.SelectRectFrame;
 import dnv.ati.view.util.ImageLoader;
@@ -137,6 +138,10 @@ public class MenuBar extends JMenuBar {
 		JMenuItem rayleighNoiseItem = new JMenuItem("Ruido de Rayleigh");
 		rayleighNoiseItem.addActionListener(l -> new RayleighNoiseFrame(state));
 		noiseGeneratorMenu.add(rayleighNoiseItem);
+		
+		JMenuItem saltAndPepperNoiseItem = new JMenuItem("Ruido \"sal y pimienta\"");
+		saltAndPepperNoiseItem.addActionListener(l -> new SaltAndPepperNoiseFrame(state));
+		noiseGeneratorMenu.add(saltAndPepperNoiseItem);
 		
 		add(editionMenu);
 		

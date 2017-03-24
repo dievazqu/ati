@@ -10,10 +10,10 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.util.ImageUtils;
 
-public class RayleighNoiseFrame extends JFrame {
+public class SaltAndPepperNoiseFrame extends JFrame {
 
-	public RayleighNoiseFrame(State state){
-		super("Ruido de Rayleigh");
+	public SaltAndPepperNoiseFrame(State state){
+		super("Ruido \"sal y pimienta\" (0<p0<p1<1)");
 		setSize(310, 230);
 		setLayout(null);
 		setLocationRelativeTo(null);
@@ -32,23 +32,28 @@ public class RayleighNoiseFrame extends JFrame {
 		add(slider);
 		
 		
-		JLabel phiLabel = new JLabel("Ingrese phi:");
-		phiLabel.setBounds(20, 70, 100, 30);
-		JTextField phiTextField = new JTextField("0.2");
-		phiTextField.setBounds(30, 110, 60, 30);
-		add(phiLabel);
-		add(phiTextField);
-		
+		JLabel p0Label = new JLabel("Ingrese p0:");
+		p0Label.setBounds(20, 70, 100, 30);
+		JTextField p0TextField = new JTextField("0.2");
+		p0TextField.setBounds(30, 110, 60, 30);
+		add(p0Label);
+		add(p0TextField);
+		JLabel p1Label = new JLabel("Ingrese p1:");
+		p1Label.setBounds(140, 70, 150, 30);
+		JTextField p1TextField = new JTextField("0.8");
+		p1TextField.setBounds(170, 110, 60, 30);
+		add(p1Label);
+		add(p1TextField);
 		JButton button = new JButton("Realizar operacion");
 		button.setBounds(40, 150, 180, 30);
 		add(button);
 		button.addActionListener(l -> {
 			double percentage = slider.getValue();
-			double phi = Double.parseDouble(phiTextField.getText());
+			double p0 = Double.parseDouble(p0TextField.getText());
+			double p1 = Double.parseDouble(p1TextField.getText());
 			Image img = state.getImage();
-			state.setImage(ImageUtils.prodImage(img, 
-					ImageUtils.rayleighNoiseImage(img.getWidth(), img.getHeight(),
-							percentage/100.0, phi)));
+			ImageUtils.saltAndPepperNoiseImage(img, percentage/100.0, p0, p1);
+			state.setImage(img);
 			dispose();
 		});
 	}
