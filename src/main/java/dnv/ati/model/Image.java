@@ -32,6 +32,22 @@ public class Image {
 		}
 		return (sum/k); 
 	}
+	
+	public int bands(){
+		return data[0][0].length;
+	}
+	
+	public double getDataValue(int i, int j, int k){
+		if(i<0 || i>=data.length || j<0 || j>=data[0].length
+				|| k<0 || k>=data[0][0].length){
+			return 0;
+		}
+		return data[i][j][k];
+	}
+	
+	public void setDataValue(int i, int j, int k, double value){
+		data[i][j][k] = value;
+	}
 
 	public void setRGB(int i, int j, int rgb) {
 		data[i][j][0] = (rgb & 0x0FF0000) >> 16;
@@ -139,4 +155,24 @@ public class Image {
 	public double averageB(int x1, int y1, int x2, int y2) {
 		return average(this::getOnlyB, x1, y1, x2, y2);
 	}
+	
+	public void normalize(){
+		for(int k=0; k<data[0][0].length; k++){
+			double min = data[0][0][k];
+			double max = data[0][0][k];
+			for(int i=0; i<data.length; i++){
+				for(int j=0; j<data[0].length; j++){
+					min = Math.min(min, data[i][j][k]);
+					max = Math.max(max, data[i][j][k]);
+				}
+			}
+			for(int i=0; i<data.length; i++){
+				for(int j=0; j<data[0].length; j++){
+					data[i][j][k] = (data[i][j][k] - min) * 255 / (max-min) ;
+				}
+			}
+		}
+	}
+	
+	
 }

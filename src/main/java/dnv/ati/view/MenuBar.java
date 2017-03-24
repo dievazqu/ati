@@ -62,6 +62,13 @@ public class MenuBar extends JMenuBar {
 		fileMenu.add(loadMenu);
 		fileMenu.add(saveMenu);
 		add(fileMenu);
+		
+		JMenu editionMenu = new JMenu("Edicion");
+		JMenu operationImageMenu = new JMenu("Operacion entre imagenes");
+		JMenuItem imageSum = new JMenu("Sumar Imagen");
+		
+		editionMenu.add(operationImageMenu);
+		add(editionMenu);
 
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
@@ -118,8 +125,10 @@ public class MenuBar extends JMenuBar {
 		customImagesMenu.add(colorScaleMenu);
 		add(customImagesMenu);
 		
-		JMenu filterMenu = new JMenu("Filtros");
-		JMenuItem noFilter = new JMenuItem("Sin Filtro");
+		JMenu viewMenu = new JMenu("Vista");
+		JMenu filterMenu = new JMenu("Banda mostrada");
+		viewMenu.add(filterMenu);
+		JMenuItem noFilter = new JMenuItem("RGB");
 		activeFilterItem = noFilter;
 		noFilter.setEnabled(false);
 		noFilter.addActionListener(e->{
@@ -161,13 +170,9 @@ public class MenuBar extends JMenuBar {
 			activeFilterItem.setEnabled(false);	
 		});
 		filterMenu.add(grayFilter);
-		add(filterMenu);
+		add(viewMenu);
 		
-		JMenu zoomMenu = new JMenu("Zoom");
-		JMenuItem zoomX2 = new JMenuItem("X2");
-		zoomX2.addActionListener(e->state.setImageFilter(ImageUtils::zoomX2));
-		zoomMenu.add(zoomX2);
-		//add(zoomMenu);
+		
 		
 	}
 
