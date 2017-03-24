@@ -20,6 +20,8 @@ import dnv.ati.model.State.ImageChangedListener;
 import dnv.ati.model.Status;
 import dnv.ati.util.Auxiliar;
 import dnv.ati.util.ConversionUtils;
+import dnv.ati.view.selectionFrames.SelectPixelFrame;
+import dnv.ati.view.selectionFrames.SelectRectFrame;
 
 public class Canvas extends JPanel implements ImageChangedListener{
 

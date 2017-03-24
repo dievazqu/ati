@@ -1,4 +1,4 @@
-package dnv.ati.view;
+package dnv.ati.view.selectionFrames;
 
 import java.awt.Point;
 import java.util.function.BiConsumer;
@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.util.Auxiliar;
+import dnv.ati.view.AppFrame;
 
 
 public class SelectRectFrame extends JFrame {

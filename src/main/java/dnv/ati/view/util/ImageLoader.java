@@ -1,4 +1,4 @@
-package dnv.ati.util.view;
+package dnv.ati.view.util;
 
 import java.io.File;
 import java.util.function.Consumer;
@@ -8,7 +8,6 @@ import javax.swing.JFileChooser;
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.util.ImageUtils;
-import dnv.ati.view.LoadRAWFrame;
 
 public class ImageLoader {
 

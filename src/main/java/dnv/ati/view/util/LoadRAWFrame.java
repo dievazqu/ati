@@ -1,4 +1,4 @@
-package dnv.ati.view;
+package dnv.ati.view.util;
 
 import java.io.File;
 import java.util.function.Consumer;

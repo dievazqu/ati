@@ -1,4 +1,4 @@
-package dnv.ati.view;
+package dnv.ati.view.selectionFrames;
 
 import java.awt.Color;
 import java.awt.Graphics;

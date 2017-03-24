@@ -15,6 +15,11 @@ public class RandomGenerator {
 	}
 	
 	public static double generateExponencialNumber(double lambda){
-		return 0.0;
+		return - 1.0/lambda * Math.log(1 - random.nextDouble());
 	}
+	
+	public static double generateRayleighNumber(double phi){
+		return phi * Math.sqrt(-2 * Math.log(1 - random.nextDouble()));
+	}
+	
 }

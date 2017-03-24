@@ -12,7 +12,14 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
-import dnv.ati.util.view.ImageLoader;
+import dnv.ati.view.editionFrames.GammaPowerFrame;
+import dnv.ati.view.editionFrames.ProdByScalarFrame;
+import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
+import dnv.ati.view.noiseFrames.GaussianNoiseFrame;
+import dnv.ati.view.noiseFrames.RayleighNoiseFrame;
+import dnv.ati.view.selectionFrames.SelectPixelFrame;
+import dnv.ati.view.selectionFrames.SelectRectFrame;
+import dnv.ati.view.util.ImageLoader;
 
 public class MenuBar extends JMenuBar {
 
@@ -105,6 +112,8 @@ public class MenuBar extends JMenuBar {
 		});
 		editionMenu.add(normalizeItem);
 		
+		
+		
 		JMenuItem dynamicRangeItem = new JMenuItem("Rango Dinamico");
 		dynamicRangeItem.addActionListener(l -> {
 			Image img = state.getImage();
@@ -112,6 +121,22 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		editionMenu.add(dynamicRangeItem);
+		
+		
+		JMenu noiseGeneratorMenu = new JMenu("Generador de ruido");
+		editionMenu.add(noiseGeneratorMenu);
+		
+		JMenuItem gaussNoiseItem = new JMenuItem("Ruido Gaussiano");
+		gaussNoiseItem.addActionListener(l -> new GaussianNoiseFrame(state));
+		noiseGeneratorMenu.add(gaussNoiseItem);
+		
+		JMenuItem exponencialNoiseItem = new JMenuItem("Ruido exponencial");
+		exponencialNoiseItem.addActionListener(l -> new ExponencialNoiseFrame(state));
+		noiseGeneratorMenu.add(exponencialNoiseItem);
+		
+		JMenuItem rayleighNoiseItem = new JMenuItem("Ruido de Rayleigh");
+		rayleighNoiseItem.addActionListener(l -> new RayleighNoiseFrame(state));
+		noiseGeneratorMenu.add(rayleighNoiseItem);
 		
 		add(editionMenu);
 		

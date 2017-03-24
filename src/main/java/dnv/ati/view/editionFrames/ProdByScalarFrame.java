@@ -1,4 +1,4 @@
-package dnv.ati.view;
+package dnv.ati.view.editionFrames;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -8,15 +8,15 @@ import javax.swing.JTextField;
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
 
-public class GammaPowerFrame extends JFrame {
+public class ProdByScalarFrame extends JFrame {
 
-	public GammaPowerFrame(State state){
-		super("Potencia gamma");
+	public ProdByScalarFrame(State state){
+		super("Producto por escalar");
 		setSize(300, 170);
 		setLayout(null);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		JLabel label = new JLabel("Ingrese gamma:");
+		JLabel label = new JLabel("Ingrese el escalar:");
 		label.setBounds(40, 10, 200, 30);
 		JTextField scalarTextField = new JTextField("1.0");
 		scalarTextField.setBounds(50, 50, 60, 30);
@@ -29,10 +29,9 @@ public class GammaPowerFrame extends JFrame {
 			Image img = state.getImage();
 			String text = scalarTextField.getText();
 			double value = Double.parseDouble(text);
-			img.gammaPower(value);
+			img.prodByScalar(value);
 			state.setImage(img);
 			dispose();
 		});
 	}
 }
-

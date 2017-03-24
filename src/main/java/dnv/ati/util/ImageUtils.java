@@ -1,5 +1,6 @@
 package dnv.ati.util;
 
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -7,6 +8,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
 
 import javax.imageio.ImageIO;
 
@@ -344,5 +349,36 @@ public class ImageUtils {
 		return ansImage;
 	}
 	
+	public static Image exponencialNoiseImage(int width, int height, double percentage, double lambda){
+		return noisyImages(width, height, 1.0, percentage, () -> RandomGenerator.generateExponencialNumber(lambda));
+	}
+	
+	public static Image rayleighNoiseImage(int width, int height, double percentage, double phi){
+		System.out.println(percentage);
+		return noisyImages(width, height, 1.0, percentage, () -> RandomGenerator.generateRayleighNumber(phi));
+	}
+	
+	public static Image gaussianNoiseImage(int width, int height, double percentage, double mean, double std){
+		return noisyImages(width, height, 0.0, percentage, () -> RandomGenerator.generateGaussNumber(mean, std));
+	}
+	
+	public static Image noisyImages(int width, int height, double initialValue, double percentage, Supplier<Double> supplier){
+		Image img = new Image(width, height);
+		List<Point> points = new ArrayList<Point>();
+		for(int i=0; i<width; i++){
+			for(int j=0; j<height; j++){
+				points.add(new Point(i,j));
+				img.setGrayColor(i, j, initialValue);
+			}
+		}
+		int total = width*height;
+		Collections.shuffle(points);
+		for(int k=0; k<total*percentage; k++){
+			Point point = points.get(k);
+			img.setGrayColor(point.y, point.x, supplier.get());
+		}
+		System.out.println(total*percentage);
+		return img;
+	}
 	
 }
