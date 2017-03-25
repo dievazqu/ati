@@ -147,6 +147,14 @@ public class MenuBar extends JMenuBar {
 		});
 		editionMenu.add(umbralItem);
 
+		JMenuItem equalizeItem = new JMenuItem("Equalizacion");
+		equalizeItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.equalize();
+			state.setImage(img);
+		});
+		editionMenu.add(equalizeItem);
+		
 		JMenu noiseGeneratorMenu = new JMenu("Generador de ruido");
 		editionMenu.add(noiseGeneratorMenu);
 

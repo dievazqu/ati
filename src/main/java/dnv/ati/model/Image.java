@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import dnv.ati.util.ConversionUtils;
+import dnv.ati.util.ImageUtils;
 
 public class Image {
 
@@ -235,5 +236,17 @@ public class Image {
 			}
 			return 255.0;
 		});
+	}
+	
+	public void equalize() {
+		int[] histogram = ImageUtils.grayHistogram(this);
+		double[] data = new double[256];
+		int total = width * height;
+		int acum = 0;
+		for(int i=0; i<histogram.length; i++) {
+			acum += histogram[i];
+			data[i] = acum * 255.0 / (double) total;
+		}
+		map(x -> data[(int) Math.round(x)]);
 	}
 }
