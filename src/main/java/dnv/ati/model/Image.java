@@ -227,4 +227,13 @@ public class Image {
 			}
 		});
 	}
+	
+	public void umbralize(double umbral) {
+		map(x -> {
+			if (x < umbral) {
+				return 0.0;
+			}
+			return 255.0;
+		});
+	}
 }
