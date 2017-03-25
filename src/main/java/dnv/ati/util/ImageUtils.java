@@ -115,7 +115,7 @@ public class ImageUtils {
 					} else {
 						int gray = dis.readByte();
 						if(gray<0) gray+=256;
-						double percentage = gray * 256.0 / maxValue;
+						double percentage = (gray * 255.0) / maxValue;
 						img.setGrayColor(i, j, percentage);
 					}
 				}
@@ -153,13 +153,13 @@ public class ImageUtils {
 					} else {
 						int color = dis.readByte();
 						color = color < 0 ? color + 256 : color;
-						img.setOnlyR(i, j, color * 256.0 / maxValue);
+						img.setOnlyR(i, j, color * 255.0 / maxValue);
 						color = dis.readByte();
 						color = color < 0 ? color + 256 : color;
-						img.setOnlyG(i, j, color * 256.0 / maxValue);
+						img.setOnlyG(i, j, color * 255.0 / maxValue);
 						color = dis.readByte();
 						color = color < 0 ? color + 256 : color;
-						img.setOnlyB(i, j, color * 256.0 / maxValue);
+						img.setOnlyB(i, j, color * 255.0 / maxValue);
 					}
 				}
 			}

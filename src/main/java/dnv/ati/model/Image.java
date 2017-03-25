@@ -30,29 +30,29 @@ public class Image {
 		data[i][j][1] = value;
 		data[i][j][2] = value;
 	}
-	
-	public double getGray(int i, int j){
+
+	public double getGray(int i, int j) {
 		double sum = 0;
 		int k;
-		for(k=0; k<data[0][0].length; k++){
-			sum+=data[i][j][k];
+		for (k = 0; k < data[0][0].length; k++) {
+			sum += data[i][j][k];
 		}
-		return (sum/k); 
+		return (sum / k);
 	}
-	
-	public int bands(){
+
+	public int bands() {
 		return data[0][0].length;
 	}
-	
-	public double getDataValue(int i, int j, int k){
-		if(i<0 || i>=data.length || j<0 || j>=data[0].length
-				|| k<0 || k>=data[0][0].length){
+
+	public double getDataValue(int i, int j, int k) {
+		if (i < 0 || i >= data.length || j < 0 || j >= data[0].length || k < 0
+				|| k >= data[0][0].length) {
 			return 0;
 		}
 		return data[i][j][k];
 	}
-	
-	public void setDataValue(int i, int j, int k, double value){
+
+	public void setDataValue(int i, int j, int k, double value) {
 		data[i][j][k] = value;
 	}
 
@@ -65,15 +65,15 @@ public class Image {
 	public double getOnlyR(int i, int j) {
 		return data[i][j][0];
 	}
-	
+
 	public double getOnlyG(int i, int j) {
 		return data[i][j][1];
 	}
-	
+
 	public double getOnlyB(int i, int j) {
 		return data[i][j][2];
 	}
-	
+
 	public void setOnlyR(int i, int j, double value) {
 		data[i][j][0] = value;
 	}
@@ -107,122 +107,124 @@ public class Image {
 	}
 
 	public int getRGB(int i, int j) {
-		return ConversionUtils.doubleToRGBInt(
-				data[i][j][0],
-				data[i][j][1],
+		return ConversionUtils.doubleToRGBInt(data[i][j][0], data[i][j][1],
 				data[i][j][2]);
 	}
 
 	public int getHeight() {
 		return height;
 	}
-	
+
 	public int getWidth() {
 		return width;
 	}
 
 	public Image copy(int x1, int y1, int x2, int y2) {
-		if(x2>=width || y2>=height || x1<0 || y1<0 || x2<x1 || y2<y1){
+		if (x2 >= width || y2 >= height || x1 < 0 || y1 < 0 || x2 < x1
+				|| y2 < y1) {
 			throw new IllegalArgumentException();
 		}
-		Image img = new Image(x2-x1+1, y2-y1+1);
-		for(int x=x1; x<=x2; x++){
-			for(int y=y1; y<=y2; y++){
-				img.setRGB(y-y1, x-x1, getRGB(y, x));
+		Image img = new Image(x2 - x1 + 1, y2 - y1 + 1);
+		for (int x = x1; x <= x2; x++) {
+			for (int y = y1; y <= y2; y++) {
+				img.setRGB(y - y1, x - x1, getRGB(y, x));
 			}
 		}
 		return img;
 	}
-	
-	private double average(BiFunction<Integer, Integer, Double> f, int x1, int y1, int x2, int y2){
-		if(x2>=width || y2>=height || x1<0 || y1<0 || x2<x1 || y2<y1){
+
+	private double average(BiFunction<Integer, Integer, Double> f, int x1,
+			int y1, int x2, int y2) {
+		if (x2 >= width || y2 >= height || x1 < 0 || y1 < 0 || x2 < x1
+				|| y2 < y1) {
 			throw new IllegalArgumentException();
 		}
 		double sum = 0;
-		for(int x=x1; x<=x2; x++){
-			for(int y=y1; y<=y2; y++){
-				sum+=f.apply(y, x);
+		for (int x = x1; x <= x2; x++) {
+			for (int y = y1; y <= y2; y++) {
+				sum += f.apply(y, x);
 			}
 		}
-		return sum / ((x2-x1+1)*(y2-y1+1));
+		return sum / ((x2 - x1 + 1) * (y2 - y1 + 1));
 	}
 
 	public double averageGray(int x1, int y1, int x2, int y2) {
 		return average(this::getGray, x1, y1, x2, y2);
 	}
-	
+
 	public double averageR(int x1, int y1, int x2, int y2) {
 		return average(this::getOnlyR, x1, y1, x2, y2);
 	}
-	
+
 	public double averageG(int x1, int y1, int x2, int y2) {
 		return average(this::getOnlyG, x1, y1, x2, y2);
 	}
-	
+
 	public double averageB(int x1, int y1, int x2, int y2) {
 		return average(this::getOnlyB, x1, y1, x2, y2);
 	}
-	
-	private void map(Function<Double, Double> fc){
-		for(int k=0; k<data[0][0].length; k++){
-			for(int i=0; i<data.length; i++){
-				for(int j=0; j<data[0].length; j++){
+
+	private void map(Function<Double, Double> fc) {
+		for (int k = 0; k < data[0][0].length; k++) {
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[0].length; j++) {
 					data[i][j][k] = fc.apply(data[i][j][k]);
 				}
 			}
 		}
 	}
-	
-	public void negative(){
+
+	public void negative() {
 		map(x -> 255 - x);
 	}
-	
-	public void gammaPower(double gamma){
-		double c = Math.pow(255.0, 1-gamma);
+
+	public void gammaPower(double gamma) {
+		double c = Math.pow(255.0, 1 - gamma);
 		map(x -> c * Math.pow(x, gamma));
 	}
-	
-	public void prodByScalar(double scalar){
-		map(x -> x*scalar);
+
+	public void prodByScalar(double scalar) {
+		map(x -> x * scalar);
 		dynamicRange();
 	}
-	
-	public void normalize(){
-		for(int k=0; k<data[0][0].length; k++){
+
+	public void normalize() {
+		for (int k = 0; k < data[0][0].length; k++) {
 			double min = data[0][0][k];
 			double max = data[0][0][k];
-			for(int i=0; i<data.length; i++){
-				for(int j=0; j<data[0].length; j++){
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[0].length; j++) {
 					min = Math.min(min, data[i][j][k]);
 					max = Math.max(max, data[i][j][k]);
 				}
 			}
-			for(int i=0; i<data.length; i++){
-				for(int j=0; j<data[0].length; j++){
-					data[i][j][k] = (data[i][j][k] - min) * 255.0 / (double)(max-min) ;
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[0].length; j++) {
+					data[i][j][k] = (data[i][j][k] - min) * 255.0
+							/ (double) (max - min);
 				}
 			}
 		}
 	}
-	
-	public void dynamicRange(){
-		for(int k=0; k<data[0][0].length; k++){
+
+	public void dynamicRange() {
+		for (int k = 0; k < data[0][0].length; k++) {
 			double max = data[0][0][k];
-			for(int i=0; i<data.length; i++){
-				for(int j=0; j<data[0].length; j++){
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[0].length; j++) {
 					max = Math.max(max, data[i][j][k]);
 				}
 			}
-			double c = 255.0 / Math.log(1+max);
-			for(int i=0; i<data.length; i++){
-				for(int j=0; j<data[0].length; j++){
-					data[i][j][k] = c * Math.log(1+data[i][j][k]);
+			double c = 255.0 / Math.log(1 + max);
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[0].length; j++) {
+					data[i][j][k] = c * Math.log(1 + data[i][j][k]);
 				}
 			}
 		}
 	}
-	
-	public void contrast(double r1, double s1, double r2, double s2){
+
+	public void contrast(double r1, double s1, double r2, double s2) {
 		map(x -> {
 			if (x < r1) {
 				return x * s1 / r1;
@@ -233,7 +235,7 @@ public class Image {
 			}
 		});
 	}
-	
+
 	public void umbralize(double umbral) {
 		map(x -> {
 			if (x < umbral) {
@@ -242,33 +244,36 @@ public class Image {
 			return 255.0;
 		});
 	}
-	
+
 	public void equalize() {
 		int[] histogram = ImageUtils.grayHistogram(this);
 		double[] data = new double[256];
 		int total = width * height;
 		int acum = 0;
-		for(int i=0; i<histogram.length; i++) {
+		for (int i = 0; i < histogram.length; i++) {
 			acum += histogram[i];
 			data[i] = acum * 255.0 / (double) total;
 		}
 		map(x -> data[(int) Math.round(x)]);
 	}
-	
-	private interface FilterFunction{
+
+	private interface FilterFunction {
 		public double apply(int i, int j, int k, int offset, double sigma);
 	}
-	
-	public void genericFilter(int windowSize, double sigma, FilterFunction filter){
+
+	public void genericFilter(int windowSize, double sigma,
+			FilterFunction filter) {
 		double[][][] newImageData = new double[height][width][3];
-		int halfWindow = (windowSize-1)/2;
-		for(int k=0; k<3; k++){
-			for(int i=0; i<height; i++){
-				for(int j=0; j<width; j++){
-					if(i<halfWindow || i>=height-halfWindow || j<halfWindow || j>=width-halfWindow){
-						newImageData[i][j][k]=data[i][j][k];
-					}else{
-						newImageData[i][j][k]=filter.apply(i,j,k,halfWindow, sigma);
+		int halfWindow = (windowSize - 1) / 2;
+		for (int k = 0; k < 3; k++) {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					if (i < halfWindow || i >= height - halfWindow
+							|| j < halfWindow || j >= width - halfWindow) {
+						newImageData[i][j][k] = data[i][j][k];
+					} else {
+						newImageData[i][j][k] = filter.apply(i, j, k,
+								halfWindow, sigma);
 					}
 				}
 			}
@@ -279,8 +284,7 @@ public class Image {
 	public void medianFilter(int windowSize) {
 		genericFilter(windowSize, 0.0, this::medianCenter);
 	}
-	
-	
+
 	public void meanFilter(int windowSize) {
 		genericFilter(windowSize, 0.0, this::meanCenter);
 	}
@@ -289,74 +293,97 @@ public class Image {
 		genericFilter(windowSize, sigma, this::gaussianCenter);
 		normalize();
 	}
-	
+
 	public void weightedMedianFilter() {
 		genericFilter(3, 0.0, this::weightedMedianCenter);
 	}
-	
-	private double weightedMedianCenter(int x, int y, int k, int offset, double sigma){
+
+	public void borderFilter() {
+		genericFilter(3, 0.0, this::borderFilterCenter);
+		normalize();
+	}
+
+	private double weightedMedianCenter(int x, int y, int k, int offset,
+			double sigma) {
 		List<Double> values = new ArrayList<Double>();
-		for(int i=x-offset; i<=x+offset; i++){
-			for(int j=y-offset; j<=y+offset; j++){
-				int dist = Math.abs(i-x)+Math.abs(j-y);
+		for (int i = x - offset; i <= x + offset; i++) {
+			for (int j = y - offset; j <= y + offset; j++) {
+				int dist = Math.abs(i - x) + Math.abs(j - y);
 				int repetitions;
-				switch(dist){
-					case 0:
-						repetitions = 4;
-						break;
-					case 1:
-						repetitions = 2;
-						break;
-					case 2:
-						repetitions = 1;
-						break;
-					default:
-						repetitions = 0;
+				switch (dist) {
+				case 0:
+					repetitions = 4;
+					break;
+				case 1:
+					repetitions = 2;
+					break;
+				case 2:
+					repetitions = 1;
+					break;
+				default:
+					repetitions = 0;
 				}
-				for(int l=0; l<repetitions; l++){
+				for (int l = 0; l < repetitions; l++) {
 					values.add(data[i][j][k]);
 				}
 			}
 		}
 		Collections.sort(values);
-		return (values.get(values.size()/2) + values.get(values.size()/2+1))/2;
+		return (values.get(values.size() / 2) + values
+				.get(values.size() / 2 + 1)) / 2;
 	}
 
-	private double medianCenter(int x, int y, int k, int offset, double sigma){
+	private double medianCenter(int x, int y, int k, int offset, double sigma) {
 		List<Double> values = new ArrayList<Double>();
-		for(int i=x-offset; i<=x+offset; i++){
-			for(int j=y-offset; j<=y+offset; j++){
+		for (int i = x - offset; i <= x + offset; i++) {
+			for (int j = y - offset; j <= y + offset; j++) {
 				values.add(data[i][j][k]);
 			}
 		}
 		Collections.sort(values);
-		return values.get(values.size()/2);
+		return values.get(values.size() / 2);
 	}
-	
-	private double meanCenter(int x, int y, int k, int offset, double sigma){
+
+	private double meanCenter(int x, int y, int k, int offset, double sigma) {
 		double sum = 0.0;
-		for(int i=x-offset; i<=x+offset; i++){
-			for(int j=y-offset; j<=y+offset; j++){
-				sum+=data[i][j][k];
+		for (int i = x - offset; i <= x + offset; i++) {
+			for (int j = y - offset; j <= y + offset; j++) {
+				sum += data[i][j][k];
 			}
 		}
-		int size = offset*2+1;
-		return sum / (size*size);
+		int size = offset * 2 + 1;
+		return sum / (size * size);
 	}
-	
-	private double gaussianCenter(int x, int y, int k, int offset, double sigma){
+
+	private double gaussianCenter(int x, int y, int k, int offset, double sigma) {
 		double sum = 0.0;
-		for(int i=x-offset; i<=x+offset; i++){
-			for(int j=y-offset; j<=y+offset; j++){
-				int dx = i-x;
-				int dy = j-y;
-				double sigma2 = sigma*sigma;
-				double c = Math.pow(Math.E, -(dx*dx+dy*dy)/sigma2) / (2*Math.PI*sigma2);
-				sum+=c*data[i][j][k];
+		for (int i = x - offset; i <= x + offset; i++) {
+			for (int j = y - offset; j <= y + offset; j++) {
+				int dx = i - x;
+				int dy = j - y;
+				double sigma2 = sigma * sigma;
+				double c = Math.pow(Math.E, -(dx * dx + dy * dy) / sigma2)
+						/ (2 * Math.PI * sigma2);
+				sum += c * data[i][j][k];
 			}
 		}
 		return sum;
 	}
 
-	
+	private double borderFilterCenter(int x, int y, int k, int offset,
+			double sigma) {
+		double sum = 0.0;
+		int size = offset * 2 + 1;
+		for (int i = x - offset; i <= x + offset; i++) {
+			for (int j = y - offset; j <= y + offset; j++) {
+				int dist = Math.abs(i - x) + Math.abs(j - y);
+				if (dist == 0) {
+					sum += (size * size - 1) * data[i][j][k];
+				} else {
+					sum -= 1.0 * data[i][j][k];
+				}
+			}
+		}
+		return sum / (size*size);
+	}
 }

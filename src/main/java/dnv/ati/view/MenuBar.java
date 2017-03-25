@@ -202,6 +202,14 @@ public class MenuBar extends JMenuBar {
 		});
 		filterMenu.add(weightedMedianFilterItem);
 		
+		JMenuItem borderFilterItem = new JMenuItem("Filtro pasaaltos");
+		borderFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.borderFilter();
+			state.setImage(img);
+		});
+		filterMenu.add(borderFilterItem);
+		
 		JMenuItem gaussianFilterItem = new JMenuItem("Filtro gaussiano");
 		gaussianFilterItem.addActionListener(l -> new GaussianFilterFrame(state));
 		filterMenu.add(gaussianFilterItem);
