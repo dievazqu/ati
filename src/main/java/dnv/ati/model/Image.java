@@ -216,5 +216,15 @@ public class Image {
 		}
 	}
 	
-	
+	public void contrast(double r1, double s1, double r2, double s2){
+		map(x -> {
+			if (x < r1) {
+				return x * s1 / r1;
+			} else if (x < r2) {
+				return (x - r1) * (s2 - s1) / (r2 - r1) + s1;
+			} else {
+				return (x - r2) * (255 - s2) / (255 - r2) + s2;
+			}
+		});
+	}
 }

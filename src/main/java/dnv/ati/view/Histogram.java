@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 public class Histogram {
 
 	public Histogram(Map<Integer, Integer> values) {
-		JFrame frame = new JFrame("Test");
+		JFrame frame = new JFrame("Histogram");
 		frame.setLayout(new BorderLayout());
 		frame.add(new JScrollPane(new Graph(values)));
 		frame.pack();
@@ -22,6 +22,7 @@ public class Histogram {
 		frame.setVisible(true);
 	}
 
+	@SuppressWarnings("serial")
 	protected class Graph extends JPanel {
 
 		protected static final int MIN_BAR_WIDTH = 4;
@@ -48,7 +49,7 @@ public class Histogram {
 				g2d.setColor(Color.DARK_GRAY);
 				g2d.drawRect(xOffset, yOffset, width, height);
 				int barWidth = Math.max(MIN_BAR_WIDTH, (int) Math.floor((float) width / (float) mapHistory.size()));
-				System.out.println("width = " + width + "; size = " + mapHistory.size() + "; barWidth = " + barWidth);
+
 				int maxValue = 0;
 				for (Integer key : mapHistory.keySet()) {
 					int value = mapHistory.get(key);

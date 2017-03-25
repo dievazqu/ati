@@ -14,6 +14,7 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
+import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
 import dnv.ati.view.editionFrames.ProdByScalarFrame;
 import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
@@ -132,6 +133,12 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		editionMenu.add(dynamicRangeItem);
+		
+		JMenuItem contrastItem = new JMenuItem("Contraste");
+		contrastItem.addActionListener(l -> {
+			new ContrastFrame(state);
+		});
+		editionMenu.add(contrastItem);
 
 		JMenu noiseGeneratorMenu = new JMenu("Generador de ruido");
 		editionMenu.add(noiseGeneratorMenu);
