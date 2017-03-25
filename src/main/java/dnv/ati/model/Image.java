@@ -254,10 +254,10 @@ public class Image {
 	}
 	
 	private interface FilterFunction{
-		public double apply(int i, int j, int k, int offset);
+		public double apply(int i, int j, int k, int offset, double sigma);
 	}
 	
-	public void genericFilter(int windowSize, FilterFunction filter){
+	public void genericFilter(int windowSize, double sigma, FilterFunction filter){
 		double[][][] newImageData = new double[height][width][3];
 		int halfWindow = (windowSize-1)/2;
 		for(int k=0; k<3; k++){
@@ -266,7 +266,7 @@ public class Image {
 					if(i<halfWindow || i>=height-halfWindow || j<halfWindow || j>=width-halfWindow){
 						newImageData[i][j][k]=data[i][j][k];
 					}else{
-						newImageData[i][j][k]=filter.apply(i,j,k,halfWindow);
+						newImageData[i][j][k]=filter.apply(i,j,k,halfWindow, sigma);
 					}
 				}
 			}
@@ -275,15 +275,21 @@ public class Image {
 	}
 
 	public void medianFilter(int windowSize) {
-		genericFilter(windowSize, this::medianCenter);
+		genericFilter(windowSize, 0.0, this::medianCenter);
 	}
 	
 	
 	public void meanFilter(int windowSize) {
-		genericFilter(windowSize, this::meanCenter);
+		genericFilter(windowSize, 0.0, this::meanCenter);
+	}
+
+	public void gaussianFilter(int windowSize, double sigma) {
+		genericFilter(windowSize, sigma, this::gaussianCenter);
+		normalize();
 	}
 	
-	private double medianCenter(int x, int y, int k, int offset){
+
+	private double medianCenter(int x, int y, int k, int offset, double sigma){
 		List<Double> values = new ArrayList<Double>();
 		for(int i=x-offset; i<=x+offset; i++){
 			for(int j=y-offset; j<=y+offset; j++){
@@ -296,7 +302,7 @@ public class Image {
 		return values.get(size/2);
 	}
 	
-	private double meanCenter(int x, int y, int k, int offset){
+	private double meanCenter(int x, int y, int k, int offset, double sigma){
 		double sum = 0.0;
 		for(int i=x-offset; i<=x+offset; i++){
 			for(int j=y-offset; j<=y+offset; j++){
@@ -305,5 +311,19 @@ public class Image {
 		}
 		int size = offset*2+1;
 		return sum / (size*size);
+	}
+	
+	private double gaussianCenter(int x, int y, int k, int offset, double sigma){
+		double sum = 0.0;
+		for(int i=x-offset; i<=x+offset; i++){
+			for(int j=y-offset; j<=y+offset; j++){
+				int dx = i-x;
+				int dy = j-y;
+				double sigma2 = sigma*sigma;
+				double c = Math.pow(Math.E, -(dx*dx+dy*dy)/sigma2) / (2*Math.PI*sigma2);
+				sum+=c*data[i][j][k];
+			}
+		}
+		return sum;
 	}
 }

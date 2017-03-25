@@ -18,6 +18,7 @@ import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
 import dnv.ati.view.editionFrames.ProdByScalarFrame;
 import dnv.ati.view.editionFrames.UmbralFrame;
+import dnv.ati.view.filterFrames.GaussianFilterFrame;
 import dnv.ati.view.filterFrames.GenericFilterFrame;
 import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
 import dnv.ati.view.noiseFrames.GaussianNoiseFrame;
@@ -192,6 +193,10 @@ public class MenuBar extends JMenuBar {
 		medianFilterItem.addActionListener(l -> new GenericFilterFrame(state, "Filtro de la mediana",
 				(img, size) -> img.medianFilter(size)));
 		filterMenu.add(medianFilterItem);
+		
+		JMenuItem gaussianFilterItem = new JMenuItem("Filtro gaussiano");
+		gaussianFilterItem.addActionListener(l -> new GaussianFilterFrame(state));
+		filterMenu.add(gaussianFilterItem);
 
 		editionMenu.add(filterMenu);
 		
