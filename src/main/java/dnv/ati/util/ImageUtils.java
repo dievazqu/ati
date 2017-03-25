@@ -19,6 +19,16 @@ import dnv.ati.model.Image;
 
 public class ImageUtils {
 
+	public static int[] grayHistogram(Image image) {
+		int[] histogram = new int[256];
+		for(int i=0; i<image.getWidth(); i++){
+			for(int j=0; j<image.getHeight(); j++){
+				histogram[(int) image.getGray(i, j)]++;
+			}
+		}
+		return histogram;
+	}
+
 	public static Image grayScale(){
 		int size = 512;
 		Image img = new Image(size, size);

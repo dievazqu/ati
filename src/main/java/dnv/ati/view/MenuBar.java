@@ -22,6 +22,7 @@ import dnv.ati.view.selectionFrames.SelectPixelFrame;
 import dnv.ati.view.selectionFrames.SelectRectFrame;
 import dnv.ati.view.util.ImageLoader;
 
+@SuppressWarnings("serial")
 public class MenuBar extends JMenuBar {
 
 	private State state;
@@ -60,6 +61,17 @@ public class MenuBar extends JMenuBar {
 		fileMenu.add(saveMenu);
 		add(fileMenu);
 		
+		JMenu informationMenu = new JMenu("Informacion");
+		JMenuItem grayHistogram = new JMenuItem("Histograma de grises");
+		grayHistogram.addActionListener(l -> {
+			int[] histogram = ImageUtils.grayHistogram(state.getImage());
+			for(int i=0; i<256; i++) {
+				System.out.println(histogram[i]);
+			}
+		});
+		informationMenu.add(grayHistogram);
+		add(informationMenu);
+
 		JMenu editionMenu = new JMenu("Edicion");
 		JMenu operationImageMenu = new JMenu("Operacion entre imagenes");
 		JMenuItem imageSum = new JMenuItem("Sumar Imagen");
