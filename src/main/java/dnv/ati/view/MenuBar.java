@@ -1,6 +1,8 @@
 package dnv.ati.view;
 
 import java.io.File;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 
 import javax.swing.JFileChooser;
@@ -27,7 +29,7 @@ public class MenuBar extends JMenuBar {
 
 	private State state;
 	JMenuItem activeFilterItem;
-	
+
 	public MenuBar(State state) {
 		this.state = state;
 		JMenu fileMenu = new JMenu("Archivo");
@@ -38,10 +40,9 @@ public class MenuBar extends JMenuBar {
 		JMenuItem loadMenu = new JMenuItem("Cargar Imagen");
 		loadMenu.addActionListener(l -> {
 			ImageLoader.loadImage(img -> {
-				state.setImage(img);	
+				state.setImage(img);
 			});
 		});
-		
 
 		JMenu saveMenu = new JMenu("Guardar Imagen");
 		menuItem = new JMenuItem("Guardar en .raw");
@@ -60,14 +61,16 @@ public class MenuBar extends JMenuBar {
 		fileMenu.add(loadMenu);
 		fileMenu.add(saveMenu);
 		add(fileMenu);
-		
+
 		JMenu informationMenu = new JMenu("Informacion");
 		JMenuItem grayHistogram = new JMenuItem("Histograma de grises");
 		grayHistogram.addActionListener(l -> {
 			int[] histogram = ImageUtils.grayHistogram(state.getImage());
-			for(int i=0; i<256; i++) {
-				System.out.println(histogram[i]);
+			Map<Integer, Integer> values = new TreeMap<Integer, Integer>();
+			for (int i = 0; i < 256; i++) {
+				values.put(i, histogram[i]);
 			}
+			new Histogram(values);
 		});
 		informationMenu.add(grayHistogram);
 		add(informationMenu);
@@ -76,32 +79,29 @@ public class MenuBar extends JMenuBar {
 		JMenu operationImageMenu = new JMenu("Operacion entre imagenes");
 		JMenuItem imageSum = new JMenuItem("Sumar Imagen");
 		imageSum.addActionListener(l -> {
-			ImageLoader.loadImage(img -> state.setImage(
-					ImageUtils.sumImage(state.getImage(), img)));
+			ImageLoader.loadImage(img -> state.setImage(ImageUtils.sumImage(state.getImage(), img)));
 		});
 		operationImageMenu.add(imageSum);
-		
+
 		JMenuItem imageDiff = new JMenuItem("Restar Imagen");
 		imageDiff.addActionListener(l -> {
-			ImageLoader.loadImage(img -> state.setImage(
-					ImageUtils.diffImage(state.getImage(), img)));
+			ImageLoader.loadImage(img -> state.setImage(ImageUtils.diffImage(state.getImage(), img)));
 		});
 		operationImageMenu.add(imageDiff);
-		
+
 		JMenuItem imageProd = new JMenuItem("Producto de Imagen");
 		imageProd.addActionListener(l -> {
-			ImageLoader.loadImage(img -> state.setImage(
-					ImageUtils.prodImage(state.getImage(), img)));
+			ImageLoader.loadImage(img -> state.setImage(ImageUtils.prodImage(state.getImage(), img)));
 		});
 		operationImageMenu.add(imageProd);
 		editionMenu.add(operationImageMenu);
-		
+
 		JMenuItem prodByScalarItem = new JMenuItem("Producto por escalar");
 		prodByScalarItem.addActionListener(l -> {
 			new ProdByScalarFrame(state);
 		});
 		editionMenu.add(prodByScalarItem);
-		
+
 		JMenuItem negativeItem = new JMenuItem("Negativo");
 		negativeItem.addActionListener(l -> {
 			Image img = state.getImage();
@@ -109,14 +109,14 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		editionMenu.add(negativeItem);
-		
+
 		JMenuItem gammaPoweItem = new JMenuItem("Potencia Gamma");
 		gammaPoweItem.addActionListener(l -> {
 			new GammaPowerFrame(state);
-			
+
 		});
 		editionMenu.add(gammaPoweItem);
-		
+
 		JMenuItem normalizeItem = new JMenuItem("Normalizar");
 		normalizeItem.addActionListener(l -> {
 			Image img = state.getImage();
@@ -124,9 +124,7 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		editionMenu.add(normalizeItem);
-		
-		
-		
+
 		JMenuItem dynamicRangeItem = new JMenuItem("Rango Dinamico");
 		dynamicRangeItem.addActionListener(l -> {
 			Image img = state.getImage();
@@ -134,29 +132,28 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		editionMenu.add(dynamicRangeItem);
-		
-		
+
 		JMenu noiseGeneratorMenu = new JMenu("Generador de ruido");
 		editionMenu.add(noiseGeneratorMenu);
-		
+
 		JMenuItem gaussNoiseItem = new JMenuItem("Ruido Gaussiano");
 		gaussNoiseItem.addActionListener(l -> new GaussianNoiseFrame(state));
 		noiseGeneratorMenu.add(gaussNoiseItem);
-		
+
 		JMenuItem exponencialNoiseItem = new JMenuItem("Ruido exponencial");
 		exponencialNoiseItem.addActionListener(l -> new ExponencialNoiseFrame(state));
 		noiseGeneratorMenu.add(exponencialNoiseItem);
-		
+
 		JMenuItem rayleighNoiseItem = new JMenuItem("Ruido de Rayleigh");
 		rayleighNoiseItem.addActionListener(l -> new RayleighNoiseFrame(state));
 		noiseGeneratorMenu.add(rayleighNoiseItem);
-		
+
 		JMenuItem saltAndPepperNoiseItem = new JMenuItem("Ruido \"sal y pimienta\"");
 		saltAndPepperNoiseItem.addActionListener(l -> new SaltAndPepperNoiseFrame(state));
 		noiseGeneratorMenu.add(saltAndPepperNoiseItem);
-		
+
 		add(editionMenu);
-		
+
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");
@@ -188,77 +185,73 @@ public class MenuBar extends JMenuBar {
 		JMenu customImagesMenu = new JMenu("Imagenes creadas");
 
 		JMenuItem grayScale = new JMenuItem("Escala de grises");
-		grayScale.addActionListener(e -> state.setImage(
-				ImageUtils.grayScale()));
+		grayScale.addActionListener(e -> state.setImage(ImageUtils.grayScale()));
 		customImagesMenu.add(grayScale);
 
 		JMenu colorScaleMenu = new JMenu("Escala de colores");
 
 		JMenuItem redScale = new JMenuItem("Rojo de base");
-		redScale.addActionListener(e -> state.setImage(
-				ImageUtils.colorScale(0)));
+		redScale.addActionListener(e -> state.setImage(ImageUtils.colorScale(0)));
 		colorScaleMenu.add(redScale);
 
 		JMenuItem greenScale = new JMenuItem("Verde de base");
-		greenScale.addActionListener(e -> state.setImage(
-				ImageUtils.colorScale(1)));
+		greenScale.addActionListener(e -> state.setImage(ImageUtils.colorScale(1)));
 		colorScaleMenu.add(greenScale);
 
 		JMenuItem blueScale = new JMenuItem("Azul de base");
-		blueScale.addActionListener(e -> state.setImage(
-				ImageUtils.colorScale(2)));
+		blueScale.addActionListener(e -> state.setImage(ImageUtils.colorScale(2)));
 		colorScaleMenu.add(blueScale);
 
 		customImagesMenu.add(colorScaleMenu);
 		add(customImagesMenu);
-		
+
 		JMenu viewMenu = new JMenu("Vista");
 		JMenu filterMenu = new JMenu("Banda mostrada");
 		viewMenu.add(filterMenu);
 		JMenuItem noFilter = new JMenuItem("RGB");
 		activeFilterItem = noFilter;
 		noFilter.setEnabled(false);
-		noFilter.addActionListener(e->{
-			activeFilterItem.setEnabled(true); 
+		noFilter.addActionListener(e -> {
+			activeFilterItem.setEnabled(true);
 			state.setImageFilter(null);
 			activeFilterItem = noFilter;
-			activeFilterItem.setEnabled(false);	
+			activeFilterItem.setEnabled(false);
 		});
 		filterMenu.add(noFilter);
 		JMenuItem redFilter = new JMenuItem("Solo Rojo");
-		redFilter.addActionListener(e->{
-			activeFilterItem.setEnabled(true); 
+		redFilter.addActionListener(e -> {
+			activeFilterItem.setEnabled(true);
 			state.setImageFilter(ImageUtils::redFilter);
 			activeFilterItem = redFilter;
 			activeFilterItem.setEnabled(false);
 		});
 		filterMenu.add(redFilter);
 		JMenuItem greenFilter = new JMenuItem("Solo Verde");
-		greenFilter.addActionListener(e-> {
-			activeFilterItem.setEnabled(true); 
+		greenFilter.addActionListener(e -> {
+			activeFilterItem.setEnabled(true);
 			state.setImageFilter(ImageUtils::greenFilter);
 			activeFilterItem = greenFilter;
 			activeFilterItem.setEnabled(false);
 		});
 		filterMenu.add(greenFilter);
 		JMenuItem blueFilter = new JMenuItem("Solo Azul");
-		blueFilter.addActionListener(e->{
-			activeFilterItem.setEnabled(true); 
+		blueFilter.addActionListener(e -> {
+			activeFilterItem.setEnabled(true);
 			state.setImageFilter(ImageUtils::blueFilter);
 			activeFilterItem = blueFilter;
 			activeFilterItem.setEnabled(false);
 		});
 		filterMenu.add(blueFilter);
 		JMenuItem grayFilter = new JMenuItem("Grises");
-		grayFilter.addActionListener(e->{
-			activeFilterItem.setEnabled(true); 
+		grayFilter.addActionListener(e -> {
+			activeFilterItem.setEnabled(true);
 			state.setImageFilter(ImageUtils::grayFilter);
 			activeFilterItem = grayFilter;
-			activeFilterItem.setEnabled(false);	
+			activeFilterItem.setEnabled(false);
 		});
 		filterMenu.add(grayFilter);
 		add(viewMenu);
-		
+
 	}
 
 	private void saveImage(BiConsumer<File, Image> imageConverter) {
