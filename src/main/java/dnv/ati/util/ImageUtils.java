@@ -112,6 +112,7 @@ public class ImageUtils {
 						return null;
 					} else {
 						int gray = dis.readByte();
+						if(gray<0) gray+=256;
 						double percentage = gray * 256.0 / maxValue;
 						img.setGrayColor(i, j, percentage);
 					}
