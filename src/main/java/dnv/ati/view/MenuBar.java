@@ -18,7 +18,7 @@ import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
 import dnv.ati.view.editionFrames.ProdByScalarFrame;
 import dnv.ati.view.editionFrames.UmbralFrame;
-import dnv.ati.view.filterFrames.MeanFilterFrame;
+import dnv.ati.view.filterFrames.GenericFilterFrame;
 import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
 import dnv.ati.view.noiseFrames.GaussianNoiseFrame;
 import dnv.ati.view.noiseFrames.RayleighNoiseFrame;
@@ -183,10 +183,18 @@ public class MenuBar extends JMenuBar {
 		JMenu filterMenu = new JMenu("Filtros");
 		
 		JMenuItem meanFilterItem = new JMenuItem("Filtro de la media");
-		meanFilterItem.addActionListener(l -> new MeanFilterFrame(state));
+		meanFilterItem.addActionListener(l -> new GenericFilterFrame(state, "Filtro de la media",
+				(img, size) -> img.meanFilter(size)));
 		filterMenu.add(meanFilterItem);
-		editionMenu.add(filterMenu);
+		
+		
+		JMenuItem medianFilterItem = new JMenuItem("Filtro de la mediana");
+		medianFilterItem.addActionListener(l -> new GenericFilterFrame(state, "Filtro de la mediana",
+				(img, size) -> img.medianFilter(size)));
+		filterMenu.add(medianFilterItem);
 
+		editionMenu.add(filterMenu);
+		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");

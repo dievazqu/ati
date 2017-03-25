@@ -1,5 +1,7 @@
 package dnv.ati.view.filterFrames;
 
+import java.util.function.BiConsumer;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -9,10 +11,10 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 
 @SuppressWarnings("serial")
-public class MeanFilterFrame extends JFrame {
+public class GenericFilterFrame extends JFrame {
 
-	public MeanFilterFrame(State state){
-		super("Filtro de la media");
+	public GenericFilterFrame(State state, String title, BiConsumer<Image, Integer> consumer){
+		super(title);
 		setSize(310, 170);
 		setLayout(null);
 		setLocationRelativeTo(null);
@@ -24,7 +26,7 @@ public class MeanFilterFrame extends JFrame {
 		JLabel sliderLabel = new JLabel();
 		sliderLabel.setBounds(240, 50, 40, 20);
 		add(sliderLabel);
-		JSlider slider = new JSlider(0, 50);
+		JSlider slider = new JSlider(1, 50);
 		slider.setValue(0);
 		slider.setBounds(20, 50, 200, 20);
 		slider.addChangeListener(l -> {
@@ -39,7 +41,7 @@ public class MeanFilterFrame extends JFrame {
 		button.addActionListener(l -> {
 			Image img = state.getImage();
 			int windowSize = slider.getValue()*2+1;
-			img.meanFilter(windowSize);
+			consumer.accept(img, windowSize);
 			state.setImage(img);
 			dispose();
 		});

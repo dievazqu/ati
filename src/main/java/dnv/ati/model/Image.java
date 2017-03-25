@@ -3,6 +3,9 @@ package dnv.ati.model;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -249,8 +252,12 @@ public class Image {
 		}
 		map(x -> data[(int) Math.round(x)]);
 	}
-
-	public void meanFilter(int windowSize) {
+	
+	private interface FilterFunction{
+		public double apply(int i, int j, int k, int offset);
+	}
+	
+	public void genericFilter(int windowSize, FilterFunction filter){
 		double[][][] newImageData = new double[height][width][3];
 		int halfWindow = (windowSize-1)/2;
 		for(int k=0; k<3; k++){
@@ -259,12 +266,34 @@ public class Image {
 					if(i<halfWindow || i>=height-halfWindow || j<halfWindow || j>=width-halfWindow){
 						newImageData[i][j][k]=data[i][j][k];
 					}else{
-						newImageData[i][j][k]=meanCenter(i,j,k,halfWindow);
+						newImageData[i][j][k]=filter.apply(i,j,k,halfWindow);
 					}
 				}
 			}
 		}
 		data = newImageData;
+	}
+
+	public void medianFilter(int windowSize) {
+		genericFilter(windowSize, this::medianCenter);
+	}
+	
+	
+	public void meanFilter(int windowSize) {
+		genericFilter(windowSize, this::meanCenter);
+	}
+	
+	private double medianCenter(int x, int y, int k, int offset){
+		List<Double> values = new ArrayList<Double>();
+		for(int i=x-offset; i<=x+offset; i++){
+			for(int j=y-offset; j<=y+offset; j++){
+				values.add(data[i][j][k]);
+			}
+		}
+		int size = offset*2+1;
+		size*=size;
+		Collections.sort(values);
+		return values.get(size/2);
 	}
 	
 	private double meanCenter(int x, int y, int k, int offset){
