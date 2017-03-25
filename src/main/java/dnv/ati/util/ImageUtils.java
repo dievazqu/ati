@@ -148,9 +148,15 @@ public class ImageUtils {
 						// TODO: Here we need to read two bytes to get the value
 						return null;
 					} else {
-						img.setOnlyR(i, j, dis.readByte() * 256.0 / maxValue);
-						img.setOnlyG(i, j, dis.readByte() * 256.0 / maxValue);
-						img.setOnlyB(i, j, dis.readByte() * 256.0 / maxValue);
+						int color = dis.readByte();
+						color = color < 0 ? color + 256 : color;
+						img.setOnlyR(i, j, color * 256.0 / maxValue);
+						color = dis.readByte();
+						color = color < 0 ? color + 256 : color;
+						img.setOnlyG(i, j, color * 256.0 / maxValue);
+						color = dis.readByte();
+						color = color < 0 ? color + 256 : color;
+						img.setOnlyB(i, j, color * 256.0 / maxValue);
 					}
 				}
 			}
