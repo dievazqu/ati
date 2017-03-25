@@ -18,6 +18,7 @@ import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
 import dnv.ati.view.editionFrames.ProdByScalarFrame;
 import dnv.ati.view.editionFrames.UmbralFrame;
+import dnv.ati.view.filterFrames.MeanFilterFrame;
 import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
 import dnv.ati.view.noiseFrames.GaussianNoiseFrame;
 import dnv.ati.view.noiseFrames.RayleighNoiseFrame;
@@ -98,11 +99,14 @@ public class MenuBar extends JMenuBar {
 		operationImageMenu.add(imageProd);
 		editionMenu.add(operationImageMenu);
 
+		JMenu operationsMenu = new JMenu("Operaciones");
+		editionMenu.add(operationsMenu);
+		
 		JMenuItem prodByScalarItem = new JMenuItem("Producto por escalar");
 		prodByScalarItem.addActionListener(l -> {
 			new ProdByScalarFrame(state);
 		});
-		editionMenu.add(prodByScalarItem);
+		operationsMenu.add(prodByScalarItem);
 
 		JMenuItem negativeItem = new JMenuItem("Negativo");
 		negativeItem.addActionListener(l -> {
@@ -110,14 +114,14 @@ public class MenuBar extends JMenuBar {
 			img.negative();
 			state.setImage(img);
 		});
-		editionMenu.add(negativeItem);
+		operationsMenu.add(negativeItem);
 
 		JMenuItem gammaPoweItem = new JMenuItem("Potencia Gamma");
 		gammaPoweItem.addActionListener(l -> {
 			new GammaPowerFrame(state);
 
 		});
-		editionMenu.add(gammaPoweItem);
+		operationsMenu.add(gammaPoweItem);
 
 		JMenuItem normalizeItem = new JMenuItem("Normalizar");
 		normalizeItem.addActionListener(l -> {
@@ -125,7 +129,7 @@ public class MenuBar extends JMenuBar {
 			img.normalize();
 			state.setImage(img);
 		});
-		editionMenu.add(normalizeItem);
+		operationsMenu.add(normalizeItem);
 
 		JMenuItem dynamicRangeItem = new JMenuItem("Rango Dinamico");
 		dynamicRangeItem.addActionListener(l -> {
@@ -133,19 +137,19 @@ public class MenuBar extends JMenuBar {
 			img.dynamicRange();
 			state.setImage(img);
 		});
-		editionMenu.add(dynamicRangeItem);
+		operationsMenu.add(dynamicRangeItem);
 
 		JMenuItem contrastItem = new JMenuItem("Contraste");
 		contrastItem.addActionListener(l -> {
 			new ContrastFrame(state);
 		});
-		editionMenu.add(contrastItem);
+		operationsMenu.add(contrastItem);
 
 		JMenuItem umbralItem = new JMenuItem("Umbralizacion");
 		umbralItem.addActionListener(l -> {
 			new UmbralFrame(state);
 		});
-		editionMenu.add(umbralItem);
+		operationsMenu.add(umbralItem);
 
 		JMenuItem equalizeItem = new JMenuItem("Equalizacion");
 		equalizeItem.addActionListener(l -> {
@@ -153,7 +157,7 @@ public class MenuBar extends JMenuBar {
 			img.equalize();
 			state.setImage(img);
 		});
-		editionMenu.add(equalizeItem);
+		operationsMenu.add(equalizeItem);
 		
 		JMenu noiseGeneratorMenu = new JMenu("Generador de ruido");
 		editionMenu.add(noiseGeneratorMenu);
@@ -175,6 +179,13 @@ public class MenuBar extends JMenuBar {
 		noiseGeneratorMenu.add(saltAndPepperNoiseItem);
 
 		add(editionMenu);
+		
+		JMenu filterMenu = new JMenu("Filtros");
+		
+		JMenuItem meanFilterItem = new JMenuItem("Filtro de la media");
+		meanFilterItem.addActionListener(l -> new MeanFilterFrame(state));
+		filterMenu.add(meanFilterItem);
+		editionMenu.add(filterMenu);
 
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
@@ -228,8 +239,8 @@ public class MenuBar extends JMenuBar {
 		add(customImagesMenu);
 
 		JMenu viewMenu = new JMenu("Vista");
-		JMenu filterMenu = new JMenu("Banda mostrada");
-		viewMenu.add(filterMenu);
+		JMenu viewFilterMenu = new JMenu("Banda mostrada");
+		viewMenu.add(viewFilterMenu);
 		JMenuItem noFilter = new JMenuItem("RGB");
 		activeFilterItem = noFilter;
 		noFilter.setEnabled(false);
@@ -239,7 +250,7 @@ public class MenuBar extends JMenuBar {
 			activeFilterItem = noFilter;
 			activeFilterItem.setEnabled(false);
 		});
-		filterMenu.add(noFilter);
+		viewFilterMenu.add(noFilter);
 		JMenuItem redFilter = new JMenuItem("Solo Rojo");
 		redFilter.addActionListener(e -> {
 			activeFilterItem.setEnabled(true);
@@ -247,7 +258,7 @@ public class MenuBar extends JMenuBar {
 			activeFilterItem = redFilter;
 			activeFilterItem.setEnabled(false);
 		});
-		filterMenu.add(redFilter);
+		viewFilterMenu.add(redFilter);
 		JMenuItem greenFilter = new JMenuItem("Solo Verde");
 		greenFilter.addActionListener(e -> {
 			activeFilterItem.setEnabled(true);
@@ -255,7 +266,7 @@ public class MenuBar extends JMenuBar {
 			activeFilterItem = greenFilter;
 			activeFilterItem.setEnabled(false);
 		});
-		filterMenu.add(greenFilter);
+		viewFilterMenu.add(greenFilter);
 		JMenuItem blueFilter = new JMenuItem("Solo Azul");
 		blueFilter.addActionListener(e -> {
 			activeFilterItem.setEnabled(true);
@@ -263,7 +274,7 @@ public class MenuBar extends JMenuBar {
 			activeFilterItem = blueFilter;
 			activeFilterItem.setEnabled(false);
 		});
-		filterMenu.add(blueFilter);
+		viewFilterMenu.add(blueFilter);
 		JMenuItem grayFilter = new JMenuItem("Grises");
 		grayFilter.addActionListener(e -> {
 			activeFilterItem.setEnabled(true);
@@ -271,7 +282,7 @@ public class MenuBar extends JMenuBar {
 			activeFilterItem = grayFilter;
 			activeFilterItem.setEnabled(false);
 		});
-		filterMenu.add(grayFilter);
+		viewFilterMenu.add(grayFilter);
 		add(viewMenu);
 
 	}

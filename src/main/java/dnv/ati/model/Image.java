@@ -249,4 +249,32 @@ public class Image {
 		}
 		map(x -> data[(int) Math.round(x)]);
 	}
+
+	public void meanFilter(int windowSize) {
+		double[][][] newImageData = new double[height][width][3];
+		int halfWindow = (windowSize-1)/2;
+		for(int k=0; k<3; k++){
+			for(int i=0; i<height; i++){
+				for(int j=0; j<width; j++){
+					if(i<halfWindow || i>=height-halfWindow || j<halfWindow || j>=width-halfWindow){
+						newImageData[i][j][k]=data[i][j][k];
+					}else{
+						newImageData[i][j][k]=meanCenter(i,j,k,halfWindow);
+					}
+				}
+			}
+		}
+		data = newImageData;
+	}
+	
+	private double meanCenter(int x, int y, int k, int offset){
+		double sum = 0.0;
+		for(int i=x-offset; i<=x+offset; i++){
+			for(int j=y-offset; j<=y+offset; j++){
+				sum+=data[i][j][k];
+			}
+		}
+		int size = offset*2+1;
+		return sum / (size*size);
+	}
 }

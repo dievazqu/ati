@@ -19,7 +19,7 @@ public class ContrastFrame extends JFrame {
 
 	public ContrastFrame(State state){
 		super("Aplicar contraste");
-		setSize(225, 175);
+		setSize(250, 175);
 		setLocationRelativeTo(null);
 		setVisible(true);
 		setLayout(null);
