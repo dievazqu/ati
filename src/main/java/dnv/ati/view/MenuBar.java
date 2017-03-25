@@ -194,6 +194,14 @@ public class MenuBar extends JMenuBar {
 				(img, size) -> img.medianFilter(size)));
 		filterMenu.add(medianFilterItem);
 		
+		JMenuItem weightedMedianFilterItem = new JMenuItem("Filtro de la mediana ponderada");
+		weightedMedianFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.weightedMedianFilter();
+			state.setImage(img);
+		});
+		filterMenu.add(weightedMedianFilterItem);
+		
 		JMenuItem gaussianFilterItem = new JMenuItem("Filtro gaussiano");
 		gaussianFilterItem.addActionListener(l -> new GaussianFilterFrame(state));
 		filterMenu.add(gaussianFilterItem);

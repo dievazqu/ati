@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.print.attribute.standard.MediaSize.Other;
+
 import dnv.ati.util.ConversionUtils;
 import dnv.ati.util.ImageUtils;
 
@@ -288,6 +290,37 @@ public class Image {
 		normalize();
 	}
 	
+	public void weightedMedianFilter() {
+		genericFilter(3, 0.0, this::weightedMedianCenter);
+	}
+	
+	private double weightedMedianCenter(int x, int y, int k, int offset, double sigma){
+		List<Double> values = new ArrayList<Double>();
+		for(int i=x-offset; i<=x+offset; i++){
+			for(int j=y-offset; j<=y+offset; j++){
+				int dist = Math.abs(i-x)+Math.abs(j-y);
+				int repetitions;
+				switch(dist){
+					case 0:
+						repetitions = 4;
+						break;
+					case 1:
+						repetitions = 2;
+						break;
+					case 2:
+						repetitions = 1;
+						break;
+					default:
+						repetitions = 0;
+				}
+				for(int l=0; l<repetitions; l++){
+					values.add(data[i][j][k]);
+				}
+			}
+		}
+		Collections.sort(values);
+		return (values.get(values.size()/2) + values.get(values.size()/2+1))/2;
+	}
 
 	private double medianCenter(int x, int y, int k, int offset, double sigma){
 		List<Double> values = new ArrayList<Double>();
@@ -296,10 +329,8 @@ public class Image {
 				values.add(data[i][j][k]);
 			}
 		}
-		int size = offset*2+1;
-		size*=size;
 		Collections.sort(values);
-		return values.get(size/2);
+		return values.get(values.size()/2);
 	}
 	
 	private double meanCenter(int x, int y, int k, int offset, double sigma){
@@ -326,4 +357,6 @@ public class Image {
 		}
 		return sum;
 	}
+
+	
 }
