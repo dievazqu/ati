@@ -8,6 +8,7 @@ import javax.swing.JTextField;
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
 
+@SuppressWarnings("serial")
 public class ProdByScalarFrame extends JFrame {
 
 	public ProdByScalarFrame(State state){

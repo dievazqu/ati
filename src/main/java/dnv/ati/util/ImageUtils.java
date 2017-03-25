@@ -69,6 +69,7 @@ public class ImageUtils {
 		return img;
 	}
 	
+	@SuppressWarnings("resource")
 	public static Image readFromRAW(File file, int width, int height) {
 		try{
 			DataInputStream dis = new DataInputStream(new FileInputStream(file));
@@ -87,6 +88,7 @@ public class ImageUtils {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	public static Image readFromPGM(File file) {
 		try {
 			DataInputStream dis = new DataInputStream(new FileInputStream(file));
@@ -125,6 +127,7 @@ public class ImageUtils {
 		}
 	}
 
+	@SuppressWarnings("resource")
 	public static Image readFromPPM(File file) {
 		try {
 			DataInputStream dis = new DataInputStream(new FileInputStream(file));
@@ -203,6 +206,7 @@ public class ImageUtils {
 		return img;
 	}
 
+	@SuppressWarnings("resource")
 	public static void saveInRAW(File file, Image image) {
 		try{
 			DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
@@ -218,6 +222,7 @@ public class ImageUtils {
 		}
 	}
 	
+	@SuppressWarnings("resource")
 	public static void saveInPGM(File file, Image image) {
 		try{
 			DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
@@ -235,6 +240,7 @@ public class ImageUtils {
 		}
 	}
 	
+	@SuppressWarnings("resource")
 	public static void saveInPPM(File file, Image image) {
 		try{
 			DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));

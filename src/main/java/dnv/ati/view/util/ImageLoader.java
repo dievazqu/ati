@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import javax.swing.JFileChooser;
 
 import dnv.ati.model.Image;
-import dnv.ati.model.State;
 import dnv.ati.util.ImageUtils;
 
 public class ImageLoader {

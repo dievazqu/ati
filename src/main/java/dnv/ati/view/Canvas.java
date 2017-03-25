@@ -3,10 +3,7 @@ package dnv.ati.view;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.util.EventListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -19,10 +16,10 @@ import dnv.ati.model.State;
 import dnv.ati.model.State.ImageChangedListener;
 import dnv.ati.model.Status;
 import dnv.ati.util.Auxiliar;
-import dnv.ati.util.ConversionUtils;
 import dnv.ati.view.selectionFrames.SelectPixelFrame;
 import dnv.ati.view.selectionFrames.SelectRectFrame;
 
+@SuppressWarnings("serial")
 public class Canvas extends JPanel implements ImageChangedListener{
 
 	private Point mouseClick;

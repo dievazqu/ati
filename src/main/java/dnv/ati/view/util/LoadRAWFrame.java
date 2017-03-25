@@ -8,9 +8,9 @@ import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 
 import dnv.ati.model.Image;
-import dnv.ati.model.State;
 import dnv.ati.util.ImageUtils;
 
+@SuppressWarnings("serial")
 public class LoadRAWFrame extends JFrame{
 
 	public LoadRAWFrame(File file, Consumer<Image> consumer){

@@ -10,6 +10,7 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.util.ImageUtils;
 
+@SuppressWarnings("serial")
 public class SaltAndPepperNoiseFrame extends JFrame {
 
 	public SaltAndPepperNoiseFrame(State state){

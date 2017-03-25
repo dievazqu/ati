@@ -6,6 +6,7 @@ import javax.swing.JScrollPane;
 import dnv.ati.model.Image;
 import dnv.ati.model.State;
 
+@SuppressWarnings("serial")
 public class AppFrame extends JFrame{
 
 	public static final int WIDTH = 800;
