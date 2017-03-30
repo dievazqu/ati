@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 public class Histogram {
 
 	public Histogram(Map<Integer, Integer> values) {
-		JFrame frame = new JFrame("Histogram");
+		JFrame frame = new JFrame("Histograma");
 		frame.setLayout(new BorderLayout());
 		frame.add(new JScrollPane(new Graph(values)));
 		frame.pack();
@@ -43,8 +43,9 @@ public class Histogram {
 			if (mapHistory != null) {
 				int xOffset = 5;
 				int yOffset = 5;
+				int offsetForLabels = 20;
 				int width = getWidth() - 1 - (xOffset * 2);
-				int height = getHeight() - 1 - (yOffset * 2);
+				int height = getHeight() - 1 - (yOffset * 2) - offsetForLabels;
 				Graphics2D g2d = (Graphics2D) g.create();
 				g2d.setColor(Color.DARK_GRAY);
 				g2d.drawRect(xOffset, yOffset, width, height);
@@ -67,6 +68,11 @@ public class Histogram {
 					g2d.fill(bar);
 					g2d.setColor(Color.DARK_GRAY);
 					g2d.draw(bar);
+					if(key%8==0){
+						g2d.drawLine(xPos+(barWidth/2), yPos + barHeight + offsetForLabels - 14,
+								 xPos+(barWidth/2), yPos + barHeight + 2);
+						g2d.drawString(""+key, xPos - ((int)Math.log10(key)*4), yPos + barHeight + offsetForLabels);
+					}
 					xPos += barWidth;
 				}
 				g2d.dispose();
