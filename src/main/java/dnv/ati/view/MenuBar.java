@@ -215,6 +215,22 @@ public class MenuBar extends JMenuBar {
 		filterMenu.add(gaussianFilterItem);
 		editionMenu.add(filterMenu);
 		
+		JMenuItem xDerivateFilterItem = new JMenuItem("Filtro derivada en x");
+		xDerivateFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.maskFilter(new double[][]{{-1,0,1},{-1,0,1},{-1,0,1}});
+			state.setImage(img);
+		});
+		filterMenu.add(xDerivateFilterItem);
+		
+		JMenuItem yDerivateFilterItem = new JMenuItem("Filtro derivada en y");
+		yDerivateFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.maskFilter(new double[][]{{-1,-1,-1},{0,0,0},{1,1,1}});
+			state.setImage(img);
+		});
+		filterMenu.add(yDerivateFilterItem);
+		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");

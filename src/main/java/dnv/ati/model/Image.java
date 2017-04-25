@@ -201,8 +201,14 @@ public class Image {
 			}
 			for (int i = 0; i < data.length; i++) {
 				for (int j = 0; j < data[0].length; j++) {
+					if(i==0 && j==0){
+						System.out.println(data[i][j][k]);
+					}
 					data[i][j][k] = (data[i][j][k] - min) * 255.0
 							/ (double) (max - min);
+					if(i==0 && j==0){
+						System.out.println(data[i][j][k]);
+					}
 				}
 			}
 		}
@@ -262,7 +268,7 @@ public class Image {
 		public double apply(int i, int j, int k);
 	}
 
-	public void genericFilter(FilterFunction filter) {
+	public double[][][] newImageDataFromFilter(FilterFunction filter){
 		double[][][] newImageData = new double[height][width][3];
 		for (int k = 0; k < 3; k++) {
 			for (int i = 0; i < height; i++) {
@@ -271,7 +277,11 @@ public class Image {
 				}
 			}
 		}
-		data = newImageData;
+		return newImageData;
+	}
+	
+	public void genericFilter(FilterFunction filter) {
+		data = newImageDataFromFilter(filter);
 	}
 
 	public void medianFilter(int windowSize) {
@@ -298,6 +308,7 @@ public class Image {
 	
 	public void maskFilter(double[][] mask){
 		genericFilter(this.maskFilterFunction(mask));
+		normalize();
 	}
 
 	
@@ -305,22 +316,24 @@ public class Image {
 	private FilterFunction maskFilterFunction(double[][] mask){
 		return new FilterFunctionWrapper(new FilterFunction() {
 			public double apply(int x, int y, int k) {
-				int halfOffset = (mask.length-1)/2;
+				int offset = (mask.length-1)/2;
 				double ans = 0;
 				for(int i=0; i<mask.length; i++){
 					for(int j=0; j<mask.length; j++){
-						ans+=mask[i][j] * data[x+i-halfOffset][y+j-halfOffset][k];
+						ans+=mask[i][j] * data[x+i-offset][y+j-offset][k];
 					}
 				}
-				return 0;
+				
+				return ans;
 			}
 		}, mask.length);
 	}
 	
-	private FilterFunction weightedMedianFunction(int offset) {
+	private FilterFunction weightedMedianFunction(int windowSize) {
 		return new FilterFunctionWrapper(new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
+				int offset = (windowSize-1)/2;
 				List<Double> values = new ArrayList<Double>();
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
@@ -348,14 +361,15 @@ public class Image {
 				return (values.get(values.size() / 2) + values
 						.get(values.size() / 2 + 1)) / 2;
 			}
-		}, offset);
+		}, windowSize);
 		
 	}
 
-	private FilterFunction medianFilterFunction(int offset) {
+	private FilterFunction medianFilterFunction(int windowSize) {
 		return new FilterFunctionWrapper(new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
+				int offset = (windowSize-1)/2;
 				List<Double> values = new ArrayList<Double>();
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
@@ -365,13 +379,14 @@ public class Image {
 				Collections.sort(values);
 				return values.get(values.size() / 2);
 			}
-		}, offset);
+		}, windowSize);
 	}
 
-	private FilterFunction meanFilerFunction(int offset) {
+	private FilterFunction meanFilerFunction(int windowSize) {
 		return new FilterFunctionWrapper(new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
+				int offset = (windowSize-1)/2;
 				double sum = 0.0;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
@@ -381,13 +396,14 @@ public class Image {
 				int size = offset * 2 + 1;
 				return sum / (size * size);
 			}
-		}, offset);
+		}, windowSize);
 	}
 
-	private FilterFunction gaussianFilterFunction(int offset, double sigma){
+	private FilterFunction gaussianFilterFunction(int windowSize, double sigma){
 		return new FilterFunctionWrapper(new FilterFunction() {
 			public double apply(int x, int y, int k) {
 				double sum = 0.0;
+				int offset = (windowSize-1)/2;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
 						int dx = i - x;
@@ -400,13 +416,14 @@ public class Image {
 				}
 				return sum;
 			}
-		}, offset);
+		}, windowSize);
 	}
 
-	private FilterFunction borderFilterFunction(int offset) {
+	private FilterFunction borderFilterFunction(int windowSize) {
 		return new FilterFunctionWrapper(new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
+				int offset = (windowSize-1)/2;
 				double sum = 0.0;
 				int size = offset * 2 + 1;
 				for (int i = x - offset; i <= x + offset; i++) {
@@ -421,7 +438,7 @@ public class Image {
 				}
 				return sum / (size*size);
 			}
-		}, offset);
+		}, windowSize);
 		
 	}
 	
@@ -432,15 +449,16 @@ public class Image {
 	public class FilterFunctionWrapper implements FilterFunction{
 		
 		private FilterFunction ff;
-		private int offset;
+		private int windowSize;
 		
-		public FilterFunctionWrapper(FilterFunction ff, int offset){
+		public FilterFunctionWrapper(FilterFunction ff, int windowSize){
 			this.ff = ff;
+			this.windowSize = windowSize;
 		}
 
 		@Override
 		public double apply(int i, int j, int k) {
-			int halfWindow = (offset - 1) / 2; 
+			int halfWindow = (windowSize - 1) / 2; 
 			if (i < halfWindow || i >= height - halfWindow
 						|| j < halfWindow || j >= width - halfWindow) {
 					return data[i][j][k];
