@@ -11,7 +11,7 @@ public class RandomGenerator {
 	}
 	
 	public static double generateGaussNumber(double mean, double std){
-		return random.nextGaussian()*std+mean;
+		return random.nextGaussian()*Math.sqrt(std)+mean;
 	}
 	
 	public static double generateExponencialNumber(double lambda){

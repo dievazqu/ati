@@ -23,7 +23,7 @@ public class ImageUtils {
 		int[] histogram = new int[256];
 		for(int i=0; i<image.getWidth(); i++){
 			for(int j=0; j<image.getHeight(); j++){
-				histogram[(int) image.getGray(i, j)]++;
+				histogram[(int) image.getGray(j, i)]++;
 			}
 		}
 		return histogram;
@@ -352,7 +352,7 @@ public class ImageUtils {
 				}
 			}
 		}
-		ansImage.normalize();
+		//ansImage.normalize();
 		return ansImage;
 	}
 	

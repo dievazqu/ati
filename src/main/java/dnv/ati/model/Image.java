@@ -256,12 +256,12 @@ public class Image {
 		}
 		map(x -> data[(int) Math.round(x)]);
 	}
-
+	
 	private interface FilterFunction {
-		public double apply(int i, int j, int k, int offset, double sigma);
+		public double apply(int i, int j, int k, int offset);
 	}
 
-	public void genericFilter(int windowSize, double sigma,
+	public void genericFilter(int windowSize,
 			FilterFunction filter) {
 		double[][][] newImageData = new double[height][width][3];
 		int halfWindow = (windowSize - 1) / 2;
@@ -273,7 +273,7 @@ public class Image {
 						newImageData[i][j][k] = data[i][j][k];
 					} else {
 						newImageData[i][j][k] = filter.apply(i, j, k,
-								halfWindow, sigma);
+								halfWindow);
 					}
 				}
 			}
@@ -282,29 +282,28 @@ public class Image {
 	}
 
 	public void medianFilter(int windowSize) {
-		genericFilter(windowSize, 0.0, this::medianCenter);
+		genericFilter(windowSize, this::medianCenter);
 	}
 
 	public void meanFilter(int windowSize) {
-		genericFilter(windowSize, 0.0, this::meanCenter);
+		genericFilter(windowSize, this::meanCenter);
 	}
 
 	public void gaussianFilter(int windowSize, double sigma) {
-		genericFilter(windowSize, sigma, this::gaussianCenter);
+		genericFilter(windowSize, this.gaussianCenter(sigma));
 		normalize();
 	}
 
 	public void weightedMedianFilter() {
-		genericFilter(3, 0.0, this::weightedMedianCenter);
+		genericFilter(3, this::weightedMedianCenter);
 	}
 
 	public void borderFilter() {
-		genericFilter(3, 0.0, this::borderFilterCenter);
+		genericFilter(3, this::borderFilterCenter);
 		normalize();
 	}
 
-	private double weightedMedianCenter(int x, int y, int k, int offset,
-			double sigma) {
+	private double weightedMedianCenter(int x, int y, int k, int offset) {
 		List<Double> values = new ArrayList<Double>();
 		for (int i = x - offset; i <= x + offset; i++) {
 			for (int j = y - offset; j <= y + offset; j++) {
@@ -333,7 +332,7 @@ public class Image {
 				.get(values.size() / 2 + 1)) / 2;
 	}
 
-	private double medianCenter(int x, int y, int k, int offset, double sigma) {
+	private double medianCenter(int x, int y, int k, int offset) {
 		List<Double> values = new ArrayList<Double>();
 		for (int i = x - offset; i <= x + offset; i++) {
 			for (int j = y - offset; j <= y + offset; j++) {
@@ -344,7 +343,7 @@ public class Image {
 		return values.get(values.size() / 2);
 	}
 
-	private double meanCenter(int x, int y, int k, int offset, double sigma) {
+	private double meanCenter(int x, int y, int k, int offset) {
 		double sum = 0.0;
 		for (int i = x - offset; i <= x + offset; i++) {
 			for (int j = y - offset; j <= y + offset; j++) {
@@ -355,23 +354,26 @@ public class Image {
 		return sum / (size * size);
 	}
 
-	private double gaussianCenter(int x, int y, int k, int offset, double sigma) {
-		double sum = 0.0;
-		for (int i = x - offset; i <= x + offset; i++) {
-			for (int j = y - offset; j <= y + offset; j++) {
-				int dx = i - x;
-				int dy = j - y;
-				double sigma2 = sigma * sigma;
-				double c = Math.pow(Math.E, -(dx * dx + dy * dy) / sigma2)
-						/ (2 * Math.PI * sigma2);
-				sum += c * data[i][j][k];
+	private FilterFunction gaussianCenter(double sigma){
+		return new FilterFunction() {
+			public double apply(int x, int y, int k, int offset) {
+				double sum = 0.0;
+				for (int i = x - offset; i <= x + offset; i++) {
+					for (int j = y - offset; j <= y + offset; j++) {
+						int dx = i - x;
+						int dy = j - y;
+						double sigma2 = sigma * sigma;
+						double c = Math.pow(Math.E, -(dx * dx + dy * dy) / sigma2)
+								/ (2 * Math.PI * sigma2);
+						sum += c * data[i][j][k];
+					}
+				}
+				return sum;
 			}
-		}
-		return sum;
+		};
 	}
 
-	private double borderFilterCenter(int x, int y, int k, int offset,
-			double sigma) {
+	private double borderFilterCenter(int x, int y, int k, int offset) {
 		double sum = 0.0;
 		int size = offset * 2 + 1;
 		for (int i = x - offset; i <= x + offset; i++) {
@@ -385,5 +387,9 @@ public class Image {
 			}
 		}
 		return sum / (size*size);
+	}
+	
+	public Image clone(){
+		return copy(0, 0, width-1, height-1);
 	}
 }

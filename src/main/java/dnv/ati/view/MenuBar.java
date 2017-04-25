@@ -213,7 +213,6 @@ public class MenuBar extends JMenuBar {
 		JMenuItem gaussianFilterItem = new JMenuItem("Filtro gaussiano");
 		gaussianFilterItem.addActionListener(l -> new GaussianFilterFrame(state));
 		filterMenu.add(gaussianFilterItem);
-
 		editionMenu.add(filterMenu);
 		
 		JMenu selectionMenu = new JMenu("Selecciones");
