@@ -231,6 +231,22 @@ public class MenuBar extends JMenuBar {
 		});
 		filterMenu.add(yDerivateFilterItem);
 		
+		JMenuItem prewitFilterItem = new JMenuItem("Filtro de Prewit");
+		prewitFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.prewitFilter();
+			state.setImage(img);
+		});
+		filterMenu.add(prewitFilterItem);
+		
+		JMenuItem sobelFilterItem = new JMenuItem("Filtro de Sobel");
+		sobelFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.sobelFilter();
+			state.setImage(img);
+		});
+		filterMenu.add(sobelFilterItem);
+		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");

@@ -201,14 +201,8 @@ public class Image {
 			}
 			for (int i = 0; i < data.length; i++) {
 				for (int j = 0; j < data[0].length; j++) {
-					if(i==0 && j==0){
-						System.out.println(data[i][j][k]);
-					}
 					data[i][j][k] = (data[i][j][k] - min) * 255.0
 							/ (double) (max - min);
-					if(i==0 && j==0){
-						System.out.println(data[i][j][k]);
-					}
 				}
 			}
 		}
@@ -311,7 +305,32 @@ public class Image {
 		normalize();
 	}
 
+	private void gradientFilters(double[][] xMask, double[][] yMask){
+		double[][][] x = newImageDataFromFilter(maskFilterFunction(
+				xMask));
+		double[][][] y = newImageDataFromFilter(maskFilterFunction(
+				yMask));
+		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
+		for(int i=0; i<x.length; i++){
+			for(int j=0; j<x[0].length; j++){
+				for(int k=0; k<x[0][0].length; k++){
+					double xx = x[i][j][k];
+					double yy = y[i][j][k];
+					ans[i][j][k] = Math.sqrt(xx*xx+yy*yy);
+				}
+			}
+		}
+		data = ans;
+		normalize();
+	}
 	
+	public void prewitFilter() {
+		gradientFilters(new double[][]{{-1,0,1},{-1,0,1},{-1,0,1}}, new double[][]{{-1,-1,-1},{0,0,0},{1,1,1}});
+	}
+	
+	public void sobelFilter(){
+		gradientFilters(new double[][]{{-1,0,1},{-2,0,2},{-1,0,1}}, new double[][]{{-1,-2,-1},{0,0,0},{1,2,1}});
+	}
 	
 	private FilterFunction maskFilterFunction(double[][] mask){
 		return new FilterFunctionWrapper(new FilterFunction() {
@@ -466,4 +485,6 @@ public class Image {
 			return ff.apply(i, j, k);
 		}
 	}
+
+	
 }
