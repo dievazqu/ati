@@ -2,15 +2,14 @@ package dnv.ati.model;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.PrimitiveIterator.OfDouble;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-
-import javax.print.attribute.standard.MediaSize.Other;
 
 import dnv.ati.util.ConversionUtils;
 import dnv.ati.util.ImageUtils;
@@ -486,5 +485,102 @@ public class Image {
 		}
 	}
 
+	public void sobelDFilter() {
+		directionalFilter(new double[][]{
+				{1,2,1},
+				{0,0,0},
+				{-1,-2,-1},
+		});
+	}
+
+	public void prewitDFilter() {
+		directionalFilter(new double[][]{
+				{1,1,1},
+				{0,0,0},
+				{-1,-1,-1},
+		});
+	}
+
+	public void kirshDFilter() {
+		directionalFilter(new double[][]{
+				{5,5,5},
+				{-3,0,-3},
+				{-3,-3,-3},
+		});
+	}
+
+	public void aDFilter() {
+		directionalFilter(new double[][]{
+				{1,1,1},
+				{1,-2,1},
+				{-1,-1,-1},
+		});
+	}
+	
+		
+	private void directionalFilter(double[][] mask){
+		if(mask.length != mask[0].length || mask.length != 3){
+			throw new IllegalArgumentException("Invalid mask dimension");
+		}
+		int n = mask.length;
+		double[][] yMask = new double[n][n];
+		double[][] d1Mask = new double[n][n];
+		double[][] d2Mask = new double[n][n];
+		// Rotate border pixels
+		int n2 = n*n-1;
+		Point[] border = new Point[n2];
+		fillBorder(border);
+		d1Mask[1][1] = mask[1][1];
+		d2Mask[1][1] = mask[1][1];
+		yMask[1][1] = mask[1][1];
+		for(int i=0; i<n2; i++){
+			Point curr = border[i];
+			Point next = border[(i+1)%n2];
+			Point prev = border[(i-1+n2)%n2];
+			Point nextNext = border[(i+2)%n2];
+			yMask[nextNext.x][nextNext.y] = mask[curr.x][curr.y]; 
+			d1Mask[next.x][next.y] = mask[curr.x][curr.y];
+			d2Mask[prev.x][prev.y] = mask[curr.x][curr.y];
+		}
+		directionalFilter(mask, yMask, d1Mask, d2Mask);
+	}
+	
+	private void directionalFilter(double[][] mask, double[][] yMask, double[][] d1Mask, double[][] d2Mask){
+
+		double[][][] x = newImageDataFromFilter(maskFilterFunction(
+				mask));
+		double[][][] y = newImageDataFromFilter(maskFilterFunction(
+				yMask));
+		double[][][] d1 = newImageDataFromFilter(maskFilterFunction(
+				d1Mask));
+		double[][][] d2 = newImageDataFromFilter(maskFilterFunction(
+				d2Mask));
+		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
+		for(int i=0; i<x.length; i++){
+			for(int j=0; j<x[0].length; j++){
+				for(int k=0; k<x[0][0].length; k++){
+					double xx = Math.abs(x[i][j][k]);
+					double yy = Math.abs(y[i][j][k]);
+					double dd1 = Math.abs(d1[i][j][k]);
+					double dd2 = Math.abs(d2[i][j][k]);
+					ans[i][j][k] = Math.max(Math.max(xx, yy), Math.max(dd1, dd2));
+				}
+			}
+		}
+		data = ans;
+		normalize();
+	}
+	
+	private void fillBorder(Point[] border){
+		int k=0;
+		border[k++] = new Point(0,0);
+		border[k++] = new Point(0,1);
+		border[k++] = new Point(0,2);
+		border[k++] = new Point(1,2);
+		border[k++] = new Point(2,2);
+		border[k++] = new Point(2,1);
+		border[k++] = new Point(2,0);
+		border[k++] = new Point(1,0);
+	}
 	
 }

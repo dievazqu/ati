@@ -215,6 +215,7 @@ public class MenuBar extends JMenuBar {
 		filterMenu.add(gaussianFilterItem);
 		editionMenu.add(filterMenu);
 		
+		/*
 		JMenuItem xDerivateFilterItem = new JMenuItem("Filtro derivada en x");
 		xDerivateFilterItem.addActionListener(l -> {
 			Image img = state.getImage();
@@ -230,6 +231,7 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		filterMenu.add(yDerivateFilterItem);
+		*/
 		
 		JMenuItem prewitFilterItem = new JMenuItem("Filtro de Prewit");
 		prewitFilterItem.addActionListener(l -> {
@@ -246,6 +248,43 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		filterMenu.add(sobelFilterItem);
+		
+		JMenu direccionalFilterMenu = new JMenu("Filtros direccionales");
+		
+		
+		JMenuItem noNameDFilterItem = new JMenuItem("a)");
+		noNameDFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.aDFilter();
+			state.setImage(img);
+		});
+		direccionalFilterMenu.add(noNameDFilterItem);
+		
+		JMenuItem kirshDFilterItem = new JMenuItem("Mascara de Kirsh");
+		kirshDFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.kirshDFilter();
+			state.setImage(img);
+		});
+		direccionalFilterMenu.add(kirshDFilterItem);
+		
+		JMenuItem prewitDFilterItem = new JMenuItem("Mascara de Prewit");
+		prewitDFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.prewitDFilter();
+			state.setImage(img);
+		});
+		direccionalFilterMenu.add(prewitDFilterItem);
+		
+		JMenuItem sobelDFilterItem = new JMenuItem("Mascara de Sobel");
+		sobelDFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.sobelDFilter();
+			state.setImage(img);
+		});
+		direccionalFilterMenu.add(sobelDFilterItem);
+		
+		filterMenu.add(direccionalFilterMenu);
 		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
