@@ -5,8 +5,8 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -164,6 +164,15 @@ public class Image {
 		return average(this::getOnlyB, x1, y1, x2, y2);
 	}
 
+	private void map(Function<Double, Double> fc, int k) {
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[0].length; j++) {
+				data[i][j][k] = fc.apply(data[i][j][k]);
+			}
+		}
+	}
+	
+	
 	private void map(Function<Double, Double> fc) {
 		for (int k = 0; k < data[0][0].length; k++) {
 			for (int i = 0; i < data.length; i++) {
@@ -236,6 +245,15 @@ public class Image {
 		});
 	}
 
+	public void umbralize(double umbral, int k) {
+		map(x -> {
+			if (x < umbral) {
+				return 0.0;
+			}
+			return 255.0;
+		}, k);
+	}
+	
 	public void umbralize(double umbral) {
 		map(x -> {
 			if (x < umbral) {
@@ -581,6 +599,82 @@ public class Image {
 		border[k++] = new Point(2,1);
 		border[k++] = new Point(2,0);
 		border[k++] = new Point(1,0);
+	}
+
+	public void globalUmbral() {
+		for(int k=0; k<data[0][0].length; k++){
+			double T = 0;
+			for(int i=0; i<data.length; i++){
+				for(int j=0; j<data[0].length; j++){
+					T += data[i][j][k];
+				}
+			}
+			T /= data.length * data[0].length;
+			double umbral = iterateGlobalUmbral(T, k);
+			umbralize(umbral, k);
+		}
+	}
+	
+	private double iterateGlobalUmbral(double T, int k){
+		double s1=0, s2=0;
+		int n1=0, n2=0;
+		for(int i=0; i<height; i++){
+			for(int j=0; j<width; j++){
+				double color = data[i][j][k];
+				if(color <= T){
+					s1 += color;
+					n1++;
+				}else{
+					s2 += color;
+					n2++;
+				}
+			}
+		}
+		double nextT = ((s1/n1)+(s2/n2))*0.5;
+		if(Math.abs(nextT-T)<0.5){
+			System.out.println("Umbral: "+nextT);
+			return nextT;
+		}else{
+			return iterateGlobalUmbral(nextT, k);
+		}
+	}
+
+	private final double EPS = 1e-9;
+	
+	/* Trata a la imagen como gris, deberiamos cambiarlo tal vez*/
+	public void otsuUmbral() {
+		normalize();
+		int[] histogram = ImageUtils.grayHistogram(this);
+		double size = width*height;
+		double[] acumSum = new double[256];
+		double[] m = new double[256];
+		acumSum[0] = histogram[0] / size;
+		m[0] = 0;
+		for(int i=1; i<256; i++){
+			acumSum[i] = acumSum[i-1] + (histogram[i] / size);
+			m[i] = m[i-1] + (i*histogram[i] / size);
+		}
+		double maxx = -1;
+		List<Integer> maxs = new LinkedList<Integer>();
+		for(int i=0; i<256; i++){
+			double var = Math.pow(m[255]*acumSum[i] - m[i], 2) / (acumSum[i]*(1-acumSum[i]));
+			if(Math.abs(maxx-var)<EPS){
+				maxs.add(i);
+			}else{
+				if(maxx < var){
+					maxx = var;
+					maxs.clear();
+					maxs.add(i);
+				}
+			}
+		}
+		double sum = 0;
+		for(Integer i : maxs){
+			sum+=i;
+		}
+		sum/=maxs.size();
+		System.out.println("Umbral: "+sum);
+		umbralize(sum);
 	}
 	
 }

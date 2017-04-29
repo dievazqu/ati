@@ -188,7 +188,6 @@ public class ImageUtils {
 			str += ch;
 			ch = (char) dis.readByte();
 		}
-		System.out.println(str);
 
 		if (str == "")
 			return 0;
@@ -336,7 +335,7 @@ public class ImageUtils {
 				}
 			}
 		}
-		ansImage.normalize();
+		//ansImage.normalize();
 		return ansImage;
 	}
 	
@@ -368,7 +367,7 @@ public class ImageUtils {
 				}
 			}
 		}
-		ansImage.normalize();
+		//ansImage.normalize();
 		return ansImage;
 	}
 	

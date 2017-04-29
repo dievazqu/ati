@@ -146,11 +146,32 @@ public class MenuBar extends JMenuBar {
 		});
 		operationsMenu.add(contrastItem);
 
-		JMenuItem umbralItem = new JMenuItem("Umbralizacion");
-		umbralItem.addActionListener(l -> {
+		JMenu umbralMenu = new JMenu("Umbralizacion");  
+		
+		JMenuItem manualUmbralItem = new JMenuItem("Manual");
+		manualUmbralItem.addActionListener(l -> {
 			new UmbralFrame(state);
 		});
-		operationsMenu.add(umbralItem);
+		umbralMenu.add(manualUmbralItem);
+		
+		JMenuItem globalUmbralItem = new JMenuItem("Global");
+		globalUmbralItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.globalUmbral();
+			state.setImage(img);
+		});
+		umbralMenu.add(globalUmbralItem);
+		
+		JMenuItem otsuUmbralItem = new JMenuItem("Otsu");
+		otsuUmbralItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.otsuUmbral();
+			state.setImage(img);
+		});
+		umbralMenu.add(otsuUmbralItem);
+		
+		
+		operationsMenu.add(umbralMenu);
 
 		JMenuItem equalizeItem = new JMenuItem("Equalizacion");
 		equalizeItem.addActionListener(l -> {
