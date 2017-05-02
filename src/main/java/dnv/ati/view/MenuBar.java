@@ -273,8 +273,15 @@ public class MenuBar extends JMenuBar {
 		});
 		filterMenu.add(sobelFilterItem);
 		
-		JMenu direccionalFilterMenu = new JMenu("Filtros direccionales");
+		JMenuItem laplacianDFilterItem = new JMenuItem("Filtro Laplaciano");
+		laplacianDFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.laplacianFilter();
+			state.setImage(img);
+		});
+		filterMenu.add(laplacianDFilterItem);
 		
+		JMenu direccionalFilterMenu = new JMenu("Filtros direccionales");
 		
 		JMenuItem noNameDFilterItem = new JMenuItem("a)");
 		noNameDFilterItem.addActionListener(l -> {
@@ -307,7 +314,7 @@ public class MenuBar extends JMenuBar {
 			state.setImage(img);
 		});
 		direccionalFilterMenu.add(sobelDFilterItem);
-		
+
 		filterMenu.add(direccionalFilterMenu);
 		
 		JMenuItem isotropicDiffusion = new JMenuItem("Difusión isotrópica");
