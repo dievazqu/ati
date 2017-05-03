@@ -273,13 +273,21 @@ public class MenuBar extends JMenuBar {
 		});
 		filterMenu.add(sobelFilterItem);
 		
-		JMenuItem laplacianDFilterItem = new JMenuItem("Filtro Laplaciano");
-		laplacianDFilterItem.addActionListener(l -> {
+		JMenuItem laplacianFilterItem = new JMenuItem("Filtro Laplaciano");
+		laplacianFilterItem.addActionListener(l -> {
 			Image img = state.getImage();
 			img.laplacianFilter();
 			state.setImage(img);
 		});
-		filterMenu.add(laplacianDFilterItem);
+		filterMenu.add(laplacianFilterItem);
+
+		JMenuItem laplacianWithGradientFilterItem = new JMenuItem("Filtro Laplaciano c/EDP");
+		laplacianWithGradientFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.laplacianWithGradientFilter();
+			state.setImage(img);
+		});
+		filterMenu.add(laplacianWithGradientFilterItem);
 		
 		JMenu direccionalFilterMenu = new JMenu("Filtros direccionales");
 		

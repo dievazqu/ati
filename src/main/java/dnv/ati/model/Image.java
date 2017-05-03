@@ -553,7 +553,48 @@ public class Image {
 				{0,1,0},
 		};
 		genericFilter(maskFilterFunction(mask)); 
-		zeroCross(1e-5);
+		zeroCross(0);
+	}
+
+	public void laplacianWithGradientFilter() {
+		double[][] mask =new double[][]{
+				{0,1,0},
+				{1,-4,1},
+				{0,1,0},
+		};
+		genericFilter(maskFilterFunction(mask));
+		double epsilon = getGradient();
+		zeroCross(epsilon * 0.25);
+	}
+
+	public double getGradient() {
+		double lastNonZeroValue = 0;
+		double max = Double.MIN_VALUE;
+		for (int k = 0; k < 3; k++) {
+			for (int i = 0; i < width; i++) {
+				for (int j = 0; j < height; j++) {
+					double current = data[i][j][k];
+					if (lastNonZeroValue * current <= 0) {
+						double diff = Math.abs(lastNonZeroValue - current);
+						max = max < diff ? diff : max;
+					}
+					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				}
+				lastNonZeroValue = 0;
+			}
+			for (int j = 0; j < height; j++) {
+				for (int i = 0; i < width; i++) {
+					double current = data[i][j][k];
+					if (lastNonZeroValue * current <= 0) {
+						double diff = Math.abs(lastNonZeroValue - current);
+						max = max < diff ? diff : max;
+					}
+					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				}
+				lastNonZeroValue = 0;
+			}
+		}
+		return max;
 	}
 	
 	public void zeroCross(double epsilon) {
@@ -563,7 +604,7 @@ public class Image {
 			for (int i = 0; i < width; i++) {
 				for (int j = 0; j < height; j++) {
 					double current = data[i][j][k];
-					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue) - Math.abs(current) >= epsilon) {
+					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
 						m[i][j] = 255;
 					}
 					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
@@ -573,7 +614,7 @@ public class Image {
 			for (int j = 0; j < height; j++) {
 				for (int i = 0; i < width; i++) {
 					double current = data[i][j][k];
-					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue) - Math.abs(current) >= epsilon) {
+					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
 						m[i][j] = 255;
 					}
 					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
