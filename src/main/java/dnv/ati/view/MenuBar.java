@@ -18,14 +18,17 @@ import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
 import dnv.ati.view.editionFrames.ProdByScalarFrame;
 import dnv.ati.view.editionFrames.UmbralFrame;
+import dnv.ati.view.filterFrames.AnisotropicDiffusionFrame;
 import dnv.ati.view.filterFrames.GaussianFilterFrame;
 import dnv.ati.view.filterFrames.GenericFilterFrame;
+import dnv.ati.view.filterFrames.IsotropicDiffusionFrame;
 import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
 import dnv.ati.view.noiseFrames.GaussianNoiseFrame;
 import dnv.ati.view.noiseFrames.RayleighNoiseFrame;
 import dnv.ati.view.noiseFrames.SaltAndPepperNoiseFrame;
 import dnv.ati.view.selectionFrames.SelectPixelFrame;
 import dnv.ati.view.selectionFrames.SelectRectFrame;
+import dnv.ati.view.util.AnisotropicFunctions;
 import dnv.ati.view.util.ImageLoader;
 
 @SuppressWarnings("serial")
@@ -66,7 +69,7 @@ public class MenuBar extends JMenuBar {
 		fileMenu.add(saveMenu);
 		add(fileMenu);
 
-		JMenu informationMenu = new JMenu("Informacion");
+		JMenu informationMenu = new JMenu("Información");
 		JMenuItem grayHistogram = new JMenuItem("Histograma de grises");
 		grayHistogram.addActionListener(l -> {
 			int[] histogram = ImageUtils.grayHistogram(state.getImage());
@@ -79,8 +82,8 @@ public class MenuBar extends JMenuBar {
 		informationMenu.add(grayHistogram);
 		add(informationMenu);
 
-		JMenu editionMenu = new JMenu("Edicion");
-		JMenu operationImageMenu = new JMenu("Operacion entre imagenes");
+		JMenu editionMenu = new JMenu("Edición");
+		JMenu operationImageMenu = new JMenu("Operación entre imagenes");
 		JMenuItem imageSum = new JMenuItem("Sumar Imagen");
 		imageSum.addActionListener(l -> {
 			ImageLoader.loadImage(img -> state.setImage(ImageUtils.sumImage(state.getImage(), img)));
@@ -132,7 +135,7 @@ public class MenuBar extends JMenuBar {
 		});
 		operationsMenu.add(normalizeItem);
 
-		JMenuItem dynamicRangeItem = new JMenuItem("Rango Dinamico");
+		JMenuItem dynamicRangeItem = new JMenuItem("Rango Dinámico");
 		dynamicRangeItem.addActionListener(l -> {
 			Image img = state.getImage();
 			img.dynamicRange();
@@ -173,7 +176,7 @@ public class MenuBar extends JMenuBar {
 		
 		operationsMenu.add(umbralMenu);
 
-		JMenuItem equalizeItem = new JMenuItem("Equalizacion");
+		JMenuItem equalizeItem = new JMenuItem("Equalización");
 		equalizeItem.addActionListener(l -> {
 			Image img = state.getImage();
 			img.equalize();
@@ -281,7 +284,7 @@ public class MenuBar extends JMenuBar {
 		});
 		direccionalFilterMenu.add(noNameDFilterItem);
 		
-		JMenuItem kirshDFilterItem = new JMenuItem("Mascara de Kirsh");
+		JMenuItem kirshDFilterItem = new JMenuItem("Máscara de Kirsh");
 		kirshDFilterItem.addActionListener(l -> {
 			Image img = state.getImage();
 			img.kirshDFilter();
@@ -289,7 +292,7 @@ public class MenuBar extends JMenuBar {
 		});
 		direccionalFilterMenu.add(kirshDFilterItem);
 		
-		JMenuItem prewitDFilterItem = new JMenuItem("Mascara de Prewit");
+		JMenuItem prewitDFilterItem = new JMenuItem("Máscara de Prewit");
 		prewitDFilterItem.addActionListener(l -> {
 			Image img = state.getImage();
 			img.prewitDFilter();
@@ -297,7 +300,7 @@ public class MenuBar extends JMenuBar {
 		});
 		direccionalFilterMenu.add(prewitDFilterItem);
 		
-		JMenuItem sobelDFilterItem = new JMenuItem("Mascara de Sobel");
+		JMenuItem sobelDFilterItem = new JMenuItem("Máscara de Sobel");
 		sobelDFilterItem.addActionListener(l -> {
 			Image img = state.getImage();
 			img.sobelDFilter();
@@ -306,6 +309,27 @@ public class MenuBar extends JMenuBar {
 		direccionalFilterMenu.add(sobelDFilterItem);
 		
 		filterMenu.add(direccionalFilterMenu);
+		
+		JMenuItem isotropicDiffusion = new JMenuItem("Difusión isotrópica");
+		isotropicDiffusion.addActionListener(l -> {
+			new IsotropicDiffusionFrame(state);
+		});
+		filterMenu.add(isotropicDiffusion);
+		
+		JMenu anisotropicDiffusion = new JMenu("Difusión anisotrópica");
+		JMenuItem leclercDiffusion = new JMenuItem("con Detector de Leclerc");
+		leclercDiffusion.addActionListener(l -> {
+			new AnisotropicDiffusionFrame(state, AnisotropicFunctions.leclercFunction);
+		});
+		anisotropicDiffusion.add(leclercDiffusion);
+		JMenuItem lorentzianDiffusion = new JMenuItem("con Detector Lorentziano");
+		lorentzianDiffusion.addActionListener(l -> {
+			new AnisotropicDiffusionFrame(state, AnisotropicFunctions.lorentzianFunction);
+		});
+		anisotropicDiffusion.add(lorentzianDiffusion);
+		
+		filterMenu.add(anisotropicDiffusion);
+		
 		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
