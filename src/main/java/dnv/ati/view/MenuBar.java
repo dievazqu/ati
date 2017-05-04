@@ -289,6 +289,14 @@ public class MenuBar extends JMenuBar {
 		});
 		filterMenu.add(laplacianWithGradientFilterItem);
 		
+		JMenuItem logFilterItem = new JMenuItem("Filtro LoG");
+		logFilterItem.addActionListener(l -> {
+			Image img = state.getImage();
+			img.logFilter(1, 7);
+			state.setImage(img);
+		});
+		filterMenu.add(logFilterItem);
+
 		JMenu direccionalFilterMenu = new JMenu("Filtros direccionales");
 		
 		JMenuItem noNameDFilterItem = new JMenuItem("a)");

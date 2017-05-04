@@ -547,7 +547,7 @@ public class Image {
 	}
 
 	public void laplacianFilter() {
-		double[][] mask =new double[][]{
+		double[][] mask = new double[][]{
 				{0,1,0},
 				{1,-4,1},
 				{0,1,0},
@@ -557,7 +557,7 @@ public class Image {
 	}
 
 	public void laplacianWithGradientFilter() {
-		double[][] mask =new double[][]{
+		double[][] mask = new double[][]{
 				{0,1,0},
 				{1,-4,1},
 				{0,1,0},
@@ -565,6 +565,44 @@ public class Image {
 		genericFilter(maskFilterFunction(mask));
 		double epsilon = getGradient();
 		zeroCross(epsilon * 0.25);
+	}
+
+	public void logFilter(double sigma, int windowSize) {
+		double[][] mask = getLoGMask(sigma, windowSize);
+//		for (int i = 0; i < mask.length; i++) {
+//			for (int j = 0; j < mask[0].length; j++) {
+//				System.out.print(mask[i][j] + " ");
+//			}
+//			System.out.println();
+//		}
+		genericFilter(maskFilterFunction(mask));
+		double epsilon = getGradient();
+		zeroCross(epsilon * 0.25);
+	}
+
+	private double[][] getLoGMask(double sigma, int windowSize) {
+		double m[][] = new double[windowSize][windowSize];
+		int midline = (windowSize + 1) / 2;
+		for (int i = 0; i < windowSize; i++) {
+			for (int j = 0; j < windowSize; j++) {
+				if (i < midline && j < midline) {
+					m[i][j] = getDeltaG(sigma, midline - 1 - i, midline - 1 - j);
+				} else if (i < midline){
+					m[i][j] = m[i][2 * midline - j - 2];
+				} else {
+					m[i][j] = m[2 * midline - i - 2][j];
+				}
+			}
+		}
+		return m;
+	}
+
+	private double getDeltaG(double sigma, int x, int y) {
+		double xx = x * x;
+		double yy = y * y;
+		double sigmasigma = sigma * sigma;
+		return ((xx + yy) / sigmasigma - 2) * Math.pow(Math.E, - (xx + yy) / (2 * sigmasigma))
+				/ (Math.sqrt(2 * Math.PI) * sigma * sigmasigma);
 	}
 
 	public double getGradient() {
