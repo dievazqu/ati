@@ -45,8 +45,19 @@ public class Image {
 	}
 
 	public double getDataValue(int i, int j, int k) {
-		if (i < 0 || i >= data.length || j < 0 || j >= data[0].length || k < 0
-				|| k >= data[0][0].length) {
+		if(i<0){
+			i=0;
+		}
+		if(i>=data.length){
+			i=data.length-1;
+		}
+		if(j<0){
+			j=0;
+		}
+		if(j>= data[0].length){
+			j= data[0].length-1;
+		}
+		if(k<0 || k >= data[0][0].length){
 			return 0;
 		}
 		return data[i][j][k];
@@ -675,6 +686,37 @@ public class Image {
 		sum/=maxs.size();
 		System.out.println("Umbral: "+sum);
 		umbralize(sum);
+	}
+	
+	
+
+	public void isotropicDiffusion(int t) {
+		while(t-->0){
+			genericFilter((i,j,k) -> {
+				double sum = 0;
+				int[] dx = new int[]{0,0,1,-1};
+				int[] dy = new int[]{1,-1,0,0};
+				for(int a=0; a<4; a++){
+					sum+=getDataValue(dx[a]+i, dy[a]+j, k);
+				}
+				return sum/4.0;
+			});
+		}
+	}
+	
+	public void anisotropicDiffusion(int t, Function<Double, Double> f) {
+		while(t-->0){
+			genericFilter((i,j,k) -> {
+				double sum = 0;
+				int[] dx = new int[]{0,0,1,-1};
+				int[] dy = new int[]{1,-1,0,0};
+				for(int a=0; a<4; a++){
+					double diff = getDataValue(dx[a]+i, dy[a]+j, k)-getDataValue(i, j, k);
+					sum+=f.apply(diff)*diff;
+				}
+				return data[i][j][k]+(sum/4.0);
+			});
+		}
 	}
 	
 }
