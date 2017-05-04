@@ -45,19 +45,19 @@ public class Image {
 	}
 
 	public double getDataValue(int i, int j, int k) {
-		if(i<0){
-			i=0;
+		if (i < 0) {
+			i = 0;
 		}
-		if(i>=data.length){
-			i=data.length-1;
+		if (i >= data.length) {
+			i = data.length - 1;
 		}
-		if(j<0){
-			j=0;
+		if (j < 0) {
+			j = 0;
 		}
-		if(j>= data[0].length){
-			j= data[0].length-1;
+		if (j >= data[0].length) {
+			j = data[0].length - 1;
 		}
-		if(k<0 || k >= data[0][0].length){
+		if (k < 0 || k >= data[0][0].length) {
 			return 0;
 		}
 		return data[i][j][k];
@@ -182,8 +182,7 @@ public class Image {
 			}
 		}
 	}
-	
-	
+
 	private void map(Function<Double, Double> fc) {
 		for (int k = 0; k < data[0][0].length; k++) {
 			for (int i = 0; i < data.length; i++) {
@@ -264,7 +263,7 @@ public class Image {
 			return 255.0;
 		}, k);
 	}
-	
+
 	public void umbralize(double umbral) {
 		map(x -> {
 			if (x < umbral) {
@@ -285,12 +284,12 @@ public class Image {
 		}
 		map(x -> data[(int) Math.round(x)]);
 	}
-	
+
 	private interface FilterFunction {
 		public double apply(int i, int j, int k);
 	}
 
-	public double[][][] newImageDataFromFilter(FilterFunction filter){
+	public double[][][] newImageDataFromFilter(FilterFunction filter) {
 		double[][][] newImageData = new double[height][width][3];
 		for (int k = 0; k < 3; k++) {
 			for (int i = 0; i < height; i++) {
@@ -301,7 +300,7 @@ public class Image {
 		}
 		return newImageData;
 	}
-	
+
 	public void genericFilter(FilterFunction filter) {
 		data = newImageDataFromFilter(filter);
 	}
@@ -327,60 +326,64 @@ public class Image {
 		genericFilter(this.borderFilterFunction(3));
 		normalize();
 	}
-	
-	public void maskFilter(double[][] mask){
+
+	public void maskFilter(double[][] mask) {
 		genericFilter(this.maskFilterFunction(mask));
 		normalize();
 	}
 
-	private void gradientFilters(double[][] xMask, double[][] yMask){
-		double[][][] x = newImageDataFromFilter(maskFilterFunction(
-				xMask));
-		double[][][] y = newImageDataFromFilter(maskFilterFunction(
-				yMask));
+	private void gradientFilters(double[][] xMask, double[][] yMask) {
+		double[][][] x = newImageDataFromFilter(maskFilterFunction(xMask));
+		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask));
 		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
-		for(int i=0; i<x.length; i++){
-			for(int j=0; j<x[0].length; j++){
-				for(int k=0; k<x[0][0].length; k++){
+		for (int i = 0; i < x.length; i++) {
+			for (int j = 0; j < x[0].length; j++) {
+				for (int k = 0; k < x[0][0].length; k++) {
 					double xx = x[i][j][k];
 					double yy = y[i][j][k];
-					ans[i][j][k] = Math.sqrt(xx*xx+yy*yy);
+					ans[i][j][k] = Math.sqrt(xx * xx + yy * yy);
 				}
 			}
 		}
 		data = ans;
 		normalize();
 	}
-	
+
 	public void prewitFilter() {
-		gradientFilters(new double[][]{{-1,0,1},{-1,0,1},{-1,0,1}}, new double[][]{{-1,-1,-1},{0,0,0},{1,1,1}});
+		gradientFilters(new double[][] { { -1, 0, 1 }, { -1, 0, 1 },
+				{ -1, 0, 1 } }, new double[][] { { -1, -1, -1 }, { 0, 0, 0 },
+				{ 1, 1, 1 } });
 	}
-	
-	public void sobelFilter(){
-		gradientFilters(new double[][]{{-1,0,1},{-2,0,2},{-1,0,1}}, new double[][]{{-1,-2,-1},{0,0,0},{1,2,1}});
+
+	public void sobelFilter() {
+		gradientFilters(new double[][] { { -1, 0, 1 }, { -2, 0, 2 },
+				{ -1, 0, 1 } }, new double[][] { { -1, -2, -1 }, { 0, 0, 0 },
+				{ 1, 2, 1 } });
 	}
-	
-	private FilterFunction maskFilterFunction(double[][] mask){
+
+	private FilterFunction maskFilterFunction(double[][] mask) {
 		return new FilterFunction() {
 			public double apply(int x, int y, int k) {
-				int offset = (mask.length-1)/2;
+				int offset = (mask.length - 1) / 2;
 				double ans = 0;
-				for(int i=0; i<mask.length; i++){
-					for(int j=0; j<mask.length; j++){
-						ans+=mask[i][j] * getDataValue(x+i-offset,y+j-offset,k);
+				for (int i = 0; i < mask.length; i++) {
+					for (int j = 0; j < mask.length; j++) {
+						ans += mask[i][j]
+								* getDataValue(x + i - offset, y + j - offset,
+										k);
 					}
 				}
-				
+
 				return ans;
 			}
 		};
 	}
-	
+
 	private FilterFunction weightedMedianFunction(int windowSize) {
 		return new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
-				int offset = (windowSize-1)/2;
+				int offset = (windowSize - 1) / 2;
 				List<Double> values = new ArrayList<Double>();
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
@@ -400,27 +403,27 @@ public class Image {
 							repetitions = 0;
 						}
 						for (int l = 0; l < repetitions; l++) {
-							values.add(getDataValue(i,j,k));
+							values.add(getDataValue(i, j, k));
 						}
 					}
 				}
 				Collections.sort(values);
-				return (values.get(values.size() / 2) + values
-						.get(values.size() / 2 + 1)) / 2;
+				return (values.get(values.size() / 2) + values.get(values
+						.size() / 2 + 1)) / 2;
 			}
 		};
-		
+
 	}
 
 	private FilterFunction medianFilterFunction(int windowSize) {
 		return new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
-				int offset = (windowSize-1)/2;
+				int offset = (windowSize - 1) / 2;
 				List<Double> values = new ArrayList<Double>();
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
-						values.add(getDataValue(i,j,k));
+						values.add(getDataValue(i, j, k));
 					}
 				}
 				Collections.sort(values);
@@ -433,11 +436,11 @@ public class Image {
 		return new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
-				int offset = (windowSize-1)/2;
+				int offset = (windowSize - 1) / 2;
 				double sum = 0.0;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
-						sum += getDataValue(i,j,k);
+						sum += getDataValue(i, j, k);
 					}
 				}
 				int size = offset * 2 + 1;
@@ -446,19 +449,20 @@ public class Image {
 		};
 	}
 
-	private FilterFunction gaussianFilterFunction(int windowSize, double sigma){
+	private FilterFunction gaussianFilterFunction(int windowSize, double sigma) {
 		return new FilterFunction() {
 			public double apply(int x, int y, int k) {
 				double sum = 0.0;
-				int offset = (windowSize-1)/2;
+				int offset = (windowSize - 1) / 2;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
 						int dx = i - x;
 						int dy = j - y;
 						double sigma2 = sigma * sigma;
-						double c = Math.pow(Math.E, -(dx * dx + dy * dy) / sigma2)
+						double c = Math.pow(Math.E, -(dx * dx + dy * dy)
+								/ sigma2)
 								/ (2 * Math.PI * sigma2);
-						sum += c * getDataValue(i,j,k);
+						sum += c * getDataValue(i, j, k);
 					}
 				}
 				return sum;
@@ -470,94 +474,76 @@ public class Image {
 		return new FilterFunction() {
 			@Override
 			public double apply(int x, int y, int k) {
-				int offset = (windowSize-1)/2;
+				int offset = (windowSize - 1) / 2;
 				double sum = 0.0;
 				int size = offset * 2 + 1;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
 						int dist = Math.abs(i - x) + Math.abs(j - y);
 						if (dist == 0) {
-							sum += (size * size - 1) * getDataValue(i,j,k);
+							sum += (size * size - 1) * getDataValue(i, j, k);
 						} else {
-							sum -= 1.0 * getDataValue(i,j,k);
+							sum -= 1.0 * getDataValue(i, j, k);
 						}
 					}
 				}
-				return sum / (size*size);
+				return sum / (size * size);
 			}
 		};
-		
+
 	}
-	
-	public Image clone(){
-		return copy(0, 0, width-1, height-1);
+
+	public Image clone() {
+		return copy(0, 0, width - 1, height - 1);
 	}
-	
-	
+
 	public void sobelDFilter() {
-		directionalFilter(new double[][]{
-				{1,2,1},
-				{0,0,0},
-				{-1,-2,-1},
-		});
+		directionalFilter(new double[][] { { 1, 2, 1 }, { 0, 0, 0 },
+				{ -1, -2, -1 }, });
 	}
 
 	public void prewitDFilter() {
-		directionalFilter(new double[][]{
-				{1,1,1},
-				{0,0,0},
-				{-1,-1,-1},
-		});
+		directionalFilter(new double[][] { { 1, 1, 1 }, { 0, 0, 0 },
+				{ -1, -1, -1 }, });
 	}
 
 	public void kirshDFilter() {
-		directionalFilter(new double[][]{
-				{5,5,5},
-				{-3,0,-3},
-				{-3,-3,-3},
-		});
+		directionalFilter(new double[][] { { 5, 5, 5 }, { -3, 0, -3 },
+				{ -3, -3, -3 }, });
 	}
 
 	public void aDFilter() {
-		directionalFilter(new double[][]{
-				{1,1,1},
-				{1,-2,1},
-				{-1,-1,-1},
-		});
+		directionalFilter(new double[][] { { 1, 1, 1 }, { 1, -2, 1 },
+				{ -1, -1, -1 }, });
 	}
 
 	public void laplacianFilter() {
-		double[][] mask = new double[][]{
-				{0,1,0},
-				{1,-4,1},
-				{0,1,0},
-		};
-		genericFilter(maskFilterFunction(mask)); 
-		zeroCross(0);
+		double[][] mask = new double[][] { { 0, 1, 0 }, { 1, -4, 1 },
+				{ 0, 1, 0 }, };
+		genericFilter(maskFilterFunction(mask));
+		for (int k = 0; k < 3; k++) {
+			zeroCross(0, k);
+		}
 	}
 
 	public void laplacianWithGradientFilter() {
-		double[][] mask = new double[][]{
-				{0,1,0},
-				{1,-4,1},
-				{0,1,0},
-		};
+		double[][] mask = new double[][] { { 0, 1, 0 }, { 1, -4, 1 },
+				{ 0, 1, 0 }, };
 		genericFilter(maskFilterFunction(mask));
-		double epsilon = getGradient();
-		zeroCross(epsilon * 0.25);
+		for (int k = 0; k < 3; k++) {
+			double epsilon = getGradient(k);
+			zeroCross(epsilon * 0.25, k);
+		}
 	}
 
 	public void logFilter(double sigma, int windowSize) {
 		double[][] mask = getLoGMask(sigma, windowSize);
-//		for (int i = 0; i < mask.length; i++) {
-//			for (int j = 0; j < mask[0].length; j++) {
-//				System.out.print(mask[i][j] + " ");
-//			}
-//			System.out.println();
-//		}
 		genericFilter(maskFilterFunction(mask));
-		double epsilon = getGradient();
-		zeroCross(epsilon * 0.25);
+		for (int k = 0; k < 3; k++) {
+			double epsilon = getGradient(k);
+			zeroCross(epsilon * 0.25, k);
+		}
+		;
 	}
 
 	private double[][] getLoGMask(double sigma, int windowSize) {
@@ -567,7 +553,7 @@ public class Image {
 			for (int j = 0; j < windowSize; j++) {
 				if (i < midline && j < midline) {
 					m[i][j] = getDeltaG(sigma, midline - 1 - i, midline - 1 - j);
-				} else if (i < midline){
+				} else if (i < midline) {
 					m[i][j] = m[i][2 * midline - j - 2];
 				} else {
 					m[i][j] = m[2 * midline - i - 2][j];
@@ -581,76 +567,75 @@ public class Image {
 		double xx = x * x;
 		double yy = y * y;
 		double sigmasigma = sigma * sigma;
-		return ((xx + yy) / sigmasigma - 2) * Math.pow(Math.E, - (xx + yy) / (2 * sigmasigma))
+		return ((xx + yy) / sigmasigma - 2)
+				* Math.pow(Math.E, -(xx + yy) / (2 * sigmasigma))
 				/ (Math.sqrt(2 * Math.PI) * sigma * sigmasigma);
 	}
 
-	public double getGradient() {
+	public double getGradient(int k) {
 		double lastNonZeroValue = 0;
 		double max = Double.MIN_VALUE;
-		for (int k = 0; k < 3; k++) {
-			for (int i = 0; i < height; i++) {
-				for (int j = 0; j < width; j++) {
-					double current = data[i][j][k];
-					if (lastNonZeroValue * current <= 0) {
-						double diff = Math.abs(lastNonZeroValue - current);
-						max = max < diff ? diff : max;
-					}
-					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
-				}
-				lastNonZeroValue = 0;
-			}
+		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				for (int i = 0; i < height; i++) {
-					double current = data[i][j][k];
-					if (lastNonZeroValue * current <= 0) {
-						double diff = Math.abs(lastNonZeroValue - current);
-						max = max < diff ? diff : max;
-					}
-					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				double current = data[i][j][k];
+				if (lastNonZeroValue * current <= 0) {
+					double diff = Math.abs(lastNonZeroValue - current);
+					max = max < diff ? diff : max;
 				}
-				lastNonZeroValue = 0;
+				lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
 			}
+			lastNonZeroValue = 0;
+		}
+		for (int j = 0; j < width; j++) {
+			for (int i = 0; i < height; i++) {
+				double current = data[i][j][k];
+				if (lastNonZeroValue * current <= 0) {
+					double diff = Math.abs(lastNonZeroValue - current);
+					max = max < diff ? diff : max;
+				}
+				lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+			}
+			lastNonZeroValue = 0;
 		}
 		return max;
 	}
-	
-	public void zeroCross(double epsilon) {
+
+	public void zeroCross(double epsilon, int k) {
 		double lastNonZeroValue = 0;
 		double[][] m = new double[height][width];
-		for (int k = 0; k < 3; k++) {
-			for (int i = 0; i < height; i++) {
-				for (int j = 0; j < width; j++) {
-					double current = data[i][j][k];
-					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
-						m[i][j] = 255;
-					}
-					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
-				}
-				lastNonZeroValue = 0;
-			}
+		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				for (int i = 0; i < height; i++) {
-					double current = data[i][j][k];
-					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
-						m[i][j] = 255;
-					}
-					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				double current = data[i][j][k];
+				if (lastNonZeroValue * current <= 0
+						&& Math.abs(lastNonZeroValue - current) >= epsilon) {
+					m[i][j] = 255;
 				}
-				lastNonZeroValue = 0;
+				lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
 			}
-			
-			// assign
+			lastNonZeroValue = 0;
+		}
+		for (int j = 0; j < width; j++) {
 			for (int i = 0; i < height; i++) {
-				for (int j = 0; j < width; j++) {
-					data[i][j][k] = m[i][j];
+				double current = data[i][j][k];
+				if (lastNonZeroValue * current <= 0
+						&& Math.abs(lastNonZeroValue - current) >= epsilon) {
+					m[i][j] = 255;
 				}
+				lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+			}
+			lastNonZeroValue = 0;
+		}
+
+		// assign
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				data[i][j][k] = m[i][j];
 			}
 		}
 	}
-		
-	private void directionalFilter(double[][] mask){
-		if(mask.length != mask[0].length || mask.length != 3){
+
+	private void directionalFilter(double[][] mask) {
+		if (mask.length != mask[0].length || mask.length != 3) {
 			throw new IllegalArgumentException("Invalid mask dimension");
 		}
 		int n = mask.length;
@@ -658,67 +643,65 @@ public class Image {
 		double[][] d1Mask = new double[n][n];
 		double[][] d2Mask = new double[n][n];
 		// Rotate border pixels
-		int n2 = n*n-1;
+		int n2 = n * n - 1;
 		Point[] border = new Point[n2];
 		fillBorder(border);
 		d1Mask[1][1] = mask[1][1];
 		d2Mask[1][1] = mask[1][1];
 		yMask[1][1] = mask[1][1];
-		for(int i=0; i<n2; i++){
+		for (int i = 0; i < n2; i++) {
 			Point curr = border[i];
-			Point next = border[(i+1)%n2];
-			Point prev = border[(i-1+n2)%n2];
-			Point nextNext = border[(i+2)%n2];
-			yMask[nextNext.x][nextNext.y] = mask[curr.x][curr.y]; 
+			Point next = border[(i + 1) % n2];
+			Point prev = border[(i - 1 + n2) % n2];
+			Point nextNext = border[(i + 2) % n2];
+			yMask[nextNext.x][nextNext.y] = mask[curr.x][curr.y];
 			d1Mask[next.x][next.y] = mask[curr.x][curr.y];
 			d2Mask[prev.x][prev.y] = mask[curr.x][curr.y];
 		}
 		directionalFilter(mask, yMask, d1Mask, d2Mask);
 	}
-	
-	private void directionalFilter(double[][] mask, double[][] yMask, double[][] d1Mask, double[][] d2Mask){
 
-		double[][][] x = newImageDataFromFilter(maskFilterFunction(
-				mask));
-		double[][][] y = newImageDataFromFilter(maskFilterFunction(
-				yMask));
-		double[][][] d1 = newImageDataFromFilter(maskFilterFunction(
-				d1Mask));
-		double[][][] d2 = newImageDataFromFilter(maskFilterFunction(
-				d2Mask));
+	private void directionalFilter(double[][] mask, double[][] yMask,
+			double[][] d1Mask, double[][] d2Mask) {
+
+		double[][][] x = newImageDataFromFilter(maskFilterFunction(mask));
+		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask));
+		double[][][] d1 = newImageDataFromFilter(maskFilterFunction(d1Mask));
+		double[][][] d2 = newImageDataFromFilter(maskFilterFunction(d2Mask));
 		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
-		for(int i=0; i<x.length; i++){
-			for(int j=0; j<x[0].length; j++){
-				for(int k=0; k<x[0][0].length; k++){
+		for (int i = 0; i < x.length; i++) {
+			for (int j = 0; j < x[0].length; j++) {
+				for (int k = 0; k < x[0][0].length; k++) {
 					double xx = Math.abs(x[i][j][k]);
 					double yy = Math.abs(y[i][j][k]);
 					double dd1 = Math.abs(d1[i][j][k]);
 					double dd2 = Math.abs(d2[i][j][k]);
-					ans[i][j][k] = Math.max(Math.max(xx, yy), Math.max(dd1, dd2));
+					ans[i][j][k] = Math.max(Math.max(xx, yy),
+							Math.max(dd1, dd2));
 				}
 			}
 		}
 		data = ans;
 		normalize();
 	}
-	
-	private void fillBorder(Point[] border){
-		int k=0;
-		border[k++] = new Point(0,0);
-		border[k++] = new Point(0,1);
-		border[k++] = new Point(0,2);
-		border[k++] = new Point(1,2);
-		border[k++] = new Point(2,2);
-		border[k++] = new Point(2,1);
-		border[k++] = new Point(2,0);
-		border[k++] = new Point(1,0);
+
+	private void fillBorder(Point[] border) {
+		int k = 0;
+		border[k++] = new Point(0, 0);
+		border[k++] = new Point(0, 1);
+		border[k++] = new Point(0, 2);
+		border[k++] = new Point(1, 2);
+		border[k++] = new Point(2, 2);
+		border[k++] = new Point(2, 1);
+		border[k++] = new Point(2, 0);
+		border[k++] = new Point(1, 0);
 	}
 
 	public void globalUmbral() {
-		for(int k=0; k<data[0][0].length; k++){
+		for (int k = 0; k < data[0][0].length; k++) {
 			double T = 0;
-			for(int i=0; i<data.length; i++){
-				for(int j=0; j<data[0].length; j++){
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[0].length; j++) {
 					T += data[i][j][k];
 				}
 			}
@@ -727,54 +710,54 @@ public class Image {
 			umbralize(umbral, k);
 		}
 	}
-	
-	private double iterateGlobalUmbral(double T, int k){
-		double s1=0, s2=0;
-		int n1=0, n2=0;
-		for(int i=0; i<height; i++){
-			for(int j=0; j<width; j++){
+
+	private double iterateGlobalUmbral(double T, int k) {
+		double s1 = 0, s2 = 0;
+		int n1 = 0, n2 = 0;
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
 				double color = data[i][j][k];
-				if(color <= T){
+				if (color <= T) {
 					s1 += color;
 					n1++;
-				}else{
+				} else {
 					s2 += color;
 					n2++;
 				}
 			}
 		}
-		double nextT = ((s1/n1)+(s2/n2))*0.5;
-		if(Math.abs(nextT-T)<0.5){
-			System.out.println("Umbral: "+nextT);
+		double nextT = ((s1 / n1) + (s2 / n2)) * 0.5;
+		if (Math.abs(nextT - T) < 0.5) {
+			System.out.println("Umbral: " + nextT);
 			return nextT;
-		}else{
+		} else {
 			return iterateGlobalUmbral(nextT, k);
 		}
 	}
 
 	private final double EPS = 1e-9;
-	
-	/* Trata a la imagen como gris, deberiamos cambiarlo tal vez*/
+
+	/* Trata a la imagen como gris, deberiamos cambiarlo tal vez */
 	public void otsuUmbral() {
-		normalize();
 		int[] histogram = ImageUtils.grayHistogram(this);
-		double size = width*height;
+		double size = width * height;
 		double[] acumSum = new double[256];
 		double[] m = new double[256];
 		acumSum[0] = histogram[0] / size;
 		m[0] = 0;
-		for(int i=1; i<256; i++){
-			acumSum[i] = acumSum[i-1] + (histogram[i] / size);
-			m[i] = m[i-1] + (i*histogram[i] / size);
+		for (int i = 1; i < 256; i++) {
+			acumSum[i] = acumSum[i - 1] + (histogram[i] / size);
+			m[i] = m[i - 1] + (i * histogram[i] / size);
 		}
 		double maxx = -1;
 		List<Integer> maxs = new LinkedList<Integer>();
-		for(int i=0; i<256; i++){
-			double var = Math.pow(m[255]*acumSum[i] - m[i], 2) / (acumSum[i]*(1-acumSum[i]));
-			if(Math.abs(maxx-var)<EPS){
+		for (int i = 1; i < 255; i++) {
+			double var = Math.pow(m[255] * acumSum[i] - m[i], 2)
+					/ (acumSum[i] * (1 - acumSum[i]));
+			if (Math.abs(maxx - var) < EPS) {
 				maxs.add(i);
-			}else{
-				if(maxx < var){
+			} else {
+				if (maxx < var) {
 					maxx = var;
 					maxs.clear();
 					maxs.add(i);
@@ -782,43 +765,42 @@ public class Image {
 			}
 		}
 		double sum = 0;
-		for(Integer i : maxs){
-			sum+=i;
+		for (Integer i : maxs) {
+			sum += i;
 		}
-		sum/=maxs.size();
-		System.out.println("Umbral: "+sum);
+		sum /= maxs.size();
+		System.out.println("Umbral: " + sum);
 		umbralize(sum);
 	}
-	
-	
 
 	public void isotropicDiffusion(int t) {
-		while(t-->0){
-			genericFilter((i,j,k) -> {
+		while (t-- > 0) {
+			genericFilter((i, j, k) -> {
 				double sum = 0;
-				int[] dx = new int[]{0,0,1,-1};
-				int[] dy = new int[]{1,-1,0,0};
-				for(int a=0; a<4; a++){
-					sum+=getDataValue(dx[a]+i, dy[a]+j, k);
+				int[] dx = new int[] { 0, 0, 1, -1 };
+				int[] dy = new int[] { 1, -1, 0, 0 };
+				for (int a = 0; a < 4; a++) {
+					sum += getDataValue(dx[a] + i, dy[a] + j, k);
 				}
-				return sum/4.0;
+				return sum / 4.0;
 			});
 		}
 	}
-	
+
 	public void anisotropicDiffusion(int t, Function<Double, Double> f) {
-		while(t-->0){
-			genericFilter((i,j,k) -> {
+		while (t-- > 0) {
+			genericFilter((i, j, k) -> {
 				double sum = 0;
-				int[] dx = new int[]{0,0,1,-1};
-				int[] dy = new int[]{1,-1,0,0};
-				for(int a=0; a<4; a++){
-					double diff = getDataValue(dx[a]+i, dy[a]+j, k)-getDataValue(i, j, k);
-					sum+=f.apply(diff)*diff;
+				int[] dx = new int[] { 0, 0, 1, -1 };
+				int[] dy = new int[] { 1, -1, 0, 0 };
+				for (int a = 0; a < 4; a++) {
+					double diff = getDataValue(dx[a] + i, dy[a] + j, k)
+							- getDataValue(i, j, k);
+					sum += f.apply(diff) * diff;
 				}
-				return data[i][j][k]+(sum/4.0);
+				return data[i][j][k] + (sum / 4.0);
 			});
 		}
 	}
-	
+
 }
