@@ -407,8 +407,8 @@ public class ImageUtils {
 	public static Image noisyImages(int width, int height, double initialValue, double percentage, Supplier<Double> supplier){
 		Image img = new Image(width, height);
 		List<Point> points = new ArrayList<Point>();
-		for(int i=0; i<width; i++){
-			for(int j=0; j<height; j++){
+		for(int i=0; i<height; i++){
+			for(int j=0; j<width; j++){
 				points.add(new Point(i,j));
 				img.setGrayColor(i, j, initialValue);
 			}
@@ -417,7 +417,7 @@ public class ImageUtils {
 		Collections.shuffle(points);
 		for(int k=0; k<total*percentage; k++){
 			Point point = points.get(k);
-			img.setGrayColor(point.y, point.x, supplier.get());
+			img.setGrayColor(point.x, point.y, supplier.get());
 		}
 		return img;
 	}
