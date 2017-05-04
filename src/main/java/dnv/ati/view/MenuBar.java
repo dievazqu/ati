@@ -22,6 +22,7 @@ import dnv.ati.view.filterFrames.AnisotropicDiffusionFrame;
 import dnv.ati.view.filterFrames.GaussianFilterFrame;
 import dnv.ati.view.filterFrames.GenericFilterFrame;
 import dnv.ati.view.filterFrames.IsotropicDiffusionFrame;
+import dnv.ati.view.filterFrames.LoGFilterFrame;
 import dnv.ati.view.noiseFrames.ExponencialNoiseFrame;
 import dnv.ati.view.noiseFrames.GaussianNoiseFrame;
 import dnv.ati.view.noiseFrames.RayleighNoiseFrame;
@@ -290,11 +291,7 @@ public class MenuBar extends JMenuBar {
 		filterMenu.add(laplacianWithGradientFilterItem);
 		
 		JMenuItem logFilterItem = new JMenuItem("Filtro LoG");
-		logFilterItem.addActionListener(l -> {
-			Image img = state.getImage();
-			img.logFilter(1, 7);
-			state.setImage(img);
-		});
+		logFilterItem.addActionListener(l -> new LoGFilterFrame(state));
 		filterMenu.add(logFilterItem);
 
 		JMenu direccionalFilterMenu = new JMenu("Filtros direccionales");
