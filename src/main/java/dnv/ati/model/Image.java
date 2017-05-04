@@ -545,7 +545,129 @@ public class Image {
 				{-1,-1,-1},
 		});
 	}
+
+	public void laplacianFilter() {
+		double[][] mask = new double[][]{
+				{0,1,0},
+				{1,-4,1},
+				{0,1,0},
+		};
+		genericFilter(maskFilterFunction(mask)); 
+		zeroCross(0);
+	}
+
+	public void laplacianWithGradientFilter() {
+		double[][] mask = new double[][]{
+				{0,1,0},
+				{1,-4,1},
+				{0,1,0},
+		};
+		genericFilter(maskFilterFunction(mask));
+		double epsilon = getGradient();
+		zeroCross(epsilon * 0.25);
+	}
+
+	public void logFilter(double sigma, int windowSize) {
+		double[][] mask = getLoGMask(sigma, windowSize);
+//		for (int i = 0; i < mask.length; i++) {
+//			for (int j = 0; j < mask[0].length; j++) {
+//				System.out.print(mask[i][j] + " ");
+//			}
+//			System.out.println();
+//		}
+		genericFilter(maskFilterFunction(mask));
+		double epsilon = getGradient();
+		zeroCross(epsilon * 0.25);
+	}
+
+	private double[][] getLoGMask(double sigma, int windowSize) {
+		double m[][] = new double[windowSize][windowSize];
+		int midline = (windowSize + 1) / 2;
+		for (int i = 0; i < windowSize; i++) {
+			for (int j = 0; j < windowSize; j++) {
+				if (i < midline && j < midline) {
+					m[i][j] = getDeltaG(sigma, midline - 1 - i, midline - 1 - j);
+				} else if (i < midline){
+					m[i][j] = m[i][2 * midline - j - 2];
+				} else {
+					m[i][j] = m[2 * midline - i - 2][j];
+				}
+			}
+		}
+		return m;
+	}
+
+	private double getDeltaG(double sigma, int x, int y) {
+		double xx = x * x;
+		double yy = y * y;
+		double sigmasigma = sigma * sigma;
+		return ((xx + yy) / sigmasigma - 2) * Math.pow(Math.E, - (xx + yy) / (2 * sigmasigma))
+				/ (Math.sqrt(2 * Math.PI) * sigma * sigmasigma);
+	}
+
+	public double getGradient() {
+		double lastNonZeroValue = 0;
+		double max = Double.MIN_VALUE;
+		for (int k = 0; k < 3; k++) {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					double current = data[i][j][k];
+					if (lastNonZeroValue * current <= 0) {
+						double diff = Math.abs(lastNonZeroValue - current);
+						max = max < diff ? diff : max;
+					}
+					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				}
+				lastNonZeroValue = 0;
+			}
+			for (int j = 0; j < width; j++) {
+				for (int i = 0; i < height; i++) {
+					double current = data[i][j][k];
+					if (lastNonZeroValue * current <= 0) {
+						double diff = Math.abs(lastNonZeroValue - current);
+						max = max < diff ? diff : max;
+					}
+					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				}
+				lastNonZeroValue = 0;
+			}
+		}
+		return max;
+	}
 	
+	public void zeroCross(double epsilon) {
+		double lastNonZeroValue = 0;
+		double[][] m = new double[height][width];
+		for (int k = 0; k < 3; k++) {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					double current = data[i][j][k];
+					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
+						m[i][j] = 255;
+					}
+					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				}
+				lastNonZeroValue = 0;
+			}
+			for (int j = 0; j < width; j++) {
+				for (int i = 0; i < height; i++) {
+					double current = data[i][j][k];
+					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
+						m[i][j] = 255;
+					}
+					lastNonZeroValue = current != 0 ? current : lastNonZeroValue;
+				}
+				lastNonZeroValue = 0;
+			}
+			
+			// assign
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
+					data[i][j][k] = m[i][j];
+				}
+			}
+		}
+	}
 		
 	private void directionalFilter(double[][] mask){
 		if(mask.length != mask[0].length || mask.length != 3){
