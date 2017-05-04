@@ -609,8 +609,8 @@ public class Image {
 		double lastNonZeroValue = 0;
 		double max = Double.MIN_VALUE;
 		for (int k = 0; k < 3; k++) {
-			for (int i = 0; i < width; i++) {
-				for (int j = 0; j < height; j++) {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
 					double current = data[i][j][k];
 					if (lastNonZeroValue * current <= 0) {
 						double diff = Math.abs(lastNonZeroValue - current);
@@ -620,8 +620,8 @@ public class Image {
 				}
 				lastNonZeroValue = 0;
 			}
-			for (int j = 0; j < height; j++) {
-				for (int i = 0; i < width; i++) {
+			for (int j = 0; j < width; j++) {
+				for (int i = 0; i < height; i++) {
 					double current = data[i][j][k];
 					if (lastNonZeroValue * current <= 0) {
 						double diff = Math.abs(lastNonZeroValue - current);
@@ -637,10 +637,10 @@ public class Image {
 	
 	public void zeroCross(double epsilon) {
 		double lastNonZeroValue = 0;
-		double[][] m = new double[width][height];
+		double[][] m = new double[height][width];
 		for (int k = 0; k < 3; k++) {
-			for (int i = 0; i < width; i++) {
-				for (int j = 0; j < height; j++) {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
 					double current = data[i][j][k];
 					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
 						m[i][j] = 255;
@@ -649,8 +649,8 @@ public class Image {
 				}
 				lastNonZeroValue = 0;
 			}
-			for (int j = 0; j < height; j++) {
-				for (int i = 0; i < width; i++) {
+			for (int j = 0; j < width; j++) {
+				for (int i = 0; i < height; i++) {
 					double current = data[i][j][k];
 					if (lastNonZeroValue * current <= 0 && Math.abs(lastNonZeroValue - current) >= epsilon) {
 						m[i][j] = 255;
@@ -661,8 +661,8 @@ public class Image {
 			}
 			
 			// assign
-			for (int i = 0; i < width; i++) {
-				for (int j = 0; j < height; j++) {
+			for (int i = 0; i < height; i++) {
+				for (int j = 0; j < width; j++) {
 					data[i][j][k] = m[i][j];
 				}
 			}
