@@ -351,14 +351,30 @@ public class MenuBar extends JMenuBar {
 		
 		filterMenu.add(anisotropicDiffusion);
 		
-		JMenu borderMenu = new JMenu("Bordes");
-		editionMenu.add(borderMenu);
+		JMenu borderCornerMenu = new JMenu("Bordes y esquinas");
+		editionMenu.add(borderCornerMenu);
 		
 		JMenuItem cannyBorder = new JMenuItem("Detector de bordes de Canny");
 		cannyBorder.addActionListener(e -> {
 			new CannyBorderFrame(state);
 		});
-		borderMenu.add(cannyBorder);
+		borderCornerMenu.add(cannyBorder);
+		
+		JMenuItem susanBorder = new JMenuItem("Detector de bordes SUSAN");
+		susanBorder.addActionListener(e -> {
+			Image img = state.getImage();
+			img.susanBorderDetector();
+			state.setImage(img);
+		});
+		borderCornerMenu.add(susanBorder);
+		
+		JMenuItem susanCorner = new JMenuItem("Detector de esquinas SUSAN");
+		susanCorner.addActionListener(e -> {
+			Image img = state.getImage();
+			img.susanCornerDetector();
+			state.setImage(img);
+		});
+		borderCornerMenu.add(susanCorner);
 		
 		
 		JMenu selectionMenu = new JMenu("Selecciones");

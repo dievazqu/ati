@@ -26,10 +26,14 @@ public class Image {
 		this.data = new double[height][width][3];
 	}
 
+	public void setGrayColor(int i, int j, double value, double[][][] matrix) {
+		matrix[i][j][0] = value;
+		matrix[i][j][1] = value;
+		matrix[i][j][2] = value;
+	}
+	
 	public void setGrayColor(int i, int j, double value) {
-		data[i][j][0] = value;
-		data[i][j][1] = value;
-		data[i][j][2] = value;
+		setGrayColor(i, j, value, data);
 	}
 
 	public double getGray(int i, int j) {
@@ -805,6 +809,64 @@ public class Image {
 		}
 	}
 
+	public void susanBorderDetector() {
+		susanDetector(true);
+	}
+	
+	public void susanCornerDetector() {
+		susanDetector(false);
+	}
+	
+	public void susanDetector(boolean border) {
+		double[][][] clone = clone().data;
+		double[][] mask = new double[][]{
+			{0, 0, 1.0, 1.0, 1.0, 0, 0},
+			{0, 1.0, 1.0, 1.0, 1.0, 1.0, 0},
+			{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+			{0, 1.0, 1.0, 1.0, 1.0, 1.0, 0},
+			{0, 0, 1.0, 1.0, 1.0, 0, 0}
+		};
+		int halfMaskSize = (int) Math.floor(mask.length / 2);
+		int N = 37;
+		int t = 27;
+		double epsilon = 0.15;
+		double sBorderValue = 0.5;
+		double sCornerValue = 0.75;
+		int pixelSameGrayAmountInMask;
+		double s;
+		
+		for (int i = halfMaskSize; i < data.length - halfMaskSize; i++) {
+			for (int j = halfMaskSize; j < data[0].length - halfMaskSize; j++) {
+				pixelSameGrayAmountInMask = pixelSameGrayAmountInMask(i, j, t, mask);
+				s = 1 - ((double) pixelSameGrayAmountInMask) / N;
+				if ((border && (Math.abs(s - sBorderValue) < epsilon)) ||
+					(!border && (Math.abs(s - sCornerValue) < epsilon))) {
+					setGrayColor(i, j, 255.0, clone);
+				} else {
+					setGrayColor(i, j, 0, clone);
+				}
+			}
+		}
+		data = clone;
+	}
+	
+	private int pixelSameGrayAmountInMask(int x, int y, int t, double[][] mask) {
+		int count = 0;
+		int halfMaskSize = (int) Math.floor(mask.length / 2);
+		
+		for (int i = -halfMaskSize; i < halfMaskSize + 1; i++) {
+			for (int j = -halfMaskSize; j < halfMaskSize + 1; j++) {
+				if (Math.abs(getGray(x, y)
+						- mask[i + halfMaskSize][j + halfMaskSize] * getGray(x + i, y + j)) < t) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
 	public void cannyBorderDetector(int windowSize, double sigma, double t1, double t2) {
 		gaussianFilter(windowSize, sigma);
 		Derivates d = sobelFilter();
