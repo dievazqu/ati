@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -332,7 +333,7 @@ public class Image {
 		normalize();
 	}
 
-	private void gradientFilters(double[][] xMask, double[][] yMask) {
+	private Derivates gradientFilters(double[][] xMask, double[][] yMask) {
 		double[][][] x = newImageDataFromFilter(maskFilterFunction(xMask));
 		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask));
 		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
@@ -347,6 +348,7 @@ public class Image {
 		}
 		data = ans;
 		normalize();
+		return new Derivates(x, y);
 	}
 
 	public void prewitFilter() {
@@ -355,8 +357,8 @@ public class Image {
 				{ 1, 1, 1 } });
 	}
 
-	public void sobelFilter() {
-		gradientFilters(new double[][] { { -1, 0, 1 }, { -2, 0, 2 },
+	public Derivates sobelFilter() {
+		return gradientFilters(new double[][] { { -1, 0, 1 }, { -2, 0, 2 },
 				{ -1, 0, 1 } }, new double[][] { { -1, -2, -1 }, { 0, 0, 0 },
 				{ 1, 2, 1 } });
 	}
@@ -803,4 +805,85 @@ public class Image {
 		}
 	}
 
+	public void cannyBorderDetector(int windowSize, double sigma, double t1, double t2) {
+		gaussianFilter(windowSize, sigma);
+		Derivates d = sobelFilter();
+
+		for (int k = 0; k < data[0][0].length; k++) {
+			// aca va desde 1 y hasta length - 1 para que no pase un IndexOutOfBounds
+			// se re puede mejorar eso
+			for (int i = 1; i < data.length - 1; i++) {
+				for (int j = 1; j < data[0].length - 1; j++) {
+					Point direction = cannyBorderDirection(d.dx[i][j][k], d.dy[i][j][k]);
+					if (data[i][j][k] <= data[i + direction.x][j + direction.y][k]) {
+						data[i][j][k] = 0;
+					} else if (data[i][j][k] <= data[i - direction.x][j - direction.y][k]) {
+						data[i][j][k] = 0;
+					}
+				}
+			}
+		}
+
+		List<Point> lateCheckPoints;
+		for (int k = 0; k < data[0][0].length; k++) {
+			lateCheckPoints = new ArrayList<>();
+			// aca va desde 1 y hasta length - 1 para que no pase un IndexOutOfBounds
+			// se re puede mejorar eso
+			for (int i = 1; i < data.length - 1; i++) {
+				for (int j = 1; j < data[0].length - 1; j++) {
+					if (data[i][j][k] > t2) {
+						data[i][j][k] = 255.0;
+					} else if (data[i][j][k] < t1) {
+						data[i][j][k] = 0.0;
+					} else {
+						lateCheckPoints.add(new Point(i, j));
+					}
+				}
+			}
+			Iterator<Point> it = lateCheckPoints.iterator();
+			while (it.hasNext()) {
+				Point p = it.next();
+				if (data[p.x - 1][p.y - 1][k] == 255.0 ||
+					data[p.x][p.y - 1][k] == 255.0 ||
+					data[p.x + 1][p.y - 1][k] == 255.0 ||
+					data[p.x - 1][p.y][k] == 255.0 ||
+					data[p.x][p.y][k] == 255.0 ||
+					data[p.x + 1][p.y][k] == 255.0 ||
+					data[p.x - 1][p.y + 1][k] == 255.0 ||
+					data[p.x][p.y + 1][k] == 255.0 ||
+					data[p.x + 1][p.y + 1][k] == 255.0 ) {
+					data[p.x][p.y][k] = 255.0;
+				}
+			}
+
+		}
+	}
+
+	private Point cannyBorderDirection(double dxVal,double dyVal) {
+		if (dxVal == 0) {
+			return new Point(0, 1);
+		}
+		double angle = Math.atan2(dyVal, dxVal) * 180.0 / Math.PI;
+		angle += angle < 0 ? 180 : 0;
+
+		if (angle < 22.5 || angle > 157.5) {
+			return new Point(1, 0);
+		} else if (angle < 67.5){
+			return new Point(1, 1);
+		} else if (angle < 112.5){
+			return new Point(0, 1);
+		} else {
+			return new Point(1, -1);
+		}
+	}
+
+	private class Derivates {
+		double[][][] dx;
+		double[][][] dy;
+
+		public Derivates(double[][][] dx, double[][][] dy) {
+			this.dx = dx;
+			this.dy = dy;
+		}
+	}
 }

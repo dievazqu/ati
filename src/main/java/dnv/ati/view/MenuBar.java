@@ -14,6 +14,7 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
+import dnv.ati.view.borderFrames.CannyBorderFrame;
 import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
 import dnv.ati.view.editionFrames.ProdByScalarFrame;
@@ -349,6 +350,15 @@ public class MenuBar extends JMenuBar {
 		anisotropicDiffusion.add(lorentzianDiffusion);
 		
 		filterMenu.add(anisotropicDiffusion);
+		
+		JMenu borderMenu = new JMenu("Bordes");
+		editionMenu.add(borderMenu);
+		
+		JMenuItem cannyBorder = new JMenuItem("Detector de bordes de Canny");
+		cannyBorder.addActionListener(e -> {
+			new CannyBorderFrame(state);
+		});
+		borderMenu.add(cannyBorder);
 		
 		
 		JMenu selectionMenu = new JMenu("Selecciones");
