@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import dnv.ati.util.Auxiliar;
 import dnv.ati.util.ConversionUtils;
 import dnv.ati.util.ImageUtils;
 
@@ -807,6 +808,87 @@ public class Image {
 				return data[i][j][k] + (sum / 4.0);
 			});
 		}
+	}
+
+	public void linearHoughTransformation(int titaSteps, int roSteps, double epsilon) {
+		double[][][] clone = clone().data;
+		List<Point> whitePoints = whitePoints(0);
+
+		int[][] acum = new int[titaSteps][roSteps];
+
+		double tita2 = Math.PI/2;
+		double tita1 = (-1) * tita2;
+		double titaStep = (tita2 - tita1) / (titaSteps - 1);
+
+		double ro2 = Math.max(height, width) * Math.sqrt(2);
+		double ro1 = (-1) * ro2;
+		double roStep = (ro2 - ro1) / (roSteps - 1);
+
+		double currentTita = tita1;
+		int currentTitaStep = 0;
+		while (currentTitaStep < titaSteps) {
+			double currentRo = ro1;
+			int currentRoStep = 0;
+			while (currentRoStep < roSteps) {
+				for (Point p: whitePoints) {
+					if (satisfiesLineNormalEquation(p.x, p.y, currentTita, currentRo, epsilon)) {
+						acum[currentTitaStep][currentRoStep]++;
+					}
+				}
+				currentRoStep++;
+				currentRo += roStep;
+			}
+			currentTitaStep++;
+			currentTita += titaStep;
+		}
+
+		
+		int max = Auxiliar.max(acum);
+		double threshold = ((double) max) * 0.75;
+
+		currentTita = tita1;
+		currentTitaStep = 0;
+		while (currentTitaStep < titaSteps) {
+			double currentRo = ro1;
+			int currentRoStep = 0;
+			while (currentRoStep < roSteps) {
+				if (acum[currentTitaStep][currentRoStep] > threshold) {
+					drawLine(currentTita, currentRo, epsilon, clone);
+				}
+				currentRoStep++;
+				currentRo += roStep;
+			}
+			currentTitaStep++;
+			currentTita += titaStep;
+		}
+
+		data = clone;
+	}
+
+	private void drawLine(double tita, double ro, double epsilon, double[][][] matrix) {
+		for (int x = 0; x < matrix.length; x++) {
+			for (int y = 0; y < matrix[0].length; y++) {
+			 	if (satisfiesLineNormalEquation(x, y, tita, ro, epsilon)) {
+			 		setGrayColor(x, y, 128.0, matrix);
+			 	}
+			}
+		}
+	}
+
+	private boolean satisfiesLineNormalEquation(int x, int y, double tita, double ro, double epsilon) {
+		return Math.abs(ro - x * Math.cos(tita) - y * Math.sin(tita)) < epsilon;
+	}
+
+	private List<Point> whitePoints(int k) {
+		List<Point> whitePoints = new ArrayList<>();
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[0].length; j++) {
+				if (data[i][j][k] == 255.0) {
+					whitePoints.add(new Point(i, j));
+				}
+			}
+		}
+		return whitePoints;
 	}
 
 	public void susanBorderDetector() {
