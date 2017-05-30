@@ -810,6 +810,62 @@ public class Image {
 		}
 	}
 
+	public void circularHoughTransformation(int radiusSteps, double epsilon) {
+		double[][][] clone = clone().data;
+		List<Point> whitePoints = whitePoints(0);
+
+		int[] acum = new int[radiusSteps];
+
+		double radius2 = Math.max(height, width) * Math.sqrt(2);
+		double radius1 = 0;
+		double radiusStep = radius2 / (radiusSteps - 1);
+
+		Point center = new Point((width - 1) / 2, (height - 1) / 2);
+
+		double currentRadius = radius1;
+		int currentRadiusStep = 0;
+		while (currentRadiusStep < radiusSteps) {
+			for (Point p: whitePoints) {
+				if (satisfiesCircularNormalEquation(p.x, p.y, currentRadius, epsilon, center)) {
+					acum[currentRadiusStep]++;
+				}
+			}
+			currentRadiusStep++;
+			currentRadius += radiusStep;
+		}
+
+		int max = Auxiliar.max(acum);
+		double threshold = ((double) max) * 0.75;
+
+		currentRadius = radius1;
+		currentRadiusStep = 0;
+		while (currentRadiusStep < radiusSteps) {
+			if (acum[currentRadiusStep] > threshold) {
+				// we are using a bigger epsilon for drawing
+				drawCircle(currentRadius, 100, center, clone);
+//				drawCircle(currentRadius, epsilon, center, clone);
+			}
+			currentRadiusStep++;
+			currentRadius += radiusStep;
+		}
+
+		data = clone;
+	}
+
+	private void drawCircle(double radius, double epsilon, Point center, double[][][] matrix) {
+		for (int x = 0; x < matrix.length; x++) {
+			for (int y = 0; y < matrix[0].length; y++) {
+				if (satisfiesCircularNormalEquation(x, y, radius, epsilon, center)) {
+			 		setGrayColor(x, y, 128.0, matrix);
+			 	}
+			}
+		}
+	}
+
+	private boolean satisfiesCircularNormalEquation(int x, int y, double radius, double epsilon, Point center) {
+		 return Math.abs(Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2) - Math.pow(radius, 2)) < epsilon;
+	}
+
 	public void linearHoughTransformation(int titaSteps, int roSteps, double epsilon) {
 		double[][][] clone = clone().data;
 		List<Point> whitePoints = whitePoints(0);

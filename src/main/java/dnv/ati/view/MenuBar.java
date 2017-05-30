@@ -15,6 +15,7 @@ import dnv.ati.model.State;
 import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
 import dnv.ati.view.borderFrames.CannyBorderFrame;
+import dnv.ati.view.borderFrames.CircularHoughFrame;
 import dnv.ati.view.borderFrames.LinearHoughFrame;
 import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
@@ -383,6 +384,11 @@ public class MenuBar extends JMenuBar {
 		});
 		borderCornerMenu.add(linearHough);
 
+		JMenuItem circularHough = new JMenuItem("Transformada circular de Hough");
+		circularHough.addActionListener(e -> {
+			new CircularHoughFrame(state);
+		});
+		borderCornerMenu.add(circularHough);
 		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");

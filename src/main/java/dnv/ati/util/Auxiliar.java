@@ -25,4 +25,13 @@ public class Auxiliar {
 		return max;
 	}
 
+	public static int max(int[] matrix) {
+		int max = Integer.MIN_VALUE;
+		int current;
+		for (int i = 0; i < matrix.length; i++) {
+			current = matrix[i];
+			max = max < current ? current : max;
+		}
+		return max;
+	}
 }
