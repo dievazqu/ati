@@ -390,6 +390,12 @@ public class MenuBar extends JMenuBar {
 		});
 		borderCornerMenu.add(circularHough);
 		
+		JMenuItem selectRectForLevelSets = new JMenuItem("Contornos Activos");
+		selectRectForLevelSets.addActionListener(e -> {
+			state.setStatus(Status.SELECTING_RECT_LS);
+		});
+		borderCornerMenu.add(selectRectForLevelSets);
+		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");

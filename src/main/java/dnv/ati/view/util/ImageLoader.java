@@ -35,7 +35,8 @@ public class ImageLoader {
 						ImageUtils.readFromBMP(fileChooser.getSelectedFile()));
 				break;
 			default:
-				throw new Error("Invalid format");
+				consumer.accept(
+						ImageUtils.readFromBMP(fileChooser.getSelectedFile()));
 			}
 		}
 	}

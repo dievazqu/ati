@@ -12,6 +12,17 @@ public class Auxiliar {
 		int maxy = (int)Math.max(p.getY(), q.getY());
 		consumer.accept(new Point(minx, miny), new Point(maxx, maxy));
 	}
+	
+	public static double norm(double[] a, double[] b){
+		if(a.length != b.length)
+			throw new IllegalArgumentException();
+		double sum = 0;
+		for(int i=0; i<a.length; i++){
+			double diff = a[i]-b[i];
+			sum+=(diff*diff);
+		}
+		return Math.sqrt(sum);
+	}
 
 	public static int max(int[][] matrix) {
 		int max = Integer.MIN_VALUE;

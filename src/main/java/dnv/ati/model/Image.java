@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -49,8 +50,24 @@ public class Image {
 	public int bands() {
 		return data[0][0].length;
 	}
+	
+	public static int getDataValue(int[][] data, int i, int j){
+		if (i < 0) {
+			i = 0;
+		}
+		if (i >= data.length) {
+			i = data.length - 1;
+		}
+		if (j < 0) {
+			j = 0;
+		}
+		if (j >= data[0].length) {
+			j = data[0].length - 1;
+		}
+		return data[i][j];
+	}
 
-	public double getDataValue(int i, int j, int k) {
+	public static double getDataValue(double[][][] data, int i, int j, int k) {
 		if (i < 0) {
 			i = 0;
 		}
@@ -67,6 +84,10 @@ public class Image {
 			return 0;
 		}
 		return data[i][j][k];
+	}
+	
+	public double getDataValue(int i, int j, int k) {
+		return getDataValue(data, i, j, k);
 	}
 
 	public void setDataValue(int i, int j, int k, double value) {
@@ -123,6 +144,11 @@ public class Image {
 		}
 	}
 
+	public double[] getRGBArray(int i, int j){
+		return new double[]{data[i][j][0], data[i][j][1],
+				data[i][j][2]};
+	}
+	
 	public int getRGB(int i, int j) {
 		return ConversionUtils.doubleToRGBInt(data[i][j][0], data[i][j][1],
 				data[i][j][2]);
@@ -290,17 +316,31 @@ public class Image {
 		}
 		map(x -> data[(int) Math.round(x)]);
 	}
-
+	
+	private interface FilterFunction2 {
+		public double apply(int[][] data, int i, int j);
+	}
+	
 	private interface FilterFunction {
-		public double apply(int i, int j, int k);
+		public double apply(double[][][] data, int i, int j, int k);
 	}
 
-	public double[][][] newImageDataFromFilter(FilterFunction filter) {
-		double[][][] newImageData = new double[height][width][3];
-		for (int k = 0; k < 3; k++) {
-			for (int i = 0; i < height; i++) {
-				for (int j = 0; j < width; j++) {
-					newImageData[i][j][k] = filter.apply(i, j, k);
+	public static double[][] newImageDataFromFilter(FilterFunction2 filter, int[][] data) {
+		double[][] newImageData = new double[data.length][data[0].length];
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[0].length; j++) {
+				newImageData[i][j] = filter.apply(data, i, j);
+			}
+		}
+		return newImageData;
+	}
+	
+	public static double[][][] newImageDataFromFilter(FilterFunction filter, double[][][] data) {
+		double[][][] newImageData = new double[data.length][data[0].length][data[0][0].length];
+		for (int k = 0; k < data[0][0].length; k++) {
+			for (int i = 0; i < data.length; i++) {
+				for (int j = 0; j < data[0].length; j++) {
+					newImageData[i][j][k] = filter.apply(data, i, j, k);
 				}
 			}
 		}
@@ -308,7 +348,7 @@ public class Image {
 	}
 
 	public void genericFilter(FilterFunction filter) {
-		data = newImageDataFromFilter(filter);
+		data = newImageDataFromFilter(filter, data);
 	}
 
 	public void medianFilter(int windowSize) {
@@ -339,8 +379,8 @@ public class Image {
 	}
 
 	private Derivates gradientFilters(double[][] xMask, double[][] yMask) {
-		double[][][] x = newImageDataFromFilter(maskFilterFunction(xMask));
-		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask));
+		double[][][] x = newImageDataFromFilter(maskFilterFunction(xMask), data);
+		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask), data);
 		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
 		for (int i = 0; i < x.length; i++) {
 			for (int j = 0; j < x[0].length; j++) {
@@ -368,15 +408,15 @@ public class Image {
 				{ 1, 2, 1 } });
 	}
 
-	private FilterFunction maskFilterFunction(double[][] mask) {
+	private static FilterFunction maskFilterFunction(double[][] mask) {
 		return new FilterFunction() {
-			public double apply(int x, int y, int k) {
+			public double apply(double[][][] data, int x, int y, int k) {
 				int offset = (mask.length - 1) / 2;
 				double ans = 0;
 				for (int i = 0; i < mask.length; i++) {
 					for (int j = 0; j < mask.length; j++) {
 						ans += mask[i][j]
-								* getDataValue(x + i - offset, y + j - offset,
+								* getDataValue(data, x + i - offset, y + j - offset,
 										k);
 					}
 				}
@@ -386,10 +426,10 @@ public class Image {
 		};
 	}
 
-	private FilterFunction weightedMedianFunction(int windowSize) {
+	private static FilterFunction weightedMedianFunction(int windowSize) {
 		return new FilterFunction() {
 			@Override
-			public double apply(int x, int y, int k) {
+			public double apply(double[][][] data, int x, int y, int k) {
 				int offset = (windowSize - 1) / 2;
 				List<Double> values = new ArrayList<Double>();
 				for (int i = x - offset; i <= x + offset; i++) {
@@ -410,7 +450,7 @@ public class Image {
 							repetitions = 0;
 						}
 						for (int l = 0; l < repetitions; l++) {
-							values.add(getDataValue(i, j, k));
+							values.add(getDataValue(data, i, j, k));
 						}
 					}
 				}
@@ -422,15 +462,15 @@ public class Image {
 
 	}
 
-	private FilterFunction medianFilterFunction(int windowSize) {
+	private static FilterFunction medianFilterFunction(int windowSize) {
 		return new FilterFunction() {
 			@Override
-			public double apply(int x, int y, int k) {
+			public double apply(double[][][] data, int x, int y, int k) {
 				int offset = (windowSize - 1) / 2;
 				List<Double> values = new ArrayList<Double>();
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
-						values.add(getDataValue(i, j, k));
+						values.add(getDataValue(data, i, j, k));
 					}
 				}
 				Collections.sort(values);
@@ -439,15 +479,15 @@ public class Image {
 		};
 	}
 
-	private FilterFunction meanFilerFunction(int windowSize) {
+	private static FilterFunction meanFilerFunction(int windowSize) {
 		return new FilterFunction() {
 			@Override
-			public double apply(int x, int y, int k) {
+			public double apply(double[][][] data, int x, int y, int k) {
 				int offset = (windowSize - 1) / 2;
 				double sum = 0.0;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
-						sum += getDataValue(i, j, k);
+						sum += getDataValue(data, i, j, k);
 					}
 				}
 				int size = offset * 2 + 1;
@@ -455,10 +495,10 @@ public class Image {
 			}
 		};
 	}
-
-	private FilterFunction gaussianFilterFunction(int windowSize, double sigma) {
-		return new FilterFunction() {
-			public double apply(int x, int y, int k) {
+	
+	private static FilterFunction2 gaussianFilterFunction2(int windowSize, double sigma) {
+		return new FilterFunction2() {
+			public double apply(int[][] data, int x, int y) {
 				double sum = 0.0;
 				int offset = (windowSize - 1) / 2;
 				for (int i = x - offset; i <= x + offset; i++) {
@@ -469,7 +509,7 @@ public class Image {
 						double c = Math.pow(Math.E, -(dx * dx + dy * dy)
 								/ sigma2)
 								/ (2 * Math.PI * sigma2);
-						sum += c * getDataValue(i, j, k);
+						sum += c * getDataValue(data, i, j);
 					}
 				}
 				return sum;
@@ -477,10 +517,34 @@ public class Image {
 		};
 	}
 
-	private FilterFunction borderFilterFunction(int windowSize) {
+	private static FilterFunction gaussianFilterFunction(int windowSize, double sigma) {
+		return new FilterFunction() {
+			public double apply(double[][][] data, int x, int y, int k) {
+				double sum = 0.0;
+				int offset = (windowSize - 1) / 2;
+				for (int i = x - offset; i <= x + offset; i++) {
+					for (int j = y - offset; j <= y + offset; j++) {
+						int dx = i - x;
+						int dy = j - y;
+						double sigma2 = sigma * sigma;
+						double c = Math.pow(Math.E, -(dx * dx + dy * dy)
+								/ sigma2)
+								/ (2 * Math.PI * sigma2);
+						sum += c * getDataValue(data, i, j, k);
+					}
+				}
+				return sum;
+			}
+		};
+	}
+	
+	
+	
+
+	private static FilterFunction borderFilterFunction(int windowSize) {
 		return new FilterFunction() {
 			@Override
-			public double apply(int x, int y, int k) {
+			public double apply(double[][][] data, int x, int y, int k) {
 				int offset = (windowSize - 1) / 2;
 				double sum = 0.0;
 				int size = offset * 2 + 1;
@@ -488,9 +552,9 @@ public class Image {
 					for (int j = y - offset; j <= y + offset; j++) {
 						int dist = Math.abs(i - x) + Math.abs(j - y);
 						if (dist == 0) {
-							sum += (size * size - 1) * getDataValue(i, j, k);
+							sum += (size * size - 1) * getDataValue(data, i, j, k);
 						} else {
-							sum -= 1.0 * getDataValue(i, j, k);
+							sum -= 1.0 * getDataValue(data, i, j, k);
 						}
 					}
 				}
@@ -671,10 +735,10 @@ public class Image {
 	private void directionalFilter(double[][] mask, double[][] yMask,
 			double[][] d1Mask, double[][] d2Mask) {
 
-		double[][][] x = newImageDataFromFilter(maskFilterFunction(mask));
-		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask));
-		double[][][] d1 = newImageDataFromFilter(maskFilterFunction(d1Mask));
-		double[][][] d2 = newImageDataFromFilter(maskFilterFunction(d2Mask));
+		double[][][] x = newImageDataFromFilter(maskFilterFunction(mask), data);
+		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask), data);
+		double[][][] d1 = newImageDataFromFilter(maskFilterFunction(d1Mask), data);
+		double[][][] d2 = newImageDataFromFilter(maskFilterFunction(d2Mask), data);
 		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
 		for (int i = 0; i < x.length; i++) {
 			for (int j = 0; j < x[0].length; j++) {
@@ -782,12 +846,12 @@ public class Image {
 
 	public void isotropicDiffusion(int t) {
 		while (t-- > 0) {
-			genericFilter((i, j, k) -> {
+			genericFilter((data, i, j, k) -> {
 				double sum = 0;
 				int[] dx = new int[] { 0, 0, 1, -1 };
 				int[] dy = new int[] { 1, -1, 0, 0 };
 				for (int a = 0; a < 4; a++) {
-					sum += getDataValue(dx[a] + i, dy[a] + j, k);
+					sum += getDataValue(data, dx[a] + i, dy[a] + j, k);
 				}
 				return sum / 4.0;
 			});
@@ -796,13 +860,13 @@ public class Image {
 
 	public void anisotropicDiffusion(int t, Function<Double, Double> f) {
 		while (t-- > 0) {
-			genericFilter((i, j, k) -> {
+			genericFilter((data, i, j, k) -> {
 				double sum = 0;
 				int[] dx = new int[] { 0, 0, 1, -1 };
 				int[] dy = new int[] { 1, -1, 0, 0 };
 				for (int a = 0; a < 4; a++) {
-					double diff = getDataValue(dx[a] + i, dy[a] + j, k)
-							- getDataValue(i, j, k);
+					double diff = getDataValue(data, dx[a] + i, dy[a] + j, k)
+							- getDataValue(data, i, j, k);
 					sum += f.apply(diff) * diff;
 				}
 				return data[i][j][k] + (sum / 4.0);
@@ -1086,4 +1150,166 @@ public class Image {
 			this.dy = dy;
 		}
 	}
+	
+	private boolean shouldBeIn(Point p, double[] t0, double[] t1){
+		double[] rgb = getRGBArray(p.x, p.y);
+		double num = Auxiliar.norm(rgb, t0);
+		double den = Auxiliar.norm(rgb, t1);
+		return num > den;
+	}
+	
+	public void levelSets(int x1, int x2, int y1, int y2){
+		int Na = Math.min(width, height);
+		int Ns = 5;
+		List<Point> lin, lout;
+		int[][] theta = new int[height][width];
+		lin = new LinkedList<Point>();
+		lout = new LinkedList<Point>();
+		
+		addBorders(lin, x1, x2, y1, y2);
+		addBorders(lout, x1-1, x2+1, y1-1, y2+1);
+		fillValues(theta, 0, width-1, 0, height-1, 3);
+		fillValues(theta, x1, x2, y1, y2, -3);
+		fillValues(theta, lin, -1);
+		fillValues(theta, lout, 1);
+		
+		// Primer ciclo
+		boolean changes = true;
+		for(int t=0; t<Na && changes; t++){
+			changes = false;
+			double[] t0 = avg(theta, 3, 1);
+			double[] t1 = avg(theta, -3, -1);
+			System.out.println(t);
+			changes|=stepCycle(lout,lin,
+					p->shouldBeIn(p, t0, t1),
+					3,1,-1,-3,theta);
+			changes|=stepCycle(lin,lout,
+					p->!shouldBeIn(p, t0, t1),
+					-3,-1,1,3,theta);
+		}
+		for(int t=0; t<Ns; t++){
+			System.out.println(t);
+			double[][] gTheta = newImageDataFromFilter(gaussianFilterFunction2(Ns, 1), theta);
+			changes|=stepCycle(lout,lin,
+					p->gTheta[p.x][p.y]*theta[p.x][p.y]<0,
+					3,1,-1,-3,theta);
+			changes|=stepCycle(lin,lout,
+					p->gTheta[p.x][p.y]*theta[p.x][p.y]<0,
+					-3,-1,1,3,theta);
+		}
+		
+		// Imprimir contorno
+		for(Point p : lin){
+			int i = p.x;
+			int j = p.y;
+			setGrayColor(i, j, 0);
+			setOnlyR(i, j, 255);
+		}
+		for(Point p : lout){
+			int i = p.x;
+			int j = p.y;
+			setGrayColor(i, j, 0);
+			setOnlyB(i, j, 255);
+		}
+	}
+	
+	private boolean stepCycle(List<Point> list1, List<Point> list2, Function<Point, Boolean> func,
+			int ext1, int b1, int b2, int ext2, int[][] theta) {
+		
+		int[] dx = new int[]{0,0,1,-1};
+		int[] dy = new int[]{1,-1,0,0};
+		List<Point> toAdd = new LinkedList<Point>();
+		boolean change = false;
+		
+		for(int i=0; i<list1.size(); i++){
+			Point p = list1.get(i);
+			if( func.apply(p)){
+				change = true;
+				list1.remove(i);
+				i--;
+				theta[p.x][p.y] = b2;
+				list2.add(p);
+				for(int d=0; d<4; d++){
+					int x = p.x+dx[d];
+					int y = p.y+dy[d];
+					if( 0<=x && x<theta.length &&
+						0<=y && y<theta[0].length && theta[x][y]==ext1){
+							theta[x][y]=b1;
+							toAdd.add(new Point(x,y));
+					}
+				}
+			}
+		}
+		removeNotBorderPoint(list2, theta, b1, ext2);
+		list1.addAll(toAdd);
+		return change;
+	}
+
+	private void removeNotBorderPoint(List<Point> removable, int[][] theta, int expectedNeigbour, int replaceValue){
+		int[] dx = new int[]{0,0,1,-1};
+		int[] dy = new int[]{1,-1,0,0};
+		Iterator<Point> it = removable.iterator();
+		while(it.hasNext()){
+			Point p = it.next();
+			boolean found = false;
+			for(int d=0; d<4 && !found; d++){
+				int x = p.x+dx[d];
+				int y = p.y+dy[d];
+				if( 0<=x && x<theta.length &&
+					0<=y && y<theta[0].length && theta[x][y]==expectedNeigbour){
+						found = true;
+				}
+			}
+			if(!found){
+				it.remove();
+				theta[p.x][p.y] = replaceValue;
+			}
+		}
+	}
+	
+	private double[] avg(int[][] mat, int v1, int v2){
+		double r=0;
+		double b=0;
+		double g=0;
+		int q = 0;
+		for(int i=0; i<mat.length; i++){
+			for(int j=0; j<mat[0].length; j++){
+				if(mat[i][j]==v1 || mat[i][j]==v2){
+					q++;
+					r += getOnlyR(i, j);
+					g += getOnlyG(i, j);
+					b += getOnlyB(i, j);
+				}
+			}
+		}
+		return new double[]{r/q, g/q, b/q};
+	}
+	
+	private void fillValues(int[][] mat, List<Point> list, int value){
+		for(Point p : list){
+			int i = p.x;
+			int j = p.y;
+			mat[i][j] = value;
+		}
+	}
+	
+	private void fillValues(int[][] mat, int x1, int x2, int y1, int y2, int value){
+		for(int i=x1; i<=x2; i++){
+			for(int j=y1; j<=y2; j++){
+				mat[j][i] = value;
+			}
+		}
+	}
+	
+	private void addBorders(List<Point> list, int x1, int x2, int y1, int y2){
+		for(int i=x1; i<=x2; i++){
+			list.add(new Point(y1, i));
+			list.add(new Point(y2, i));
+		}
+		for(int i=y1+1; i<=y2-1; i++){
+			list.add(new Point(i, x1));
+			list.add(new Point(i, x2));
+		}
+	}
+	
 }
