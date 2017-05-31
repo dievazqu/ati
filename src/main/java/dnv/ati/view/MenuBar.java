@@ -14,6 +14,9 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
+import dnv.ati.view.borderFrames.CannyBorderFrame;
+import dnv.ati.view.borderFrames.CircularHoughFrame;
+import dnv.ati.view.borderFrames.LinearHoughFrame;
 import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
 import dnv.ati.view.editionFrames.ProdByScalarFrame;
@@ -350,6 +353,42 @@ public class MenuBar extends JMenuBar {
 		
 		filterMenu.add(anisotropicDiffusion);
 		
+		JMenu borderCornerMenu = new JMenu("Bordes y esquinas");
+		editionMenu.add(borderCornerMenu);
+		
+		JMenuItem cannyBorder = new JMenuItem("Detector de bordes de Canny");
+		cannyBorder.addActionListener(e -> {
+			new CannyBorderFrame(state);
+		});
+		borderCornerMenu.add(cannyBorder);
+		
+		JMenuItem susanBorder = new JMenuItem("Detector de bordes SUSAN");
+		susanBorder.addActionListener(e -> {
+			Image img = state.getImage();
+			img.susanBorderDetector();
+			state.setImage(img);
+		});
+		borderCornerMenu.add(susanBorder);
+		
+		JMenuItem susanCorner = new JMenuItem("Detector de esquinas SUSAN");
+		susanCorner.addActionListener(e -> {
+			Image img = state.getImage();
+			img.susanCornerDetector();
+			state.setImage(img);
+		});
+		borderCornerMenu.add(susanCorner);
+		
+		JMenuItem linearHough = new JMenuItem("Transformada lineal de Hough");
+		linearHough.addActionListener(e -> {
+			new LinearHoughFrame(state);
+		});
+		borderCornerMenu.add(linearHough);
+
+		JMenuItem circularHough = new JMenuItem("Transformada circular de Hough");
+		circularHough.addActionListener(e -> {
+			new CircularHoughFrame(state);
+		});
+		borderCornerMenu.add(circularHough);
 		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");

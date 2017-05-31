@@ -6,11 +6,13 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import dnv.ati.util.Auxiliar;
 import dnv.ati.util.ConversionUtils;
 import dnv.ati.util.ImageUtils;
 
@@ -25,10 +27,14 @@ public class Image {
 		this.data = new double[height][width][3];
 	}
 
+	public void setGrayColor(int i, int j, double value, double[][][] matrix) {
+		matrix[i][j][0] = value;
+		matrix[i][j][1] = value;
+		matrix[i][j][2] = value;
+	}
+	
 	public void setGrayColor(int i, int j, double value) {
-		data[i][j][0] = value;
-		data[i][j][1] = value;
-		data[i][j][2] = value;
+		setGrayColor(i, j, value, data);
 	}
 
 	public double getGray(int i, int j) {
@@ -332,7 +338,7 @@ public class Image {
 		normalize();
 	}
 
-	private void gradientFilters(double[][] xMask, double[][] yMask) {
+	private Derivates gradientFilters(double[][] xMask, double[][] yMask) {
 		double[][][] x = newImageDataFromFilter(maskFilterFunction(xMask));
 		double[][][] y = newImageDataFromFilter(maskFilterFunction(yMask));
 		double[][][] ans = new double[x.length][x[0].length][x[0][0].length];
@@ -347,6 +353,7 @@ public class Image {
 		}
 		data = ans;
 		normalize();
+		return new Derivates(x, y);
 	}
 
 	public void prewitFilter() {
@@ -355,8 +362,8 @@ public class Image {
 				{ 1, 1, 1 } });
 	}
 
-	public void sobelFilter() {
-		gradientFilters(new double[][] { { -1, 0, 1 }, { -2, 0, 2 },
+	public Derivates sobelFilter() {
+		return gradientFilters(new double[][] { { -1, 0, 1 }, { -2, 0, 2 },
 				{ -1, 0, 1 } }, new double[][] { { -1, -2, -1 }, { 0, 0, 0 },
 				{ 1, 2, 1 } });
 	}
@@ -803,4 +810,280 @@ public class Image {
 		}
 	}
 
+	public void circularHoughTransformation(int radiusSteps, double epsilon) {
+		double[][][] clone = clone().data;
+		List<Point> whitePoints = whitePoints(0);
+
+		int[] acum = new int[radiusSteps];
+
+		double radius2 = Math.max(height, width) * Math.sqrt(2);
+		double radius1 = 0;
+		double radiusStep = radius2 / (radiusSteps - 1);
+
+		Point center = new Point((width - 1) / 2, (height - 1) / 2);
+
+		double currentRadius = radius1;
+		int currentRadiusStep = 0;
+		while (currentRadiusStep < radiusSteps) {
+			for (Point p: whitePoints) {
+				if (satisfiesCircularNormalEquation(p.x, p.y, currentRadius, epsilon, center)) {
+					acum[currentRadiusStep]++;
+				}
+			}
+			currentRadiusStep++;
+			currentRadius += radiusStep;
+		}
+
+		int max = Auxiliar.max(acum);
+		double threshold = ((double) max) * 0.75;
+
+		currentRadius = radius1;
+		currentRadiusStep = 0;
+		while (currentRadiusStep < radiusSteps) {
+			if (acum[currentRadiusStep] > threshold) {
+				// we are using a bigger epsilon for drawing
+				drawCircle(currentRadius, 100, center, clone);
+//				drawCircle(currentRadius, epsilon, center, clone);
+			}
+			currentRadiusStep++;
+			currentRadius += radiusStep;
+		}
+
+		data = clone;
+	}
+
+	private void drawCircle(double radius, double epsilon, Point center, double[][][] matrix) {
+		for (int x = 0; x < matrix.length; x++) {
+			for (int y = 0; y < matrix[0].length; y++) {
+				if (satisfiesCircularNormalEquation(x, y, radius, epsilon, center)) {
+			 		setGrayColor(x, y, 128.0, matrix);
+			 	}
+			}
+		}
+	}
+
+	private boolean satisfiesCircularNormalEquation(int x, int y, double radius, double epsilon, Point center) {
+		 return Math.abs(Math.pow(x - center.x, 2) + Math.pow(y - center.y, 2) - Math.pow(radius, 2)) < epsilon;
+	}
+
+	public void linearHoughTransformation(int titaSteps, int roSteps, double epsilon) {
+		double[][][] clone = clone().data;
+		List<Point> whitePoints = whitePoints(0);
+
+		int[][] acum = new int[titaSteps][roSteps];
+
+		double tita2 = Math.PI/2;
+		double tita1 = (-1) * tita2;
+		double titaStep = (tita2 - tita1) / (titaSteps - 1);
+
+		double ro2 = Math.max(height, width) * Math.sqrt(2);
+		double ro1 = (-1) * ro2;
+		double roStep = (ro2 - ro1) / (roSteps - 1);
+
+		double currentTita = tita1;
+		int currentTitaStep = 0;
+		while (currentTitaStep < titaSteps) {
+			double currentRo = ro1;
+			int currentRoStep = 0;
+			while (currentRoStep < roSteps) {
+				for (Point p: whitePoints) {
+					if (satisfiesLineNormalEquation(p.x, p.y, currentTita, currentRo, epsilon)) {
+						acum[currentTitaStep][currentRoStep]++;
+					}
+				}
+				currentRoStep++;
+				currentRo += roStep;
+			}
+			currentTitaStep++;
+			currentTita += titaStep;
+		}
+
+		
+		int max = Auxiliar.max(acum);
+		double threshold = ((double) max) * 0.75;
+
+		currentTita = tita1;
+		currentTitaStep = 0;
+		while (currentTitaStep < titaSteps) {
+			double currentRo = ro1;
+			int currentRoStep = 0;
+			while (currentRoStep < roSteps) {
+				if (acum[currentTitaStep][currentRoStep] > threshold) {
+					drawLine(currentTita, currentRo, epsilon, clone);
+				}
+				currentRoStep++;
+				currentRo += roStep;
+			}
+			currentTitaStep++;
+			currentTita += titaStep;
+		}
+
+		data = clone;
+	}
+
+	private void drawLine(double tita, double ro, double epsilon, double[][][] matrix) {
+		for (int x = 0; x < matrix.length; x++) {
+			for (int y = 0; y < matrix[0].length; y++) {
+			 	if (satisfiesLineNormalEquation(x, y, tita, ro, epsilon)) {
+			 		setGrayColor(x, y, 128.0, matrix);
+			 	}
+			}
+		}
+	}
+
+	private boolean satisfiesLineNormalEquation(int x, int y, double tita, double ro, double epsilon) {
+		return Math.abs(ro - x * Math.cos(tita) - y * Math.sin(tita)) < epsilon;
+	}
+
+	private List<Point> whitePoints(int k) {
+		List<Point> whitePoints = new ArrayList<>();
+		for (int i = 0; i < data.length; i++) {
+			for (int j = 0; j < data[0].length; j++) {
+				if (data[i][j][k] == 255.0) {
+					whitePoints.add(new Point(i, j));
+				}
+			}
+		}
+		return whitePoints;
+	}
+
+	public void susanBorderDetector() {
+		susanDetector(true);
+	}
+	
+	public void susanCornerDetector() {
+		susanDetector(false);
+	}
+	
+	public void susanDetector(boolean border) {
+		double[][][] clone = clone().data;
+		double[][] mask = new double[][]{
+			{0, 0, 1.0, 1.0, 1.0, 0, 0},
+			{0, 1.0, 1.0, 1.0, 1.0, 1.0, 0},
+			{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+			{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0},
+			{0, 1.0, 1.0, 1.0, 1.0, 1.0, 0},
+			{0, 0, 1.0, 1.0, 1.0, 0, 0}
+		};
+		int halfMaskSize = (int) Math.floor(mask.length / 2);
+		int N = 37;
+		int t = 27;
+		double epsilon = 0.15;
+		double sBorderValue = 0.5;
+		double sCornerValue = 0.75;
+		int pixelSameGrayAmountInMask;
+		double s;
+		
+		for (int i = halfMaskSize; i < data.length - halfMaskSize; i++) {
+			for (int j = halfMaskSize; j < data[0].length - halfMaskSize; j++) {
+				pixelSameGrayAmountInMask = pixelSameGrayAmountInMask(i, j, t, mask);
+				s = 1 - ((double) pixelSameGrayAmountInMask) / N;
+				if ((border && (Math.abs(s - sBorderValue) < epsilon)) ||
+					(!border && (Math.abs(s - sCornerValue) < epsilon))) {
+					setGrayColor(i, j, 255.0, clone);
+				} else {
+					setGrayColor(i, j, 0, clone);
+				}
+			}
+		}
+		data = clone;
+	}
+	
+	private int pixelSameGrayAmountInMask(int x, int y, int t, double[][] mask) {
+		int count = 0;
+		int halfMaskSize = (int) Math.floor(mask.length / 2);
+		
+		for (int i = -halfMaskSize; i < halfMaskSize + 1; i++) {
+			for (int j = -halfMaskSize; j < halfMaskSize + 1; j++) {
+				if (Math.abs(getGray(x, y)
+						- mask[i + halfMaskSize][j + halfMaskSize] * getGray(x + i, y + j)) < t) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+	
+	public void cannyBorderDetector(int windowSize, double sigma, double t1, double t2) {
+		gaussianFilter(windowSize, sigma);
+		Derivates d = sobelFilter();
+
+		for (int k = 0; k < data[0][0].length; k++) {
+			// aca va desde 1 y hasta length - 1 para que no pase un IndexOutOfBounds
+			// se re puede mejorar eso
+			for (int i = 1; i < data.length - 1; i++) {
+				for (int j = 1; j < data[0].length - 1; j++) {
+					Point direction = cannyBorderDirection(d.dx[i][j][k], d.dy[i][j][k]);
+					if (data[i][j][k] <= data[i + direction.x][j + direction.y][k]) {
+						data[i][j][k] = 0;
+					} else if (data[i][j][k] <= data[i - direction.x][j - direction.y][k]) {
+						data[i][j][k] = 0;
+					}
+				}
+			}
+		}
+
+		List<Point> lateCheckPoints;
+		for (int k = 0; k < data[0][0].length; k++) {
+			lateCheckPoints = new ArrayList<>();
+			// aca va desde 1 y hasta length - 1 para que no pase un IndexOutOfBounds
+			// se re puede mejorar eso
+			for (int i = 1; i < data.length - 1; i++) {
+				for (int j = 1; j < data[0].length - 1; j++) {
+					if (data[i][j][k] > t2) {
+						data[i][j][k] = 255.0;
+					} else if (data[i][j][k] < t1) {
+						data[i][j][k] = 0.0;
+					} else {
+						lateCheckPoints.add(new Point(i, j));
+					}
+				}
+			}
+			Iterator<Point> it = lateCheckPoints.iterator();
+			while (it.hasNext()) {
+				Point p = it.next();
+				if (data[p.x - 1][p.y - 1][k] == 255.0 ||
+					data[p.x][p.y - 1][k] == 255.0 ||
+					data[p.x + 1][p.y - 1][k] == 255.0 ||
+					data[p.x - 1][p.y][k] == 255.0 ||
+					data[p.x][p.y][k] == 255.0 ||
+					data[p.x + 1][p.y][k] == 255.0 ||
+					data[p.x - 1][p.y + 1][k] == 255.0 ||
+					data[p.x][p.y + 1][k] == 255.0 ||
+					data[p.x + 1][p.y + 1][k] == 255.0 ) {
+					data[p.x][p.y][k] = 255.0;
+				}
+			}
+
+		}
+	}
+
+	private Point cannyBorderDirection(double dxVal,double dyVal) {
+		if (dxVal == 0) {
+			return new Point(0, 1);
+		}
+		double angle = Math.atan2(dyVal, dxVal) * 180.0 / Math.PI;
+		angle += angle < 0 ? 180 : 0;
+
+		if (angle < 22.5 || angle > 157.5) {
+			return new Point(1, 0);
+		} else if (angle < 67.5){
+			return new Point(1, 1);
+		} else if (angle < 112.5){
+			return new Point(0, 1);
+		} else {
+			return new Point(1, -1);
+		}
+	}
+
+	private class Derivates {
+		double[][][] dx;
+		double[][][] dy;
+
+		public Derivates(double[][][] dx, double[][][] dy) {
+			this.dx = dx;
+			this.dy = dy;
+		}
+	}
 }
