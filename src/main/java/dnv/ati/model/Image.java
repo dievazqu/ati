@@ -1062,8 +1062,6 @@ public class Image {
 					}
 				}
 			} 
-			// Todos los puntos restantes que no son bordes los ponemos en 0
-			map(v -> (v<255?0.0:255.0), k);
 		}
 	}
 
