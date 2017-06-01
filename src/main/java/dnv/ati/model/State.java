@@ -8,6 +8,15 @@ public class State implements ImageFilter{
 	private Image image;
 	private Status status;
 	private ImageFilter imageFilter; 
+	private int[][] theta;
+	
+	public void setTheta(int[][] theta) {
+		this.theta = theta;
+	}
+	
+	public int[][] getTheta() {
+		return theta;
+	}
 	
 	public void setStatus(Status status) {
 		this.status = status;

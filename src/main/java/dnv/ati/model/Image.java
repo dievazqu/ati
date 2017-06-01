@@ -1158,20 +1158,34 @@ public class Image {
 		return num > den;
 	}
 	
-	public void levelSets(int x1, int x2, int y1, int y2){
-		int Na = Math.min(width, height);
-		int Ns = 5;
-		List<Point> lin, lout;
-		int[][] theta = new int[height][width];
-		lin = new LinkedList<Point>();
-		lout = new LinkedList<Point>();
+	public int[][] levelSets(int x1, int x2, int y1, int y2){
 		
-		addBorders(lin, x1, x2, y1, y2);
-		addBorders(lout, x1-1, x2+1, y1-1, y2+1);
+		List<Point> insideBorder, outsideBorder;
+		int[][] theta = new int[height][width];
+		insideBorder = new LinkedList<Point>();
+		outsideBorder = new LinkedList<Point>();
+		
+		addBorders(insideBorder, x1, x2, y1, y2);
+		addBorders(outsideBorder, x1-1, x2+1, y1-1, y2+1);
 		fillValues(theta, 0, width-1, 0, height-1, 3);
 		fillValues(theta, x1, x2, y1, y2, -3);
-		fillValues(theta, lin, -1);
-		fillValues(theta, lout, 1);
+		fillValues(theta, insideBorder, -1);
+		fillValues(theta, outsideBorder, 1);
+		
+		theta = levelSets(theta, true);
+		
+		return theta;
+	}
+	
+	
+	
+	public int[][] levelSets(int[][] theta, boolean print){
+		int Na = Math.min(width, height);
+		int Ns = 5;
+		List<Point> lin = new LinkedList<Point>();
+		Auxiliar.find(lin, theta, -1);
+		List<Point> lout = new LinkedList<Point>();
+		Auxiliar.find(lout, theta, 1);
 		
 		// Primer ciclo
 		boolean changes = true;
@@ -1197,23 +1211,24 @@ public class Image {
 					p->gTheta[p.x][p.y]*theta[p.x][p.y]<0,
 					-3,-1,1,3,theta);
 		}
-		
-		// Imprimir contorno
-		for(Point p : lin){
-			int i = p.x;
-			int j = p.y;
-			setGrayColor(i, j, 0);
-			setOnlyR(i, j, 255);
+		if(print){
+			for(Point p : lin){
+				int i = p.x;
+				int j = p.y;
+				setGrayColor(i, j, 0);
+				setOnlyR(i, j, 255);
+			}
+			for(Point p : lout){
+				int i = p.x;
+				int j = p.y;
+				setGrayColor(i, j, 0);
+				setOnlyB(i, j, 255);
+			}
 		}
-		for(Point p : lout){
-			int i = p.x;
-			int j = p.y;
-			setGrayColor(i, j, 0);
-			setOnlyB(i, j, 255);
-		}
+		return theta;
 	}
 	
-	private boolean stepCycle(List<Point> list1, List<Point> list2, Function<Point, Boolean> func,
+	private static boolean stepCycle(List<Point> list1, List<Point> list2, Function<Point, Boolean> func,
 			int ext1, int b1, int b2, int ext2, int[][] theta) {
 		
 		int[] dx = new int[]{0,0,1,-1};
@@ -1245,7 +1260,7 @@ public class Image {
 		return change;
 	}
 
-	private void removeNotBorderPoint(List<Point> removable, int[][] theta, int expectedNeigbour, int replaceValue){
+	private static void removeNotBorderPoint(List<Point> removable, int[][] theta, int expectedNeigbour, int replaceValue){
 		int[] dx = new int[]{0,0,1,-1};
 		int[] dy = new int[]{1,-1,0,0};
 		Iterator<Point> it = removable.iterator();

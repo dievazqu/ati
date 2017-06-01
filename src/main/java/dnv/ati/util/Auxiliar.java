@@ -1,6 +1,8 @@
 package dnv.ati.util;
 
 import java.awt.Point;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class Auxiliar {
@@ -44,5 +46,25 @@ public class Auxiliar {
 			max = max < current ? current : max;
 		}
 		return max;
+	}
+	
+	public static void find(List<Point> list, int[][] mat, int value){
+		for(int i=0; i<mat.length; i++){
+			for(int j=0; j<mat[0].length; j++){
+				if(mat[i][j]==value)
+					list.add(new Point(i,j));
+			}
+		}
+	}
+	
+	public static List<Point> find(int[][] mat, int value){
+		List<Point> l = new LinkedList<Point>();
+		for(int i=0; i<mat.length; i++){
+			for(int j=0; j<mat[0].length; j++){
+				if(mat[i][j]==value)
+					l.add(new Point(i,j));
+			}
+		}
+		return l;
 	}
 }
