@@ -401,7 +401,7 @@ public class MenuBar extends JMenuBar {
 		JMenuItem selectRectForLevelSetsVideo = new JMenuItem("Continuar en otra imagen");
 		selectRectForLevelSetsVideo.addActionListener(e -> {
 			ImageLoader.loadImage(img -> {
-				state.setTheta(img.levelSets(state.getTheta(), true));
+				state.setInfo(img.levelSets(state.getInfo(), true));
 				state.setImage(img);
 			});
 		});
@@ -410,8 +410,7 @@ public class MenuBar extends JMenuBar {
 		JMenuItem levelSetVideoItem = new JMenuItem("Realizar video");
 		levelSetVideoItem.addActionListener(e -> {
 			ImageLoader.loadDirectory(img -> {
-				
-				state.setTheta(img.levelSets(state.getTheta(), true));
+				state.setInfo(img.levelSets(state.getInfo(), true));
 				state.setImage(img);
 			});
 		});

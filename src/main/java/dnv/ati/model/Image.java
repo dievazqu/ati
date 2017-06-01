@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import dnv.ati.model.State.LevelSetsInfo;
 import dnv.ati.util.Auxiliar;
 import dnv.ati.util.ConversionUtils;
 import dnv.ati.util.ImageUtils;
@@ -93,11 +94,15 @@ public class Image {
 	public void setDataValue(int i, int j, int k, double value) {
 		data[i][j][k] = value;
 	}
-
-	public void setRGB(int i, int j, int rgb) {
+	
+	public static void setRGB(int i, int j, int rgb, double[][][] data) {
 		data[i][j][0] = (rgb & 0x0FF0000) >> 16;
 		data[i][j][1] = (rgb & 0x000FF00) >> 8;
 		data[i][j][2] = (rgb & 0x00000FF);
+	}
+
+	public void setRGB(int i, int j, int rgb) {
+		setRGB(i, j, rgb, data);
 	}
 
 	public double getOnlyR(int i, int j) {
@@ -1055,9 +1060,10 @@ public class Image {
 				s = 1 - ((double) pixelSameGrayAmountInMask) / N;
 				if ((border && (Math.abs(s - sBorderValue) < epsilon)) ||
 					(!border && (Math.abs(s - sCornerValue) < epsilon))) {
-					setGrayColor(i, j, 255.0, clone);
-				} else {
 					setGrayColor(i, j, 0, clone);
+					clone[i][j][0] = 255.0;
+				} else {
+					setRGB(i, j, getRGB(i, j), clone);
 				}
 			}
 		}
@@ -1136,6 +1142,7 @@ public class Image {
 					}
 				}
 			} 
+			map(v -> (v<255.0?0:255.0),k);
 		}
 	}
 
@@ -1167,14 +1174,16 @@ public class Image {
 		}
 	}
 	
-	private boolean shouldBeIn(Point p, double[] t0, double[] t1){
+	private boolean shouldBeIn(Point p, double[] t1){
 		double[] rgb = getRGBArray(p.x, p.y);
-		double num = Auxiliar.norm(rgb, t0);
-		double den = Auxiliar.norm(rgb, t1);
-		return num > den;
+		double num = Auxiliar.norm(rgb, t1);
+		double den = 256;
+		double pr = 1 - num/den;
+		
+		return pr > 0.75;
 	}
 	
-	public int[][] levelSets(int x1, int x2, int y1, int y2){
+	public State.LevelSetsInfo levelSets(int x1, int x2, int y1, int y2){
 		
 		List<Point> insideBorder, outsideBorder;
 		int[][] theta = new int[height][width];
@@ -1187,46 +1196,43 @@ public class Image {
 		fillValues(theta, x1, x2, y1, y2, -3);
 		fillValues(theta, insideBorder, -1);
 		fillValues(theta, outsideBorder, 1);
+		double[] t1 = avg(theta, -3, -1);
 		
-		theta = levelSets(theta, true);
-		
-		return theta;
+		return levelSets(new LevelSetsInfo(theta, t1),  true);
 	}
 	
 	
 	
-	public int[][] levelSets(int[][] theta, boolean print){
+	public State.LevelSetsInfo levelSets(LevelSetsInfo info, boolean print){
+
+		long time = System.currentTimeMillis();
 		int Na = Math.min(width, height);
 		int Ns = 5;
 		List<Point> lin = new LinkedList<Point>();
-		Auxiliar.find(lin, theta, -1);
+		Auxiliar.find(lin, info.theta, -1);
 		List<Point> lout = new LinkedList<Point>();
-		Auxiliar.find(lout, theta, 1);
-		
+		Auxiliar.find(lout, info.theta, 1);
 		// Primer ciclo
 		boolean changes = true;
 		for(int t=0; t<Na && changes; t++){
 			changes = false;
-			double[] t0 = avg(theta, 3, 1);
-			double[] t1 = avg(theta, -3, -1);
-			System.out.println(t);
 			changes|=stepCycle(lout,lin,
-					p->shouldBeIn(p, t0, t1),
-					3,1,-1,-3,theta);
+					p->shouldBeIn(p, info.t),
+					3,1,-1,-3,info.theta);
 			changes|=stepCycle(lin,lout,
-					p->!shouldBeIn(p, t0, t1),
-					-3,-1,1,3,theta);
+					p->!shouldBeIn(p, info.t),
+					-3,-1,1,3,info.theta);
 		}
 		FilterFunction2 ff = gaussianFilterFunction2(Ns, 1);
 		for(int t=0; t<Ns; t++){
 			System.out.println(t);
-			double[][] gTheta = newImageDataFromFilter(ff, theta);
+			double[][] gTheta = newImageDataFromFilter(ff, info.theta);
 			changes|=stepCycle(lout,lin,
-					p->gTheta[p.x][p.y]*theta[p.x][p.y]<0,
-					3,1,-1,-3,theta);
+					p->gTheta[p.x][p.y]*info.theta[p.x][p.y]<0,
+					3,1,-1,-3,info.theta);
 			changes|=stepCycle(lin,lout,
-					p->gTheta[p.x][p.y]*theta[p.x][p.y]<0,
-					-3,-1,1,3,theta);
+					p->gTheta[p.x][p.y]*info.theta[p.x][p.y]<0,
+					-3,-1,1,3,info.theta);
 		}
 		if(print){
 			for(Point p : lin){
@@ -1242,7 +1248,9 @@ public class Image {
 				setOnlyB(i, j, 255);
 			}
 		}
-		return theta;
+
+		System.out.println("time: "+(System.currentTimeMillis()-time));
+		return info;
 	}
 	
 	private static boolean stepCycle(List<Point> list1, List<Point> list2, Function<Point, Boolean> func,

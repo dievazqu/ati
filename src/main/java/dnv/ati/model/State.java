@@ -5,17 +5,28 @@ import java.util.List;
 
 public class State implements ImageFilter{
 
+	public static class LevelSetsInfo{
+		int[][] theta;
+		double[] t;
+		
+		public LevelSetsInfo(int[][] theta, double[] t) {
+			this.theta = theta;
+			this.t = t;
+		}
+	}
+	
+	
 	private Image image;
 	private Status status;
 	private ImageFilter imageFilter; 
-	private int[][] theta;
+	private LevelSetsInfo info;
 	
-	public void setTheta(int[][] theta) {
-		this.theta = theta;
+	public void setInfo(LevelSetsInfo info) {
+		this.info = info;
 	}
 	
-	public int[][] getTheta() {
-		return theta;
+	public LevelSetsInfo getInfo() {
+		return info;
 	}
 	
 	public void setStatus(Status status) {
