@@ -497,19 +497,29 @@ public class Image {
 	}
 	
 	private static FilterFunction2 gaussianFilterFunction2(int windowSize, double sigma) {
+	
+		double[][] values = new double[windowSize][windowSize];
+		int offset = (windowSize - 1) / 2;
+		for (int i = - offset; i <= offset; i++) {
+			for (int j = - offset; j <= offset; j++) {
+				int dx = i + offset;
+				int dy = j + offset;
+				double sigma2 = sigma * sigma;
+				double c = Math.pow(Math.E, -(i * i + j * j)
+						/ sigma2)
+						/ (2 * Math.PI * sigma2);
+				values[dx][dy] = c;
+			}
+		}
+		
 		return new FilterFunction2() {
 			public double apply(int[][] data, int x, int y) {
 				double sum = 0.0;
-				int offset = (windowSize - 1) / 2;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
-						int dx = i - x;
-						int dy = j - y;
-						double sigma2 = sigma * sigma;
-						double c = Math.pow(Math.E, -(dx * dx + dy * dy)
-								/ sigma2)
-								/ (2 * Math.PI * sigma2);
-						sum += c * getDataValue(data, i, j);
+						int dx = i - x + offset;
+						int dy = j - y + offset;
+						sum += values[dx][dy] * getDataValue(data, i, j);
 					}
 				}
 				return sum;
@@ -1207,9 +1217,10 @@ public class Image {
 					p->!shouldBeIn(p, t0, t1),
 					-3,-1,1,3,theta);
 		}
+		FilterFunction2 ff = gaussianFilterFunction2(Ns, 1);
 		for(int t=0; t<Ns; t++){
 			System.out.println(t);
-			double[][] gTheta = newImageDataFromFilter(gaussianFilterFunction2(Ns, 1), theta);
+			double[][] gTheta = newImageDataFromFilter(ff, theta);
 			changes|=stepCycle(lout,lin,
 					p->gTheta[p.x][p.y]*theta[p.x][p.y]<0,
 					3,1,-1,-3,theta);
