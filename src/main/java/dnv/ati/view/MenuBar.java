@@ -407,6 +407,18 @@ public class MenuBar extends JMenuBar {
 		});
 		levelSetsMenu.add(selectRectForLevelSetsVideo);
 		
+		JMenuItem levelSetVideoItem = new JMenuItem("Realizar video");
+		levelSetVideoItem.addActionListener(e -> {
+			ImageLoader.loadDirectory(img -> {
+				
+				state.setTheta(img.levelSets(state.getTheta(), true));
+				state.setImage(img);
+			});
+		});
+		levelSetsMenu.add(levelSetVideoItem);
+		
+		
+		
 		borderCornerMenu.add(levelSetsMenu);
 		
 		
