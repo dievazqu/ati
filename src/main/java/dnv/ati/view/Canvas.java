@@ -63,7 +63,6 @@ public class Canvas extends JPanel implements ImageChangedListener{
 				g.drawRect(p.x, p.y, q.x-p.x, q.y-p.y);	
 			}, startDragginPoint, currentDragPoint);
 
-			
 		}
 	}
 	
@@ -79,6 +78,17 @@ public class Canvas extends JPanel implements ImageChangedListener{
 		state.setStatus(Status.STAND_BY);
 		new SelectRectFrame(state, startDragginPoint, currentDragPoint);
 		startDragginPoint = null;
+		repaint();
+	}
+	
+	public void finishDraggingLS(Point finish){
+		// Do Things
+		state.setStatus(Status.STAND_BY);
+		Auxiliar.sortPoint((p,q) -> {
+			state.setTheta(state.getImage().levelSets(p.x, q.x, p.y, q.y));	
+		}, startDragginPoint, finish);
+		startDragginPoint = null;
+		state.setImage(state.getImage());
 		repaint();
 	}
 	
@@ -98,6 +108,12 @@ public class Canvas extends JPanel implements ImageChangedListener{
 				currentDragPoint = arg0.getPoint();	
 				repaint();
 			}
+			if(state.getStatus()==Status.SELECTING_RECT_LS){
+				if(startDragginPoint == null)
+					draggingFrom(arg0.getPoint());
+				currentDragPoint = arg0.getPoint();	
+				repaint();
+			}
 		}
 		
 		@Override
@@ -108,6 +124,9 @@ public class Canvas extends JPanel implements ImageChangedListener{
 			}
 			if(state.getStatus() == Status.SELECTING_RECT && startDragginPoint!=null){
 				finishDragging(arg0.getPoint());
+			}
+			if(state.getStatus() == Status.SELECTING_RECT_LS && startDragginPoint!=null){
+				finishDraggingLS(arg0.getPoint());
 			}
 		}
 		

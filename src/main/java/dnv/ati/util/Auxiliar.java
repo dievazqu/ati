@@ -1,6 +1,8 @@
 package dnv.ati.util;
 
 import java.awt.Point;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BiConsumer;
 
 public class Auxiliar {
@@ -11,6 +13,17 @@ public class Auxiliar {
 		int miny = (int)Math.min(p.getY(), q.getY());
 		int maxy = (int)Math.max(p.getY(), q.getY());
 		consumer.accept(new Point(minx, miny), new Point(maxx, maxy));
+	}
+	
+	public static double norm(double[] a, double[] b){
+		if(a.length != b.length)
+			throw new IllegalArgumentException();
+		double sum = 0;
+		for(int i=0; i<a.length; i++){
+			double diff = a[i]-b[i];
+			sum+=(diff*diff);
+		}
+		return Math.sqrt(sum);
 	}
 
 	public static int max(int[][] matrix) {
@@ -33,5 +46,25 @@ public class Auxiliar {
 			max = max < current ? current : max;
 		}
 		return max;
+	}
+	
+	public static void find(List<Point> list, int[][] mat, int value){
+		for(int i=0; i<mat.length; i++){
+			for(int j=0; j<mat[0].length; j++){
+				if(mat[i][j]==value)
+					list.add(new Point(i,j));
+			}
+		}
+	}
+	
+	public static List<Point> find(int[][] mat, int value){
+		List<Point> l = new LinkedList<Point>();
+		for(int i=0; i<mat.length; i++){
+			for(int j=0; j<mat[0].length; j++){
+				if(mat[i][j]==value)
+					l.add(new Point(i,j));
+			}
+		}
+		return l;
 	}
 }

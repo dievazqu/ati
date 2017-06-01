@@ -390,6 +390,27 @@ public class MenuBar extends JMenuBar {
 		});
 		borderCornerMenu.add(circularHough);
 		
+		JMenu levelSetsMenu = new JMenu("Contornos Activos");
+		
+		JMenuItem selectRectForLevelSets = new JMenuItem("Seleccion Región Inicial");
+		selectRectForLevelSets.addActionListener(e -> {
+			state.setStatus(Status.SELECTING_RECT_LS);
+		});
+		levelSetsMenu.add(selectRectForLevelSets);
+		
+		JMenuItem selectRectForLevelSetsVideo = new JMenuItem("Continuar en otra imagen");
+		selectRectForLevelSetsVideo.addActionListener(e -> {
+			ImageLoader.loadImage(img -> {
+				state.setTheta(img.levelSets(state.getTheta(), true));
+				state.setImage(img);
+			});
+		});
+		levelSetsMenu.add(selectRectForLevelSetsVideo);
+		
+		borderCornerMenu.add(levelSetsMenu);
+		
+		
+		
 		JMenu selectionMenu = new JMenu("Selecciones");
 		JMenu selectPixelMenu = new JMenu("Seleccion de pixel");
 		JMenuItem selectPixelByKey = new JMenuItem("Por teclado");
