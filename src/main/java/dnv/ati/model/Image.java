@@ -1072,54 +1072,60 @@ public class Image {
 	public void cannyBorderDetector(int windowSize, double sigma, double t1, double t2) {
 		gaussianFilter(windowSize, sigma);
 		Derivates d = sobelFilter();
-
-		for (int k = 0; k < data[0][0].length; k++) {
+		double[][][] copy = clone().data;
+		for (int k = 0; k < copy[0][0].length; k++) {
 			// aca va desde 1 y hasta length - 1 para que no pase un IndexOutOfBounds
 			// se re puede mejorar eso
-			for (int i = 1; i < data.length - 1; i++) {
-				for (int j = 1; j < data[0].length - 1; j++) {
-					Point direction = cannyBorderDirection(d.dx[i][j][k], d.dy[i][j][k]);
-					if (data[i][j][k] <= data[i + direction.x][j + direction.y][k]) {
+			for (int i = 1; i < copy.length - 1; i++) {
+				for (int j = 1; j < copy[0].length - 1; j++) {
+					Point direction = cannyBorderDirection(d.dy[i][j][k], d.dx[i][j][k]);
+					
+					if (copy[i][j][k] < copy[i + direction.x][j + direction.y][k]) {
 						data[i][j][k] = 0;
-					} else if (data[i][j][k] <= data[i - direction.x][j - direction.y][k]) {
+					} else if (copy[i][j][k] <= copy[i - direction.x][j - direction.y][k]) {
 						data[i][j][k] = 0;
 					}
 				}
 			}
 		}
-
+		
 		List<Point> lateCheckPoints;
 		for (int k = 0; k < data[0][0].length; k++) {
-			lateCheckPoints = new ArrayList<>();
+			lateCheckPoints = new LinkedList<>();
 			// aca va desde 1 y hasta length - 1 para que no pase un IndexOutOfBounds
 			// se re puede mejorar eso
 			for (int i = 1; i < data.length - 1; i++) {
 				for (int j = 1; j < data[0].length - 1; j++) {
 					if (data[i][j][k] > t2) {
 						data[i][j][k] = 255.0;
+						lateCheckPoints.add(new Point(i, j));
 					} else if (data[i][j][k] < t1) {
 						data[i][j][k] = 0.0;
 					} else {
-						lateCheckPoints.add(new Point(i, j));
 					}
 				}
 			}
-			Iterator<Point> it = lateCheckPoints.iterator();
-			while (it.hasNext()) {
-				Point p = it.next();
-				if (data[p.x - 1][p.y - 1][k] == 255.0 ||
-					data[p.x][p.y - 1][k] == 255.0 ||
-					data[p.x + 1][p.y - 1][k] == 255.0 ||
-					data[p.x - 1][p.y][k] == 255.0 ||
-					data[p.x][p.y][k] == 255.0 ||
-					data[p.x + 1][p.y][k] == 255.0 ||
-					data[p.x - 1][p.y + 1][k] == 255.0 ||
-					data[p.x][p.y + 1][k] == 255.0 ||
-					data[p.x + 1][p.y + 1][k] == 255.0 ) {
-					data[p.x][p.y][k] = 255.0;
+			
+			int[] dx = { 0, 0, 1, 1, 1,-1,-1,-1};
+			int[] dy = { 1,-1, 0, 1,-1, 0, 1,-1};
+			
+			// Analizo si algun vecino de algun borde no está en 0,
+			// entonces ahora ese punto tambien es borde.
+			while(!lateCheckPoints.isEmpty()){
+				Point p = lateCheckPoints.remove(0);
+				for(int i = 0; i<dx.length; i++){
+					int di = p.x+dx[i];
+					int dj = p.y+dy[i];
+					if( 0<=di && di<data.length &&
+						0<=dj && dj<data[0].length){
+						double value = getDataValue(di,dj,k);
+						if(0<value && value<255){
+							data[di][dj][k] = 255;
+							lateCheckPoints.add(new Point(di,dj));
+						}
+					}
 				}
-			}
-
+			} 
 		}
 	}
 
