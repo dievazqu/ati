@@ -13,7 +13,7 @@ public class CircularHoughFrame extends JFrame {
 
 	public CircularHoughFrame(State state) {
 		super("Transformada circular de Hough");
-		setSize(210, 190);
+		setSize(210, 220);
 		setLayout(null);
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -33,7 +33,7 @@ public class CircularHoughFrame extends JFrame {
 		add(epsilonText);
 
 		JButton button = new JButton("Realizar operacion");
-		button.setBounds(20, 130, 170, 30);
+		button.setBounds(30, 140, 140, 30);
 		add(button);
 
 		button.addActionListener(l -> {

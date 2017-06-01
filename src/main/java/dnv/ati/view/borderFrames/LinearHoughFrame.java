@@ -13,7 +13,7 @@ public class LinearHoughFrame extends JFrame {
 
 	public LinearHoughFrame(State state) {
 		super("Transformada lineal de Hough");
-		setSize(210, 250);
+		setSize(210, 280);
 		setLayout(null);
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -40,7 +40,7 @@ public class LinearHoughFrame extends JFrame {
 		add(epsilonText);
 
 		JButton button = new JButton("Realizar operacion");
-		button.setBounds(20, 190, 170, 30);
+		button.setBounds(30, 200, 140, 30);
 		add(button);
 
 		button.addActionListener(l -> {

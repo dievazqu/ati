@@ -14,7 +14,7 @@ public class CannyBorderFrame extends JFrame {
 
 	public CannyBorderFrame(State state) {
 		super("Detector de Canny");
-		setSize(310, 240);
+		setSize(290, 240);
 		setLayout(null);
 		setLocationRelativeTo(null);
 		setVisible(true);
@@ -33,16 +33,22 @@ public class CannyBorderFrame extends JFrame {
 		});
 		sliderLabel.setText((slider.getValue() * 2 + 1) + "");
 		add(slider);
+		JLabel sigmaLabel = new JLabel("sigma:");
+		sigmaLabel.setBounds(20, 80, 40, 30);
+		add(sigmaLabel);
 		JTextField simgaText = new JTextField("1.0");
-		simgaText.setBounds(20, 80, 40, 30);
+		simgaText.setBounds(70, 80, 40, 30);
 		add(simgaText);
 		
+		JLabel tLabel = new JLabel("t1 t2:");
+		tLabel.setBounds(20, 120, 40, 30);
+		add(tLabel);
 		JTextField t1Text = new JTextField("85");
-		t1Text.setBounds(20, 110, 40, 30);
+		t1Text.setBounds(70, 120, 40, 30);
 		add(t1Text);
 		
 		JTextField t2Text = new JTextField("170");
-		t2Text.setBounds(70, 110, 40, 30);
+		t2Text.setBounds(120, 120, 40, 30);
 		add(t2Text);
 		
 		JButton button = new JButton("Realizar operacion");
