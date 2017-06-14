@@ -6,10 +6,10 @@ import java.util.List;
 public class State implements ImageFilter{
 
 	public static class LevelSetsInfo{
-		int[][] theta;
+		double[][] theta;
 		double[] t;
 		
-		public LevelSetsInfo(int[][] theta, double[] t) {
+		public LevelSetsInfo(double[][] theta, double[] t) {
 			this.theta = theta;
 			this.t = t;
 		}

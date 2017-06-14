@@ -16,6 +16,7 @@ import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
 import dnv.ati.view.borderFrames.CannyBorderFrame;
 import dnv.ati.view.borderFrames.CircularHoughFrame;
+import dnv.ati.view.borderFrames.HarrisBorderFrame;
 import dnv.ati.view.borderFrames.LinearHoughFrame;
 import dnv.ati.view.editionFrames.ContrastFrame;
 import dnv.ati.view.editionFrames.GammaPowerFrame;
@@ -416,7 +417,11 @@ public class MenuBar extends JMenuBar {
 		});
 		levelSetsMenu.add(levelSetVideoItem);
 		
-		
+		JMenuItem harrisDetection = new JMenuItem("Detector de Harris");
+		harrisDetection.addActionListener(e -> {
+			new HarrisBorderFrame(state);
+		});
+		borderCornerMenu.add(harrisDetection);
 		
 		borderCornerMenu.add(levelSetsMenu);
 		

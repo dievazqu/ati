@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -47,12 +46,22 @@ public class Image {
 		}
 		return (sum / k);
 	}
+	
+	public double[][] grayData(){
+		double[][] ans = new double[height][width];
+		for(int i=0; i<height; i++){
+			for(int j=0; j<width; j++){
+				ans[i][j] = getGray(i, j);
+			}
+		}
+		return ans;
+	}
 
 	public int bands() {
 		return data[0][0].length;
 	}
 	
-	public static int getDataValue(int[][] data, int i, int j){
+	public static double getDataValue(double[][] data, int i, int j){
 		if (i < 0) {
 			i = 0;
 		}
@@ -323,14 +332,15 @@ public class Image {
 	}
 	
 	private interface FilterFunction2 {
-		public double apply(int[][] data, int i, int j);
+		public double apply(double[][] data, int i, int j);
 	}
 	
 	private interface FilterFunction {
 		public double apply(double[][][] data, int i, int j, int k);
 	}
 
-	public static double[][] newImageDataFromFilter(FilterFunction2 filter, int[][] data) {
+	
+	public static double[][] newImageDataFromFilter(FilterFunction2 filter, double[][] data) {
 		double[][] newImageData = new double[data.length][data[0].length];
 		for (int i = 0; i < data.length; i++) {
 			for (int j = 0; j < data[0].length; j++) {
@@ -357,29 +367,29 @@ public class Image {
 	}
 
 	public void medianFilter(int windowSize) {
-		genericFilter(this.medianFilterFunction(windowSize));
+		genericFilter(medianFilterFunction(windowSize));
 	}
 
 	public void meanFilter(int windowSize) {
-		genericFilter(this.meanFilerFunction(windowSize));
+		genericFilter(meanFilerFunction(windowSize));
 	}
 
 	public void gaussianFilter(int windowSize, double sigma) {
-		genericFilter(this.gaussianFilterFunction(windowSize, sigma));
+		genericFilter(gaussianFilterFunction(windowSize, sigma));
 		normalize();
 	}
 
 	public void weightedMedianFilter() {
-		genericFilter(this.weightedMedianFunction(3));
+		genericFilter(weightedMedianFunction(3));
 	}
 
 	public void borderFilter() {
-		genericFilter(this.borderFilterFunction(3));
+		genericFilter(borderFilterFunction(3));
 		normalize();
 	}
 
 	public void maskFilter(double[][] mask) {
-		genericFilter(this.maskFilterFunction(mask));
+		genericFilter(maskFilterFunction(mask));
 		normalize();
 	}
 
@@ -400,6 +410,13 @@ public class Image {
 		normalize();
 		return new Derivates(x, y);
 	}
+	
+	private Derivates2 gradientFilters2(double[][] xMask, double[][] yMask) {
+		double[][] gray = grayData();
+		double[][] x = newImageDataFromFilter(maskFilterFunction2(xMask), gray);
+		double[][] y = newImageDataFromFilter(maskFilterFunction2(yMask), gray);
+		return new Derivates2(x, y);
+	}
 
 	public void prewitFilter() {
 		gradientFilters(new double[][] { { -1, 0, 1 }, { -1, 0, 1 },
@@ -409,6 +426,12 @@ public class Image {
 
 	public Derivates sobelFilter() {
 		return gradientFilters(new double[][] { { -1, 0, 1 }, { -2, 0, 2 },
+				{ -1, 0, 1 } }, new double[][] { { -1, -2, -1 }, { 0, 0, 0 },
+				{ 1, 2, 1 } });
+	}
+	
+	public Derivates2 sobelFilter2() {
+		return gradientFilters2(new double[][] { { -1, 0, 1 }, { -2, 0, 2 },
 				{ -1, 0, 1 } }, new double[][] { { -1, -2, -1 }, { 0, 0, 0 },
 				{ 1, 2, 1 } });
 	}
@@ -423,6 +446,23 @@ public class Image {
 						ans += mask[i][j]
 								* getDataValue(data, x + i - offset, y + j - offset,
 										k);
+					}
+				}
+
+				return ans;
+			}
+		};
+	}
+	
+	private static FilterFunction2 maskFilterFunction2(double[][] mask) {
+		return new FilterFunction2() {
+			public double apply(double[][] data, int x, int y) {
+				int offset = (mask.length - 1) / 2;
+				double ans = 0;
+				for (int i = 0; i < mask.length; i++) {
+					for (int j = 0; j < mask.length; j++) {
+						ans += mask[i][j]
+								* getDataValue(data, x + i - offset, y + j - offset);
 					}
 				}
 
@@ -518,7 +558,7 @@ public class Image {
 		}
 		
 		return new FilterFunction2() {
-			public double apply(int[][] data, int x, int y) {
+			public double apply(double[][] data, int x, int y) {
 				double sum = 0.0;
 				for (int i = x - offset; i <= x + offset; i++) {
 					for (int j = y - offset; j <= y + offset; j++) {
@@ -821,7 +861,7 @@ public class Image {
 		}
 	}
 
-	private final double EPS = 1e-9;
+	private static final double EPS = 1e-9;
 
 	/* Trata a la imagen como gris, deberiamos cambiarlo tal vez */
 	public void otsuUmbral() {
@@ -1174,6 +1214,16 @@ public class Image {
 		}
 	}
 	
+	private class Derivates2 {
+		double[][] dx;
+		double[][] dy;
+
+		public Derivates2(double[][] dx, double[][] dy) {
+			this.dx = dx;
+			this.dy = dy;
+		}
+	}
+	
 	private boolean shouldBeIn(Point p, double[] t1){
 		double[] rgb = getRGBArray(p.x, p.y);
 		double num = Auxiliar.norm(rgb, t1);
@@ -1186,7 +1236,7 @@ public class Image {
 	public State.LevelSetsInfo levelSets(int x1, int x2, int y1, int y2){
 		
 		List<Point> insideBorder, outsideBorder;
-		int[][] theta = new int[height][width];
+		double[][] theta = new double[height][width];
 		insideBorder = new LinkedList<Point>();
 		outsideBorder = new LinkedList<Point>();
 		
@@ -1254,7 +1304,7 @@ public class Image {
 	}
 	
 	private static boolean stepCycle(List<Point> list1, List<Point> list2, Function<Point, Boolean> func,
-			int ext1, int b1, int b2, int ext2, int[][] theta) {
+			int ext1, int b1, int b2, int ext2, double[][] theta) {
 		
 		int[] dx = new int[]{0,0,1,-1};
 		int[] dy = new int[]{1,-1,0,0};
@@ -1285,7 +1335,7 @@ public class Image {
 		return change;
 	}
 
-	private static void removeNotBorderPoint(List<Point> removable, int[][] theta, int expectedNeigbour, int replaceValue){
+	private static void removeNotBorderPoint(List<Point> removable, double[][] theta, int expectedNeigbour, int replaceValue){
 		int[] dx = new int[]{0,0,1,-1};
 		int[] dy = new int[]{1,-1,0,0};
 		Iterator<Point> it = removable.iterator();
@@ -1307,7 +1357,7 @@ public class Image {
 		}
 	}
 	
-	private double[] avg(int[][] mat, int v1, int v2){
+	private double[] avg(double[][] mat, int v1, int v2){
 		double r=0;
 		double b=0;
 		double g=0;
@@ -1325,7 +1375,7 @@ public class Image {
 		return new double[]{r/q, g/q, b/q};
 	}
 	
-	private void fillValues(int[][] mat, List<Point> list, int value){
+	private void fillValues(double[][] mat, List<Point> list, int value){
 		for(Point p : list){
 			int i = p.x;
 			int j = p.y;
@@ -1333,7 +1383,7 @@ public class Image {
 		}
 	}
 	
-	private void fillValues(int[][] mat, int x1, int x2, int y1, int y2, int value){
+	private void fillValues(double[][] mat, int x1, int x2, int y1, int y2, int value){
 		for(int i=x1; i<=x2; i++){
 			for(int j=y1; j<=y2; j++){
 				mat[j][i] = value;
@@ -1349,6 +1399,31 @@ public class Image {
 		for(int i=y1+1; i<=y2-1; i++){
 			list.add(new Point(i, x1));
 			list.add(new Point(i, x2));
+		}
+	}
+
+	public void harrisCornerDetector(double percentage) {
+		System.out.println(percentage);
+		Derivates2 d = sobelFilter2();
+		double[][] lx = d.dx;
+		double[][] ly = d.dy;
+		double[][] lxy = 
+				Auxiliar.merge(lx, ly, (x,y) -> x*y);
+		Auxiliar.map(lx, x -> x*x);
+		Auxiliar.map(ly, x -> x*x);
+		lx = newImageDataFromFilter(gaussianFilterFunction2(7, 2), lx);
+		ly = newImageDataFromFilter(gaussianFilterFunction2(7, 2), ly);
+		lxy = newImageDataFromFilter(gaussianFilterFunction2(7, 2), lxy);
+		double k = 0.04;
+		double[][] cim = 
+				Auxiliar.merge(lx, ly, lxy, (x,y,xy) -> (x*y-xy*xy)-k*Math.pow(x+y,2));
+		double maxx = Auxiliar.max(cim);
+		for(int i=0; i<height; i++){
+			for(int j=0; j<width; j++){
+				if( cim[i][j] > maxx*percentage){
+					setRGB(i, j, 0xFF0000);
+				}
+			}
 		}
 	}
 	
