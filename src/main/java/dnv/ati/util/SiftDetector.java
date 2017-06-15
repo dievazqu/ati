@@ -1,5 +1,6 @@
 package dnv.ati.util;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,7 +41,6 @@ public class SiftDetector {
 	        System.out.println("Detecting key points...");
 	        featureDetector.detect(objectImage, objectKeyPoints);
 	        KeyPoint[] keypoints = objectKeyPoints.toArray();
-	        System.out.println(keypoints);
 
 	        MatOfKeyPoint objectDescriptors = new MatOfKeyPoint();
 	        DescriptorExtractor descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
@@ -51,7 +51,7 @@ public class SiftDetector {
 	        Mat outputImage = new Mat(objectImage.rows(), objectImage.cols(), Highgui.CV_LOAD_IMAGE_COLOR);
 	        Scalar newKeypointColor = new Scalar(255, 0, 0);
 
-	        System.out.println("Drawing key points on object image...");
+	        System.out.println("Drawing key points on image...");
 	        Features2d.drawKeypoints(objectImage, objectKeyPoints, outputImage, newKeypointColor, 0);
 
 	        
@@ -73,14 +73,13 @@ public class SiftDetector {
         Mat sceneImage = Highgui.imread(bookScene, Highgui.CV_LOAD_IMAGE_COLOR);
 
         MatOfKeyPoint objectKeyPoints = new MatOfKeyPoint();
-        FeatureDetector featureDetector = FeatureDetector.create(FeatureDetector.SURF);
+        FeatureDetector featureDetector = FeatureDetector.create(FeatureDetector.SIFT);
         System.out.println("Detecting key points...");
         featureDetector.detect(objectImage, objectKeyPoints);
         KeyPoint[] keypoints = objectKeyPoints.toArray();
-        System.out.println(keypoints);
-
+        System.out.println("key points 1: "+keypoints.length);
         MatOfKeyPoint objectDescriptors = new MatOfKeyPoint();
-        DescriptorExtractor descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SURF);
+        DescriptorExtractor descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
         System.out.println("Computing descriptors...");
         descriptorExtractor.compute(objectImage, objectKeyPoints, objectDescriptors);
 
@@ -88,30 +87,30 @@ public class SiftDetector {
         Mat outputImage = new Mat(objectImage.rows(), objectImage.cols(), Highgui.CV_LOAD_IMAGE_COLOR);
         Scalar newKeypointColor = new Scalar(255, 0, 0);
 
-        System.out.println("Drawing key points on object image...");
+        System.out.println("Drawing key points on image...");
         Features2d.drawKeypoints(objectImage, objectKeyPoints, outputImage, newKeypointColor, 0);
 
         // Match object image with the scene image
         MatOfKeyPoint sceneKeyPoints = new MatOfKeyPoint();
         MatOfKeyPoint sceneDescriptors = new MatOfKeyPoint();
-        System.out.println("Detecting key points in background image...");
+        System.out.println("Detecting key points in second image...");
         featureDetector.detect(sceneImage, sceneKeyPoints);
-        System.out.println("Computing descriptors in background image...");
+        System.out.println("key points 2: "+sceneKeyPoints.size().height);
+        System.out.println("Computing descriptors in second image...");
         descriptorExtractor.compute(sceneImage, sceneKeyPoints, sceneDescriptors);
 
         Mat matchoutput = new Mat(sceneImage.rows() * 2, sceneImage.cols() * 2, Highgui.CV_LOAD_IMAGE_COLOR);
         Scalar matchestColor = new Scalar(0, 255, 0);
-
+        
         List<MatOfDMatch> matches = new LinkedList<MatOfDMatch>();
         DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
-        System.out.println("Matching object and scene images...");
+        System.out.println("Matching images...");
         descriptorMatcher.knnMatch(objectDescriptors, sceneDescriptors, matches, 2);
 
         System.out.println("Calculating good match list...");
         LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
 
         float nndrRatio = 0.7f;
-
         for (int i = 0; i < matches.size(); i++) {
             MatOfDMatch matofDMatch = matches.get(i);
             DMatch[] dmatcharray = matofDMatch.toArray();
@@ -123,7 +122,8 @@ public class SiftDetector {
 
             }
         }
-
+        System.out.println("matches: "+goodMatchesList.size());
+        System.out.println();
         System.out.println("Drawing matches image...");
         MatOfDMatch goodMatches = new MatOfDMatch();
         goodMatches.fromList(goodMatchesList);
