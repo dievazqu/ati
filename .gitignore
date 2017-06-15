@@ -1,6 +1,6 @@
 *.class
-./images
-./output
+./images/*
+./output/*
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
