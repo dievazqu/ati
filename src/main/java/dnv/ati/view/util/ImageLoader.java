@@ -42,6 +42,15 @@ public class ImageLoader {
 	}
 	
 	
+	public static void loadFile(Consumer<String> consumer){
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File("./images"));
+		fileChooser.showDialog(null, "Cargar Imagen");
+		if (fileChooser.getSelectedFile() != null) {
+			consumer.accept(fileChooser.getSelectedFile().getAbsolutePath());
+		}
+	}
+	
 	public static void loadImage(Consumer<Image> consumer){
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File("./images"));
@@ -51,7 +60,7 @@ public class ImageLoader {
 		}
 	}
 	
-	private static void loadImage(Consumer<Image> consumer, File file){
+	public static void loadImage(Consumer<Image> consumer, File file){
 		String fileName = file.getName();
 		String[] split = fileName.split("\\.", -1);
 		String ext = split[split.length-1].toLowerCase();

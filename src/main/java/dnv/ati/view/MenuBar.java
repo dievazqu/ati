@@ -14,6 +14,7 @@ import dnv.ati.model.Image;
 import dnv.ati.model.State;
 import dnv.ati.model.Status;
 import dnv.ati.util.ImageUtils;
+import dnv.ati.util.SiftDetector;
 import dnv.ati.view.borderFrames.CannyBorderFrame;
 import dnv.ati.view.borderFrames.CircularHoughFrame;
 import dnv.ati.view.borderFrames.HarrisBorderFrame;
@@ -523,8 +524,36 @@ public class MenuBar extends JMenuBar {
 			activeFilterItem.setEnabled(false);
 		});
 		viewFilterMenu.add(grayFilter);
+		
+		
 		add(viewMenu);
 
+		JMenu siftMenu = new JMenu("SIFT");
+		
+		JMenuItem siftKeyPoints= new JMenuItem("Puntos Claves");
+		siftKeyPoints.addActionListener(l -> {
+			ImageLoader.loadFile( s1 -> {
+					File file = new File(new SiftDetector().keyPoints(s1));
+					ImageLoader.loadImage(img -> {
+						state.setImage(img);
+					}, file);
+				});
+		});
+		siftMenu.add(siftKeyPoints);
+		JMenuItem siftCompare = new JMenuItem("Comparar");
+		siftCompare.addActionListener(l -> {
+			ImageLoader.loadFile( s1 -> {
+				ImageLoader.loadFile( s2 -> {
+					File file = new File(new SiftDetector().detection(s1, s2));
+					ImageLoader.loadImage(img -> {
+						state.setImage(img);
+					}, file);
+				});
+			});
+		});
+		siftMenu.add(siftCompare);
+		add(siftMenu);
+		
 	}
 
 	private void saveImage(BiConsumer<File, Image> imageConverter) {
