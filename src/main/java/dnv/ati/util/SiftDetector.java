@@ -54,12 +54,11 @@ public class SiftDetector {
 	        System.out.println("Drawing key points on object image...");
 	        Features2d.drawKeypoints(objectImage, objectKeyPoints, outputImage, newKeypointColor, 0);
 
-	        long time = System.currentTimeMillis();
 	        
-	        Highgui.imwrite("output/outputImage"+time+".jpg", outputImage);
+	        Highgui.imwrite("output/temp_out.jpg", outputImage);
 
 	        System.out.println("Ended....");
-	        return "output/outputImage"+time+".jpg";
+	        return "output/temp_out.jpg";
 	}
 	
 	
@@ -124,7 +123,6 @@ public class SiftDetector {
 
             }
         }
-        long time = System.currentTimeMillis();
 
         System.out.println("Drawing matches image...");
         MatOfDMatch goodMatches = new MatOfDMatch();
@@ -133,11 +131,10 @@ public class SiftDetector {
         Features2d.drawMatches(objectImage, objectKeyPoints, sceneImage, sceneKeyPoints, goodMatches, matchoutput, matchestColor, newKeypointColor, new MatOfByte(), 2);
 
         
-        Highgui.imwrite("output/outputImage"+time+".jpg", outputImage);
-        Highgui.imwrite("output/matchoutput"+time+".jpg", matchoutput);
+        Highgui.imwrite("output/temp_out.jpg", matchoutput);
 
         System.out.println("Ended....");
-        return "output/matchoutput"+time+".jpg";
+        return "output/temp_out.jpg";
 	}
 	
 }

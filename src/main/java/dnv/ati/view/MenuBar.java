@@ -532,23 +532,22 @@ public class MenuBar extends JMenuBar {
 		
 		JMenuItem siftKeyPoints= new JMenuItem("Puntos Claves");
 		siftKeyPoints.addActionListener(l -> {
-			ImageLoader.loadFile( s1 -> {
-					File file = new File(new SiftDetector().keyPoints(s1));
-					ImageLoader.loadImage(img -> {
-						state.setImage(img);
-					}, file);
-				});
+			ImageUtils.saveInBMP(new File("output/temp_in.bmp"), state.getImage());
+			File file = new File(new SiftDetector().keyPoints("output/temp_in.bmp"));
+			ImageLoader.loadImage(img -> {
+				state.setImage(img);
+			}, file);
 		});
 		siftMenu.add(siftKeyPoints);
 		JMenuItem siftCompare = new JMenuItem("Comparar");
 		siftCompare.addActionListener(l -> {
-			ImageLoader.loadFile( s1 -> {
-				ImageLoader.loadFile( s2 -> {
-					File file = new File(new SiftDetector().detection(s1, s2));
-					ImageLoader.loadImage(img -> {
-						state.setImage(img);
-					}, file);
-				});
+			ImageUtils.saveInBMP(new File("output/temp_in.bmp"), state.getImage());
+			File file = new File(new SiftDetector().keyPoints("output/temp_in.bmp"));
+			ImageLoader.loadFile( s2 -> {
+				File file2 = new File(new SiftDetector().detection("output/temp_in.bmp", s2));
+				ImageLoader.loadImage(img -> {
+					state.setImage(img);
+				}, file);
 			});
 		});
 		siftMenu.add(siftCompare);
