@@ -24,6 +24,7 @@ public class SiftDetector {
 	static final String trainingSetFolder = "trainingImages";
 
 	public SiftDetector() {
+//		String lib = "/Users/michelagopian/Desktop/opencv/build/lib/libopencv_java2413.dylib";
 		String lib = "D:/opencv/build/java/x86/opencv_java2413.dll";
 		System.load(lib);
 	}

@@ -23,5 +23,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="D:/opencv/build/java/opencv-2413.jar"/>
+        <classpathentry kind="lib" path="/Users/michelagopian/Desktop/opencv/build/bin/opencv-2413.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
