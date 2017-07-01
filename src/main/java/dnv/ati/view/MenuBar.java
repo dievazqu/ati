@@ -551,6 +551,21 @@ public class MenuBar extends JMenuBar {
 			});
 		});
 		siftMenu.add(siftCompare);
+		
+		JMenuItem siftFaceCompare = new JMenuItem("Comparar Caras");
+		
+		siftFaceCompare.addActionListener(l -> {
+			ImageUtils.saveInBMP(new File("output/temp_in.bmp"), state.getImage());
+			ImageLoader.loadFile( s2 -> {
+				File file2 = new File(new SiftDetector().compareFaceImages("output/temp_in.bmp", s2));
+				ImageLoader.loadImage(img -> {
+					state.setImage(img);
+				}, file2);
+			});
+		});
+		
+		siftMenu.add(siftFaceCompare);
+		
 		add(siftMenu);
 		
 	}
