@@ -1403,7 +1403,6 @@ public class Image {
 	}
 
 	public void harrisCornerDetector(double percentage) {
-		System.out.println(percentage);
 		Derivates2 d = sobelFilter2();
 		double[][] lx = d.dx;
 		double[][] ly = d.dy;
