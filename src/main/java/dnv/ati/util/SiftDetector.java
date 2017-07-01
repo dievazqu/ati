@@ -24,6 +24,9 @@ import org.opencv.highgui.Highgui;
 
 public class SiftDetector {
 
+	static final int sideK = 10;
+	static final String[] imageSet = new String[]{"images/lena.pgm", "images/girl-color.bmp"};
+	
 	public SiftDetector(){
 		String lib = "D:/opencv/build/java/x86/opencv_java2413.dll";
         System.load(lib);
@@ -47,36 +50,31 @@ public class SiftDetector {
         return matOfKeyPoints;
 	}
 	
-	public String compareFaceImages(String img1, String img2){
-		
+	public String detectFace(String img1){
 		Mat firstImage = Highgui.imread(img1, Highgui.CV_LOAD_IMAGE_COLOR);
-        Mat secondImage = Highgui.imread(img2, Highgui.CV_LOAD_IMAGE_COLOR);
-        int sideK = 10;
-        
         MatOfKeyPoint firstImageMatOfKeyPoints = calculateMatOfKeyPoints(firstImage, sideK);
-        MatOfKeyPoint secondImageMatOfKeyPoints = calculateMatOfKeyPoints(secondImage, sideK);
-
-
-        System.out.println("Computing descriptors...");
         DescriptorExtractor descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
         MatOfKeyPoint firstImageDescriptors = new MatOfKeyPoint();
         descriptorExtractor.compute(firstImage, firstImageMatOfKeyPoints, firstImageDescriptors);
+        int idx = 0;
+        double minDistance = compareFaceImages(firstImageDescriptors, imageSet[0]);
+        for(int i=1; i<imageSet.length; i++){
+        	double auxDistance = compareFaceImages(firstImageDescriptors, imageSet[i]);
+        	if(auxDistance < minDistance){
+        		minDistance = auxDistance;
+        		idx = i;
+        	}
+        }
+        return imageSet[idx];
+	}
+	
+	private double compareFaceImages(MatOfKeyPoint firstImageDescriptors, String img2){
+		
+        Mat secondImage = Highgui.imread(img2, Highgui.CV_LOAD_IMAGE_COLOR);
+        DescriptorExtractor descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
+        MatOfKeyPoint secondImageMatOfKeyPoints = calculateMatOfKeyPoints(secondImage, sideK);
         MatOfKeyPoint secondImageDescriptors = new MatOfKeyPoint();
         descriptorExtractor.compute(secondImage, secondImageMatOfKeyPoints, secondImageDescriptors);    
-        
-        
-/*
-        // Match object image with the scene image
-        MatOfKeyPoint sceneKeyPoints = new MatOfKeyPoint();
-        MatOfKeyPoint sceneDescriptors = new MatOfKeyPoint();
-        System.out.println("Detecting key points in second image...");
-        featureDetector.detect(sceneImage, sceneKeyPoints);
-        System.out.println("key points 2: "+sceneKeyPoints.size().height);
-        System.out.println("Computing descriptors in second image...");
-        descriptorExtractor.compute(sceneImage, sceneKeyPoints, sceneDescriptors);*/
-
-        Mat matchoutput = new Mat(secondImage.rows() * 2, secondImage.cols() * 2, Highgui.CV_LOAD_IMAGE_COLOR);
-        Scalar matchestColor = new Scalar(0, 255, 0);
         
         List<MatOfDMatch> matches = new LinkedList<MatOfDMatch>();
         DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
@@ -85,29 +83,17 @@ public class SiftDetector {
         System.out.println("Calculating good match list...");
         LinkedList<DMatch> goodMatchesList = new LinkedList<DMatch>();
 
-        float nndrRatio = 0.7f;
+        double distanceSum = 0;
         for (int i = 0; i < matches.size(); i++) {
             MatOfDMatch matofDMatch = matches.get(i);
             DMatch[] dmatcharray = matofDMatch.toArray();
             for(DMatch d : dmatcharray){
             	if(d.trainIdx == d.queryIdx){
-                    goodMatchesList.addLast(d);
+                    distanceSum+=d.distance;
             	}
             }
         }
-        System.out.println("matches: "+goodMatchesList.size());
-        System.out.println();
-        System.out.println("Drawing matches image...");
-        MatOfDMatch goodMatches = new MatOfDMatch();
-        goodMatches.fromList(goodMatchesList);
-        Scalar newKeypointColor = new Scalar(255, 0, 0);
-        Features2d.drawMatches(firstImage, firstImageMatOfKeyPoints, secondImage, secondImageMatOfKeyPoints, goodMatches, matchoutput, matchestColor, newKeypointColor, new MatOfByte(), 2);
-
-        
-        Highgui.imwrite("output/temp_out.jpg", matchoutput);
-
-        System.out.println("Ended....");
-        return "output/temp_out.jpg";
+        return distanceSum;
 	}
 	
 	public String keyPoints(String img1){

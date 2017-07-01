@@ -49,7 +49,6 @@ public class MenuBar extends JMenuBar {
 		JMenuItem menuItem = new JMenuItem("Nueva Ventana");
 		menuItem.addActionListener(e -> new AppFrame());
 		fileMenu.add(menuItem);
-
 		JMenuItem loadMenu = new JMenuItem("Cargar Imagen");
 		loadMenu.addActionListener(l -> {
 			ImageLoader.loadImage(img -> {
@@ -539,6 +538,7 @@ public class MenuBar extends JMenuBar {
 			}, file);
 		});
 		siftMenu.add(siftKeyPoints);
+		
 		JMenuItem siftCompare = new JMenuItem("Comparar");
 		siftCompare.addActionListener(l -> {
 			ImageUtils.saveInBMP(new File("output/temp_in.bmp"), state.getImage());
@@ -556,12 +556,10 @@ public class MenuBar extends JMenuBar {
 		
 		siftFaceCompare.addActionListener(l -> {
 			ImageUtils.saveInBMP(new File("output/temp_in.bmp"), state.getImage());
-			ImageLoader.loadFile( s2 -> {
-				File file2 = new File(new SiftDetector().compareFaceImages("output/temp_in.bmp", s2));
-				ImageLoader.loadImage(img -> {
-					state.setImage(img);
-				}, file2);
-			});
+			File file = new File(new SiftDetector().detectFace("output/temp_in.bmp"));
+			ImageLoader.loadImage(img -> {
+				state.setImage(img);
+			}, file);
 		});
 		
 		siftMenu.add(siftFaceCompare);
