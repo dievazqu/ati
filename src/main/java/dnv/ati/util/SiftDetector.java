@@ -84,6 +84,10 @@ public class SiftDetector {
 	private double compareFaceImages(MatOfKeyPoint firstImageDescriptors,
 			String img2) {
 
+		if (img2.indexOf(".DS_Store") != -1) {
+			return Double.MAX_VALUE;
+		}
+
 		Mat secondImage = Highgui.imread(img2, Highgui.CV_LOAD_IMAGE_COLOR);
 		DescriptorExtractor descriptorExtractor = DescriptorExtractor
 				.create(DescriptorExtractor.SIFT);
